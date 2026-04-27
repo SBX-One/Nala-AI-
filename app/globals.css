@@ -1,11 +1,5 @@
 @import "tailwindcss";
 
-* {
-	margin: 0;
-	padding: 0;
-	box-sizing: border-box;
-}
-
 :root {
 	/* Neutral */
 	--color-neutral-50: #fafafa;
@@ -554,4 +548,8 @@
 
 @utility text-label-caption-bold {
 	@apply text-[12px] leading-[120%] font-bold;
+}
+
+@utility button-default-large{
+  @apply px-6 py-3 rounded-lg gap-2 items-center bg-button-default text-white flex hover:bg-button-hover 
 }
