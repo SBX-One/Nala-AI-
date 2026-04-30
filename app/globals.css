@@ -98,6 +98,7 @@
 	--color-information-800: #000466;
 	--color-information-900: #112133;
 	--color-information-default: #57a6ff;
+	
 }
 
 @theme inline {
@@ -582,74 +583,95 @@
 @utility button-outline-small{
   @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-white text-label-caption-medium text-neutral-600 hover:border-border-default hover:text-border-action focus:border-border-default focus:text-text-action-hover active:text-text-action-hover border flex  active:scale-95 transition-all duration-300 hover:cursor-pointer
 }
-
 /* button disabled styles */
 @utility button-disabled-large{
-  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-disabled flex text-text-disabled text-label-base-medium hover:cursor-help
+  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-disabled flex text-text-disabled text-label-base-medium hover:cursor-help  active:scale-95 transition-all duration-300
 }
 @utility button-disabled-medium{
-  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-disabled flex text-text-disabled text-label-small-medium hover:cursor-help
+  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-disabled flex text-text-disabled text-label-small-medium hover:cursor-help  active:scale-95 transition-all duration-300
 }
 @utility button-disabled-small{
-  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-disabled flex text-text-disabled text-label-caption-medium hover:cursor-help
+  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-disabled flex text-text-disabled text-label-caption-medium hover:cursor-help  active:scale-95 transition-all duration-300
 }
 
 /* error button */
 @utility button-error-large{
-  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-error flex text-text-on-action text-label-base-medium hover:cursor-pointer
+  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-error flex text-text-on-action text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
 }
 @utility button-error-medium{
-  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-error flex text-text-on-action text-label-small-medium hover:cursor-pointer
+  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-error flex text-text-on-action text-label-small-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
 }
 @utility button-error-small{
-  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-error flex text-text-on-action text-label-caption-medium hover:cursor-pointer
+  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-error flex text-text-on-action text-label-caption-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
 }
 @utility button-error-secondary-large{
-  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-surface-error border border-border-error flex text-text-error text-label-base-medium hover:cursor-pointer
+  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-surface-error border border-border-error flex text-text-error text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
 }
 @utility button-error-secondary-medium{
-  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-surface-error border border-border-error flex text-text-error text-label-small-medium hover:cursor-pointer
+  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-surface-error border border-border-error flex text-text-error text-label-small-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
 }
 @utility button-error-secondary-small{
-  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-surface-error border border-border-error flex text-text-error text-label-caption-medium hover:cursor-pointer
+  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-surface-error border border-border-error flex text-text-error text-label-caption-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
 }
 @utility button-error-outline-large{
-  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-white border border-border-error flex text-text-error text-label-base-medium hover:cursor-pointer
+  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-white border border-border-error flex text-text-error text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
 }
 @utility button-error-outline-medium{
-  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-white border border-border-error flex text-text-error text-label-small-medium hover:cursor-pointer
+  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-white border border-border-error flex text-text-error text-label-small-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
 }
 @utility button-error-outline-small{
-  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-white border border-border-error flex text-text-error text-label-caption-medium hover:cursor-pointer
+  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-white border border-border-error flex text-text-error text-label-caption-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
 }
 
 /* warning button */
 @utility button-warning-large{
-  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-warning flex text-text-on-action text-label-base-medium hover:cursor-pointer
+  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-warning flex text-text-on-action text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
 }
 @utility button-warning-medium{
-  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-warning flex text-text-on-action text-label-small-medium hover:cursor-pointer
+  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-warning flex text-text-on-action text-label-small-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
 }
 @utility button-warning-small{
-  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-warning flex text-text-on-action text-label-caption-medium hover:cursor-pointer
+  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-warning flex text-text-on-action text-label-caption-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
 }
 @utility button-warning-secondary-large{
-  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-surface-warning border border-border-warning flex text-text-warning text-label-base-medium hover:cursor-pointer
+  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-surface-warning border border-border-warning flex text-text-warning text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
 }
 @utility button-warning-secondary-medium{
-  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-surface-warning border border-border-warning flex text-text-warning text-label-small-medium hover:cursor-pointer
+  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-surface-warning border border-border-warning flex text-text-warning text-label-small-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
 }
 @utility button-warning-secondary-small{
-  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-surface-warning border border-border-warning flex text-text-warning text-label-caption-medium hover:cursor-pointer
+  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-surface-warning border border-border-warning flex text-text-warning text-label-caption-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
 }
 @utility button-warning-outline-large{
-  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-white border border-border-warning flex text-text-warning text-label-base-medium hover:cursor-pointer
+  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-white border border-border-warning flex text-text-warning text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
 }
 @utility button-warning-outline-medium{
-  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-white border border-border-warning flex text-text-warning text-label-small-medium hover:cursor-pointer
+  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-white border border-border-warning flex text-text-warning text-label-small-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
 }
 @utility button-warning-outline-small{
-  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-white border border-border-warning flex text-text-warning text-label-caption-medium hover:cursor-pointer
+  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-white border border-border-warning flex text-text-warning text-label-caption-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
 }
 
 
+
+@utility button-primary-rounded{
+  @apply w-fit p-3 rounded-full gap-2 items-center bg-button-default text-label-base-medium text-white flex hover:bg-button-hover focus:bg-button-pressed active:scale-95 transition-all duration-300 hover:cursor-pointer
+}
+@utility button-secondary-rounded{
+  @apply w-fit p-3 rounded-full gap-2 items-center bg-button-white text-label-base-medium text-border-action border flex hover:bg-button-hover hover:text-button-white focus:bg-button-pressed active:scale-95 active:text-button-white focus:text-button-white  transition-all duration-300 hover:cursor-pointer
+}
+@utility button-outline-rounded{
+  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-white text-label-base-medium text-neutral-600 hover:border-border-default hover:text-border-action focus:border-border-default focus:text-text-action-hover active:text-text-action-hover border flex  active:scale-95  transition-all duration-300 hover:cursor-pointer
+}
+@utility button-disabled-rounded{
+  @apply w-fit p-3 rounded-full gap-2 items-center bg-button-disabled flex text-text-disabled text-label-base-medium hover:cursor-help  active:scale-95 transition-all duration-300
+}
+@utility button-error-rounded{
+  @apply w-fit p-3 rounded-full gap-2 items-center bg-button-error flex text-text-on-action text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
+}
+@utility button-error-secondary-rounded{
+  @apply w-fit p-3 rounded-full gap-2 items-center bg-surface-error border border-border-error flex text-text-error text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
+}
+@utility button-error-outline-rounded{
+  @apply w-fit p-3 rounded-full gap-2 items-center bg-button-white border border-border-error flex text-text-error text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
+}

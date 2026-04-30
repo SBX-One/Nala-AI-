@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import SideBar from "@/components/layout/SideBar";
 import { Manrope } from "next/font/google";
 import "./globals.css";
 
@@ -21,7 +22,10 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en" className={`${manrope.className} h-full antialiased`}>
-			<body className="min-h-full flex flex-col">{children}</body>
+			<body className="min-h-full flex flex-row">
+				<SideBar/>
+				{children}
+			</body>
 		</html>
 	);
 }
