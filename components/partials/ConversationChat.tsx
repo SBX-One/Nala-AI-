@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 // ─── Types (mirrors DB schema) ────────────────────────────────────────────────
 
@@ -34,10 +34,13 @@ export interface ConversationChatProps {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const d = new Date(iso);
+  const h = d.getHours();
+  const m = d.getMinutes();
+  const ampm = h >= 12 ? "PM" : "AM";
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+  const mm = m.toString().padStart(2, "0");
+  return `${hour12.toString().padStart(2, "0")}:${mm} ${ampm}`;
 }
 
 function isImageType(fileType?: string | null) {
@@ -74,7 +77,7 @@ function MessageBubble({ msg, isMine }: MessageBubbleProps) {
       <div
         className={`max-w-[85%] rounded-2xl shadow-sm overflow-hidden ${
           isMine
-            ? "bg-[#0066FF] text-white rounded-tr-sm"
+            ? "bg-button-default text-white rounded-tr-sm"
             : "bg-white border border-border-default text-text-heading rounded-tl-sm"
         }`}
       >
@@ -164,26 +167,34 @@ function MessageBubble({ msg, isMine }: MessageBubbleProps) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-const MOCK_MESSAGES: ChatMessage[] = [
-  {
-    id: 1,
-    room_id: 1,
-    sender_id: 10,
-    sender_role: "psychiatrist",
-    message: "Hello Dr. Samantha, I'm ready to make my first consultation for today",
-    is_read: false,
-    is_edit: false,
-    created_at: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
-  },
- 
-];
+// MOCK_MESSAGES is now built inside the component with useMemo to avoid
+// server/client Date.now() mismatch (hydration error).
 
 export default function ConversationChat({
   viewerRole,
   otherParticipantName,
-  initialMessages = MOCK_MESSAGES,
+  initialMessages,
 }: ConversationChatProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
+  const mockMessages = useMemo<ChatMessage[]>(
+    () => [
+      {
+        id: 1,
+        room_id: 1,
+        sender_id: 10,
+        sender_role: "psychiatrist",
+        message:
+          "Hello Dr. Samantha, I'm ready to make my first consultation for today",
+        is_read: false,
+        is_edit: false,
+        created_at: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+      },
+    ],
+    []
+  );
+
+  const [messages, setMessages] = useState<ChatMessage[]>(
+    initialMessages ?? mockMessages
+  );
   const [inputValue, setInputValue] = useState("");
   const [isOtherTyping, setIsOtherTyping] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -249,7 +260,7 @@ export default function ConversationChat({
       <div className="shrink-0 border-t border-border-default bg-white px-4 py-3">
         <div className="flex items-center gap-2">
           {/* Attachment button */}
-          <button className="p-2 rounded-lg hover:bg-surface-hover transition-colors text-text-placeholder hover:text-text-heading shrink-0">
+          <button className="p-2 rounded-full hover:bg-surface-hover transition-colors text-text-placeholder hover:text-text-heading shrink-0">
             <svg
               className="size-5"
               xmlns="http://www.w3.org/2000/svg"
@@ -274,7 +285,7 @@ export default function ConversationChat({
           <button
             onClick={handleSend}
             disabled={!inputValue.trim()}
-            className="p-2.5 bg-[#0066FF] rounded-xl text-white hover:bg-blue-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm group shrink-0"
+            className="p-2.5 bg-button-default rounded-full text-white hover:bg-button-default disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm group shrink-0"
           >
             <svg
               className="size-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
