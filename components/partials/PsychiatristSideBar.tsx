@@ -64,6 +64,10 @@ const navItems: NavItemType[] = [
 				/>
 			</svg>
 		),
+		children: [
+			{ href: "/user/session/history", label: "History" },
+			{ href: "/user/session/queue", label: "Book A Specialist" },
+		],
 	},
 	{
 		href: "/psychiatrist/article",
@@ -90,7 +94,7 @@ export default function PsychiatristSideBar() {
 	const path = usePathname() || "";
 
 	return (
-		<div className="flex flex-col h-screen bg-surface-background border-r border-border-default px-4 py-8 justify-between">
+		<div className="flex flex-col w-fit h-screen bg-surface-background border-r border-border-default px-4 py-8 justify-between">
 			<div>
 				{/* Logo Section */}
 				<div className="flex items-center gap-4 mb-10">
@@ -123,7 +127,7 @@ export default function PsychiatristSideBar() {
 			</div>
 
 			{/* Bottom Section */}
-			<div className="flex flex-col mt-8 gap-4">
+			<div className="flex flex-col  gap-4">
 				{/* Profile Card */}
 				<div className="flex items-center justify-between pt-6 gap-2.5 border-t border-border-default">
 					<div className="flex items-center gap-3 overflow-hidden">
@@ -132,10 +136,10 @@ export default function PsychiatristSideBar() {
 						</div>
 						<div className="flex flex-col overflow-hidden">
 							<span className="text-label-base-semibold text-text-heading">
-								Dr. Andra Divano
+								Nanda Mahardika
 							</span>
 							<span className="text-label-caption-medium text-text-subheading">
-								andradiva@gmail.com
+								Istrirendy@gmail.com
 							</span>
 						</div>
 					</div>
