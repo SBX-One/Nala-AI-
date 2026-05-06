@@ -675,3 +675,4 @@
 @utility button-error-outline-rounded{
   @apply w-fit p-3 rounded-full gap-2 items-center bg-button-white border border-border-error flex text-text-error text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
 }
+

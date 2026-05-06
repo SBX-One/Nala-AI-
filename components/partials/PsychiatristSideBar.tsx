@@ -2,13 +2,13 @@
 
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import NalaLogo from "@/public/Nala-Logo.svg";
+import NalaLogo from "@/public/icon/Nala-Logo.svg";
 
 import NavLink, { NavItemType } from "./navLink";
 
 const navItems: NavItemType[] = [
 	{
-		href: "/dashboard",
+		href: "/psychiatrist",
 		label: "Dashboard",
 		icon: (
 			<svg
@@ -24,7 +24,8 @@ const navItems: NavItemType[] = [
 		),
 	},
 	{
-		label: "Sessions",
+		href: "/psychiatrist/avaibility",
+		label: "Availability",
 		icon: (
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
@@ -46,13 +47,10 @@ const navItems: NavItemType[] = [
 				</g>
 			</svg>
 		),
-		children: [
-			{ href: "/sessions/history", label: "History" },
-			{ href: "/sessions/book", label: "Book A Specialist" },
-		],
 	},
 	{
-		label: "Habit Tracker",
+		href: "/psychiatrist/consultation",
+		label: "Consultation",
 		icon: (
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
@@ -66,10 +64,9 @@ const navItems: NavItemType[] = [
 				/>
 			</svg>
 		),
-		children: [{ href: "/habits", label: "Habit Log" }],
 	},
 	{
-		href: "/article",
+		href: "/psychiatrist/article",
 		label: "Article",
 		icon: (
 			<svg
@@ -80,7 +77,7 @@ const navItems: NavItemType[] = [
 			>
 				<path
 					fill="currentColor"
-					d="M12 22.5q-1.25 0-2.125-.875T9 19.5q0-.975.563-1.75T11 16.675V14.85q-.275-.1-.525-.237t-.45-.338L8.45 15.2q.025.125.038.263t.012.287q0 1.25-.875 2.125T5.5 18.75t-2.125-.875T2.5 15.75t.875-2.125T5.5 12.75q.575 0 1.075.188t.9.537l1.55-.9Q9 12.45 8.987 12.3t-.012-.3t.013-.288t.037-.262l-1.55-.925q-.4.35-.9.538T5.5 11.25q-1.25 0-2.125-.875T2.5 8.25t.875-2.125T5.5 5.25t2.125.875T8.5 8.25q0 .15-.012.3t-.038.275l1.575.9q.2-.2.45-.325T11 9.175V7.35q-.875-.3-1.437-1.087T9 4.5q0-1.25.875-2.125T12 1.5t2.125.875T15 4.5q0 .975-.562 1.763T13 7.35v1.825q.275.1.513.238t.437.337l1.6-.95q-.025-.125-.038-.262T15.5 8.25q0-1.25.875-2.125T18.5 5.25t2.125.875t.875 2.125t-.875 2.125t-2.125.875q-.575 0-1.062-.187t-.888-.538l-1.625.95q.025.125.038.263t.012.262t-.012.275t-.038.275l1.625.925q.4-.35.888-.537t1.062-.188q1.25 0 2.125.875t.875 2.125t-.875 2.125t-2.125.875t-2.125-.875t-.875-2.125q0-.15.013-.288t.037-.262l-1.6-.925q-.2.2-.437.325t-.513.225v1.85q.875.3 1.438 1.075T15 19.5q0 1.25-.875 2.125T12 22.5m0-2q.425 0 .713-.288T13 19.5t-.288-.712T12 18.5t-.712.288T11 19.5t.288.713t.712.287m-6.5-3.75q.425 0 .713-.288t.287-.712t-.288-.712t-.712-.288t-.712.288t-.288.712t.288.713t.712.287m13 0q.425 0 .713-.288t.287-.712t-.288-.712t-.712-.288t-.712.288t-.288.712t.288.713t.712.287M12 13q.425 0 .713-.288T13 12t-.288-.712T12 11t-.712.288T11 12t.288.713T12 13M5.5 9.25q.425 0 .713-.288T6.5 8.25t-.288-.712T5.5 7.25t-.712.288t-.288.712t.288.713t.712.287m13 0q.425 0 .713-.288t.287-.712t-.288-.712t-.712-.288t-.712.288t-.288.712t.288.713t.712.287M12 5.5q.425 0 .713-.288T13 4.5t-.288-.712T12 3.5t-.712.288T11 4.5t.288.713T12 5.5"
+					d="M11 17.825Q9.95 18.5 8.838 19t-2.338.5q-1.325 0-2.512-.513T1.75 17.65q-.325-.25-.325-.65t.325-.65q.775-.625 1.663-1.075t1.862-.65q-1.5-1.2-2.275-2.9t-.975-3.6q-.05-.45.275-.775t.8-.275q1.5.15 2.875.687T8.5 9.2V9q0-1.975.788-3.75t1.987-3.35q.275-.35.725-.35t.725.35q1.2 1.575 1.988 3.35T15.5 9q0 .05-.012.1t-.013.1q1.175-.9 2.55-1.425t2.875-.7q.45-.05.788.262t.287.788q-.175 1.9-.975 3.6t-2.3 2.9q.975.2 1.85.65t1.675 1.075q.325.25.325.65t-.325.65q-1.05.825-2.225 1.338t-2.5.512q-1.25 0-2.363-.5T13 17.825V21q0 .425-.288.713T12 22t-.712-.288T11 21zM9.6 14.6q-.275-.95-.712-1.812T7.75 11.25q-.7-.7-1.562-1.137T4.375 9.4q.275.95.713 1.813t1.137 1.562q.675.7 1.55 1.138T9.6 14.6m-3.1 2.9q.525 0 1.025-.137T8.5 17q-.475-.2-.975-.35T6.5 16.5t-1.025.15t-1 .35q.475.225.988.363T6.5 17.5m5.5-3.8q.65-1.1 1.075-2.262T13.5 9t-.425-2.437T12 4.325q-.65 1.075-1.075 2.237T10.5 9t.425 2.45T12 13.7m2.4.9q.95-.25 1.813-.687t1.537-1.138q.7-.7 1.138-1.562T19.6 9.4q-.95.275-1.812.713t-1.563 1.137q-.7.675-1.137 1.538T14.4 14.6m3.1 2.9q.525 0 1.025-.137T19.5 17q-.475-.2-.975-.35T17.5 16.5t-1.025.15t-1 .35q.475.225.988.363t1.037.137m-2.025-.5"
 				/>
 			</svg>
 		),
@@ -89,11 +86,11 @@ const navItems: NavItemType[] = [
 
 
 
-export default function SideBar() {
+export default function PsychiatristSideBar() {
 	const path = usePathname() || "";
 
 	return (
-		<div className="flex flex-col  h-screen bg-surface-background border-r border-border-default px-4 py-8 justify-between">
+		<div className="flex flex-col h-screen bg-surface-background border-r border-border-default px-4 py-8 justify-between">
 			<div>
 				{/* Logo Section */}
 				<div className="flex items-center gap-4 mb-10">
@@ -108,7 +105,7 @@ export default function SideBar() {
 							Nala
 						</h1>
 						<p className="text-label-small-medium text-text-subheading leading-none">
-							Your mind partner
+							Psychiatrist Portal
 						</p>
 					</div>
 				</div>
@@ -127,15 +124,6 @@ export default function SideBar() {
 
 			{/* Bottom Section */}
 			<div className="flex flex-col mt-8 gap-4">
-				<div className="flex flex-col gap-3">
-					<button className="button-primary-large w-full justify-center">
-						Chat With Our AI
-					</button>
-					<button className="button-secondary-large w-full justify-center">
-						Book Consultation
-					</button>
-				</div>
-
 				{/* Profile Card */}
 				<div className="flex items-center justify-between pt-6 gap-2.5 border-t border-border-default">
 					<div className="flex items-center gap-3 overflow-hidden">
@@ -144,7 +132,7 @@ export default function SideBar() {
 						</div>
 						<div className="flex flex-col overflow-hidden">
 							<span className="text-label-base-semibold text-text-heading">
-								Andra Divano
+								Dr. Andra Divano
 							</span>
 							<span className="text-label-caption-medium text-text-subheading">
 								andradiva@gmail.com
