@@ -1,0 +1,280 @@
+// ============================================================
+// Prisma Schema
+// Generated from DBML — errors corrected:
+//   - mediumint → Int
+//   - Typos fixed: dexcription, avaibility, wenesday,
+//     psychiatrist_cexpertises, consultation_medacines
+//   - Relations normalized to use users.id as FK anchor
+//   - All @relation names added to avoid ambiguity
+//   - bool → Boolean, text → String, varchar → String
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+  output = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────
+
+enum Role {
+  user
+  psychiatry
+}
+
+enum Sex {
+  male
+  female
+}
+
+enum Day {
+  sunday
+  monday
+  tuesday
+  wednesday
+  thursday
+  friday
+  saturday
+}
+
+enum ConsultationStatus {
+  pending
+  on_going
+  finished
+}
+
+enum BillingStatus {
+  pending
+  paid
+  canceled
+  expired
+}
+
+// ─────────────────────────────────────────
+// USERS & PROFILES
+// ─────────────────────────────────────────
+
+model User {
+  id         Int      @id @default(autoincrement())
+  password   String
+  email      String   @unique
+  role       Role     @default(user)
+  created_at DateTime @default(now())
+
+  user_profile         UserProfile?
+  psychiatrist_profile PsychiatristProfile?
+}
+
+model UserProfile {
+  id           Int      @id @default(autoincrement())
+  user_id      Int      @unique
+  name         String
+  display_name String
+  sex          Sex
+  location     String?  @db.Text
+  birth_date   DateTime @db.Date
+  avatar_url   String?  @db.Text
+  created_at   DateTime @default(now())
+
+  user          User           @relation(fields: [user_id], references: [id])
+  consultations Consultation[] @relation("UserConsultations")
+  meeting_rooms MeetingRoom[]  @relation("UserMeetingRooms")
+}
+
+model PsychiatristProfile {
+  id               Int      @id @default(autoincrement())
+  user_id          Int      @unique
+  specialization   String?  @db.Text
+  license_number   String?  @db.Text
+  description      String?  @db.Text
+  experience_start DateTime @db.Date
+  experience_end   DateTime? @db.Date
+  price            Int
+  sex              Sex
+  avatar_url       String?  @db.Text
+  is_availability  Boolean  @default(true)
+
+  user                      User                        @relation(fields: [user_id], references: [id])
+  expertises                PsychiatristExpertise[]
+  availability_times        PsychiatristAvailabilityTime[]
+  consultations             Consultation[]              @relation("PsychiatristConsultations")
+  meeting_rooms             MeetingRoom[]               @relation("PsychiatristMeetingRooms")
+  articles                  Article[]
+}
+
+// ─────────────────────────────────────────
+// EXPERTISES
+// ─────────────────────────────────────────
+
+model Expertise {
+  id         Int      @id @default(autoincrement())
+  name       String
+  created_at DateTime @default(now())
+
+  psychiatrist_expertises PsychiatristExpertise[]
+}
+
+model PsychiatristExpertise {
+  id               Int @id @default(autoincrement())
+  psychiatrist_id  Int
+  expertise_id     Int
+
+  psychiatrist PsychiatristProfile @relation(fields: [psychiatrist_id], references: [id])
+  expertise    Expertise           @relation(fields: [expertise_id], references: [id])
+
+  @@unique([psychiatrist_id, expertise_id])
+}
+
+// ─────────────────────────────────────────
+// AVAILABILITY
+// ─────────────────────────────────────────
+
+model PsychiatristAvailabilityTime {
+  id                   Int      @id @default(autoincrement())
+  psychiatrist_id      Int
+  day                  Day
+  availability_start_time DateTime @db.Time
+  availability_end_time   DateTime @db.Time
+  break_start_time     DateTime? @db.Time
+  break_end_time       DateTime? @db.Time
+
+  psychiatrist PsychiatristProfile @relation(fields: [psychiatrist_id], references: [id])
+
+  @@unique([psychiatrist_id, day])
+}
+
+// ─────────────────────────────────────────
+// CONSULTATIONS
+// ─────────────────────────────────────────
+
+model Consultation {
+  id               Int      @id @default(autoincrement())
+  user_id          Int
+  psychiatrist_id  Int
+  complaint        String?  @db.Text
+  date             DateTime @db.Date
+  start_time       DateTime @db.Time
+  end_time         DateTime @db.Time
+  topic            String?  @db.Text
+  feedback         String?  @db.Text
+  created_at       DateTime @default(now())
+
+  user        UserProfile         @relation("UserConsultations", fields: [user_id], references: [id])
+  psychiatrist PsychiatristProfile @relation("PsychiatristConsultations", fields: [psychiatrist_id], references: [id])
+
+  billing   ConsultationBilling?
+  medicines ConsultationMedicine[]
+}
+
+model ConsultationBilling {
+  id              Int           @id @default(autoincrement())
+  consultation_id Int           @unique
+  payment_method  String?
+  card_holder     String?
+  card_number     String?
+  expire_date     String?
+  cvv             String?
+  subtotal        Int
+  fee             Int           @default(0)
+  total           Int
+  status          BillingStatus @default(pending)
+  created_at      DateTime      @default(now())
+
+  consultation Consultation @relation(fields: [consultation_id], references: [id])
+}
+
+model ConsultationMedicine {
+  id              Int      @id @default(autoincrement())
+  consultation_id Int
+  name            String
+  notes           String?  @db.Text
+  use             String?  @db.Text
+  dose            String?  @db.Text
+  created_at      DateTime @default(now())
+
+  consultation Consultation @relation(fields: [consultation_id], references: [id])
+}
+
+// ─────────────────────────────────────────
+// MEETING ROOMS & MESSAGES
+// ─────────────────────────────────────────
+
+model MeetingRoom {
+  id                Int                @id @default(autoincrement())
+  user_id           Int
+  user_join         Boolean            @default(false)
+  psychiatrist_id   Int
+  psychiatrist_join Boolean            @default(false)
+  duration          Int?
+  status            ConsultationStatus @default(pending)
+  created_at        DateTime           @default(now())
+
+  user         UserProfile         @relation("UserMeetingRooms", fields: [user_id], references: [id])
+  psychiatrist PsychiatristProfile @relation("PsychiatristMeetingRooms", fields: [psychiatrist_id], references: [id])
+  messages     Message[]
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  room_id    Int
+  sender_id  Int
+  message    String?  @db.Text
+  is_read    Boolean  @default(false)
+  is_edit    Boolean  @default(false)
+  file_url   String?  @db.Text
+  file_type  String?  @db.Text
+  file_size  Int?
+  created_at DateTime @default(now())
+
+  room MeetingRoom @relation(fields: [room_id], references: [id])
+}
+
+// ─────────────────────────────────────────
+// ARTICLES
+// ─────────────────────────────────────────
+
+model ArticleCategory {
+  id         Int      @id @default(autoincrement())
+  name       String
+  created_at DateTime @default(now())
+
+  articles Article[]
+}
+
+model ArticleCategoryTopic {
+  id         Int      @id @default(autoincrement())
+  name       String
+  created_at DateTime @default(now())
+
+  article_topics ArticleTopic[]
+}
+
+model Article {
+  id              Int      @id @default(autoincrement())
+  psychiatrist_id Int
+  category_id     Int
+  overview        String?  @db.Text
+  duration        Int?
+  content         String?  @db.Text
+  image_url       String?  @db.Text
+  created_at      DateTime @default(now())
+
+  category     ArticleCategory      @relation(fields: [category_id], references: [id])
+  author       PsychiatristProfile  @relation(fields: [psychiatrist_id], references: [id])
+  topics       ArticleTopic[]
+}
+
+model ArticleTopic {
+  id             Int      @id @default(autoincrement())
+  article_id     Int
+  category_topic Int
+  created_at     DateTime @default(now())
+
+  article        Article              @relation(fields: [article_id], references: [id])
+  categoryTopic  ArticleCategoryTopic @relation(fields: [category_topic], references: [id])
+}
