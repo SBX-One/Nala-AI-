@@ -128,10 +128,10 @@ export default function SideBar() {
 			{/* Bottom Section */}
 			<div className="flex flex-col mt-8 gap-4">
 				<div className="flex flex-col gap-3">
-					<button className="button-primary-large w-full justify-center">
+					<button suppressHydrationWarning className="button-primary-large w-full justify-center">
 						Chat With Our AI
 					</button>
-					<button className="button-secondary-large w-full justify-center">
+					<button suppressHydrationWarning className="button-secondary-large w-full justify-center">
 						Book Consultation
 					</button>
 				</div>
@@ -151,7 +151,7 @@ export default function SideBar() {
 							</span>
 						</div>
 					</div>
-					<button className="text-icon-default">
+					<button suppressHydrationWarning className="text-icon-default">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							className="size-6"

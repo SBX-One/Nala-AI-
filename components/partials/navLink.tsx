@@ -40,6 +40,7 @@ export default function NavLink({
 		<div className="flex flex-col mb-1">
 			<Wrapper
 				{...(wrapperProps as any)}
+				suppressHydrationWarning
 				className={`group flex items-center justify-between w-full py-3 px-4 rounded-lg transition-colors duration-200 ${
 					isActive
 						? "bg-surface-primary"

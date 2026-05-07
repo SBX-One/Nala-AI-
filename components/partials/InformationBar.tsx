@@ -38,6 +38,7 @@ export default function InformationBar() {
             />
           </svg>
           <input
+            suppressHydrationWarning
             type="text"
             placeholder="search"
             className="w-full border border-border-default rounded-lg text-label-base-medium text-text-placeholder pl-11 pr-4 py-3"
