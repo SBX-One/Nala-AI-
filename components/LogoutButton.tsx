@@ -5,6 +5,7 @@ import { signOut } from "@/app/auth/actions";
 export default function LogoutButton() {
   return (
     <button
+      suppressHydrationWarning
       onClick={async () => {
         if (confirm("Are you sure you want to logout?")) {
           await signOut();

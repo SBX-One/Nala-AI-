@@ -266,8 +266,20 @@ export default function ConversationChat({ roomId, currentUserId, otherParticipa
         <div className="mx-5 mt-3 p-3 bg-accent-50 border border-accent-200 rounded-xl flex items-center justify-between">
           <div className="flex-1 mr-3">
             <p className="text-body-caption-regular text-accent-600 mb-1">Editing message:</p>
-            <input value={editText} onChange={(e) => setEditText(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") handleSaveEdit(); if (e.key === "Escape") { setEditingMsg(null); setEditText(""); } }}
-              className="w-full px-3 py-2 text-sm border border-accent-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-accent-500" autoFocus />
+            <input
+              suppressHydrationWarning
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSaveEdit();
+                if (e.key === "Escape") {
+                  setEditingMsg(null);
+                  setEditText("");
+                }
+              }}
+              className="w-full px-3 py-2 text-sm border border-accent-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-accent-500"
+              autoFocus
+            />
           </div>
           <div className="flex gap-2">
             <button onClick={handleSaveEdit} className="px-3 py-1.5 bg-accent-500 text-white text-sm rounded-lg hover:bg-accent-600">Save</button>
@@ -305,8 +317,18 @@ export default function ConversationChat({ roomId, currentUserId, otherParticipa
           <button className="p-2 rounded-lg hover:bg-surface-hover transition-colors text-text-placeholder hover:text-text-heading shrink-0">
             <svg className="size-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z" /></svg>
           </button>
-          <input type="text" value={inputValue} onChange={(e) => { setInputValue(e.target.value); broadcastTyping(); }} onKeyDown={handleKeyDown}
-            placeholder="Type a message..." className="flex-1 border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-heading bg-surface-background placeholder:text-text-placeholder focus:outline-none focus:ring-[1.5px] focus:ring-[#0066FF] focus:border-[#0066FF] transition-shadow" />
+          <input
+            suppressHydrationWarning
+            type="text"
+            value={inputValue}
+            onChange={(e) => {
+              setInputValue(e.target.value);
+              broadcastTyping();
+            }}
+            onKeyDown={handleKeyDown}
+            placeholder="Type a message..."
+            className="flex-1 border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-heading bg-surface-background placeholder:text-text-placeholder focus:outline-none focus:ring-[1.5px] focus:ring-[#0066FF] focus:border-[#0066FF] transition-shadow"
+          />
           <button onClick={handleSend} disabled={!inputValue.trim() || isSending} className="p-2.5 bg-[#0066FF] rounded-xl text-white hover:bg-blue-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm group shrink-0">
             {isSending ? <div className="size-5 rounded-full border-2 border-white border-t-transparent animate-spin" /> : (
               <svg className="size-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4l17.45-7.48a1 1 0 000-1.84L3.4 3.6a.993.993 0 00-1.39.91L2 9.12c0 .5.37.93.87.99L17 12 2.87 13.88c-.5.06-.87.49-.87.99l.01 4.61c0 .71.73 1.2 1.39.92z" /></svg>

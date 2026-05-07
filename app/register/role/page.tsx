@@ -1,5 +1,6 @@
 "use client";
 
+import { selectRole } from "@/app/auth/actions";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -9,12 +10,19 @@ type RoleChoice = "user" | "psychiatrist" | null;
 export default function RoleSelectionPage() {
   const router = useRouter();
   const [selected, setSelected] = useState<RoleChoice>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleContinue = () => {
-    if (selected === "user") {
-      router.push("/register/user-profile");
-    } else if (selected === "psychiatrist") {
-      router.push("/register/psychiatrist-profile");
+  const handleContinue = async () => {
+    if (!selected) return;
+    setIsLoading(true);
+
+    try {
+      // Map role psychiatrist to psychiatry (sesuai Enum di DB)
+      const mappedRole = selected === "psychiatrist" ? "psychiatry" : "user";
+      await selectRole(mappedRole);
+    } catch (error) {
+      console.error("Failed to select role:", error);
+      setIsLoading(false);
     }
   };
 
@@ -237,15 +245,19 @@ export default function RoleSelectionPage() {
           {/* Continue Button */}
           <button
             onClick={handleContinue}
-            disabled={!selected}
-            className={`w-full py-4 rounded-xl text-label-base-semibold transition-all duration-200 cursor-pointer
+            disabled={!selected || isLoading}
+            className={`w-full py-4 rounded-xl text-label-base-semibold transition-all duration-200 cursor-pointer flex items-center justify-center
               ${
-                selected
+                selected && !isLoading
                   ? "bg-primary-500 text-white hover:bg-primary-600 active:scale-[0.98]"
                   : "bg-neutral-100 text-text-disabled cursor-not-allowed"
               }`}
           >
-            Continue
+            {isLoading ? (
+              <div className="size-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+            ) : (
+              "Continue"
+            )}
           </button>
         </div>
       </div>

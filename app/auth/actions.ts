@@ -30,6 +30,41 @@ export async function signInWithGoogle() {
   }
 }
 
+export async function selectRole(role: "user" | "psychiatry") {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return redirect("/login");
+
+  // Buat record User di tabel public.User
+  const { error } = await supabase
+    .from("User")
+    .upsert(
+      {
+        auth_user_id: user.id,
+        email: user.email!,
+        role: role,
+      },
+      { onConflict: "auth_user_id" }
+    )
+    .select("id")
+    .single();
+
+  if (error) {
+    console.error("Error creating user record:", error.message);
+    return { error: error.message };
+  }
+
+  // Redirect ke halaman profile yang sesuai
+  if (role === "user") {
+    return redirect("/register/user-profile");
+  } else {
+    return redirect("/register/psychiatrist-profile");
+  }
+}
+
 export async function signInWithEmail(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;

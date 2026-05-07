@@ -143,7 +143,7 @@ export default function PsychiatristSideBar() {
 							</span>
 						</div>
 					</div>
-					<button className="text-icon-default">
+					<button suppressHydrationWarning className="text-icon-default">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							className="size-6"
