@@ -1,81 +1,133 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Routes yang bisa diakses tanpa login (untuk slicing/development)
-const PUBLIC_ROUTES = ["/login", "/auth", "/psychiatrist", "/user"];
-
-function isPublicRoute(pathname: string): boolean {
-	return PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
-}
-
 export async function updateSession(request: NextRequest) {
-	let supabaseResponse = NextResponse.next({
-		request,
-	});
+  let supabaseResponse = NextResponse.next({
+    request,
+  });
 
-	// Bypass auth check untuk public routes (slicing mode)
-	if (isPublicRoute(request.nextUrl.pathname)) {
-		return supabaseResponse;
-	}
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            request.cookies.set(name, value),
+          );
+          supabaseResponse = NextResponse.next({
+            request,
+          });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options),
+          );
+        },
+      },
+    },
+  );
 
-	try {
-		const supabase = createServerClient(
-			process.env.NEXT_PUBLIC_SUPABASE_URL!,
-			process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-			{
-				cookies: {
-					getAll() {
-						return request.cookies.getAll();
-					},
-					setAll(cookiesToSet) {
-						cookiesToSet.forEach(({ name, value }) =>
-							request.cookies.set(name, value),
-						);
-						supabaseResponse = NextResponse.next({
-							request,
-						});
-						cookiesToSet.forEach(({ name, value, options }) =>
-							supabaseResponse.cookies.set(name, value, options),
-						);
-					},
-				},
-			},
-		);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-		// IMPORTANT: Avoid writing any logic between createServerClient and
-		// supabase.auth.getUser(). A simple mistake can make it very hard to debug
-		// issues with users being randomly logged out.
+  // Public routes accessible without login
+  const publicOnlyPaths = ["/login", "/register"]; // hanya base paths
+  const alwaysPublicPaths = ["/auth"]; // callback routes
+  const isPublicOnlyPath = publicOnlyPaths.some(
+    (path) => request.nextUrl.pathname === path,
+  );
+  const isAlwaysPublic = alwaysPublicPaths.some((path) =>
+    request.nextUrl.pathname.startsWith(path),
+  );
+  const isRegisterSubPath =
+    request.nextUrl.pathname.startsWith("/register/");
 
-		const {
-			data: { user },
-		} = await supabase.auth.getUser();
+  // Jika tidak login dan bukan public/auth path, redirect ke login
+  if (!user && !isPublicOnlyPath && !isAlwaysPublic && !isRegisterSubPath) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
 
-		if (!user) {
-			// no user, redirect to login page
-			const url = request.nextUrl.clone();
-			url.pathname = "/login";
-			return NextResponse.redirect(url);
-		}
+  // Izinkan user yang belum login akses /register sub-path (seharusnya tidak terjadi,
+  // tapi jika terjadi redirect ke register)
+  if (!user && isRegisterSubPath) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/register";
+    return NextResponse.redirect(url);
+  }
 
-		// IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
-		// creating a new response object with NextResponse.next() make sure to:
-		// 1. Pass the request in it, like so:
-		//    const myNewResponse = NextResponse.next({ request })
-		// 2. Copy over the cookies, like so:
-		//    myNewResponse.cookies.setAll(supabaseResponse.cookies.getAll())
-		// 3. Change the myNewResponse object to fit your needs, but avoid changing
-		//    the cookies!
-		// 4. Return the myNewResponse object.
-		// If this is not done, you may be causing the browser and server to go out
-		// of sync and terminate the user's session prematurely!
+  // Jika sudah login dan mencoba akses /login atau /register (base), redirect ke home
+  if (user && isPublicOnlyPath) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
+  }
 
-		return supabaseResponse;
-	} catch (error) {
-		// Jika Supabase env vars tidak valid, bypass auth untuk development
-		console.warn(
-			"[Middleware] Supabase auth error, bypassing for development:",
-			error,
-		);
-		return supabaseResponse;
-	}
+  // LOGIKA CEK PROFILE: Jika user sudah login dan TIDAK di jalur /register/
+  if (user && !isRegisterSubPath && !isAlwaysPublic) {
+    // Ambil data user dan profilnya (Gunakan nama tabel yang tepat: UserProfile & PsychiatristProfile)
+    const { data: userData, error: userError } = await supabase
+      .from("User")
+      .select("role, UserProfile(id), PsychiatristProfile(id)")
+      .eq("auth_user_id", user.id)
+      .single();
+
+    if (userError) {
+      console.error("Middleware Auth Error:", userError.message);
+    }
+
+    console.log("Middleware Profile Check:", { 
+      role: userData?.role, 
+      hasUserProfile: !!userData?.UserProfile, 
+      hasPsychiatristProfile: !!userData?.PsychiatristProfile 
+    });
+
+    // 1. Jika data User belum ada atau belum pilih role
+    if (!userData) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/register/role";
+      return NextResponse.redirect(url);
+    }
+
+    // 2. Jika role user tapi UserProfile belum ada
+    if (userData.role === "user" && !userData.UserProfile) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/register/user-profile";
+      return NextResponse.redirect(url);
+    }
+
+    // 3. Jika role psychiatry tapi PsychiatristProfile belum ada
+    if (userData.role === "psychiatry" && !userData.PsychiatristProfile) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/register/psychiatrist-profile";
+      return NextResponse.redirect(url);
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // LOGIKA PROTEKSI ROLE: Mencegah cross-access rute
+    // ─────────────────────────────────────────────────────────
+    
+    const isUserRoute = request.nextUrl.pathname.startsWith("/user");
+    const isPsychiatristRoute = request.nextUrl.pathname.startsWith("/psychiatrist");
+
+    // Jika role user mencoba masuk ke rute psikiater
+    if (userData.role === "user" && isPsychiatristRoute) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/user"; // Redirect ke dashboard user (pastikan rute ini ada)
+      return NextResponse.redirect(url);
+    }
+
+    // Jika role psikiater mencoba masuk ke rute user
+    if (userData.role === "psychiatry" && isUserRoute) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/psychiatrist"; // Redirect ke dashboard psikiater (pastikan rute ini ada)
+      return NextResponse.redirect(url);
+    }
+  }
+
+  return supabaseResponse;
 }
