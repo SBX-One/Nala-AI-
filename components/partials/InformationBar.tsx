@@ -2,7 +2,6 @@
 
 // import nalaLogo from "@/public/icon/Nala-Logo.svg";
 import { usePathname } from "next/navigation";
-import LogoutButton from "../LogoutButton";
 // import Image from "next/image";
 
 export default function InformationBar() {
