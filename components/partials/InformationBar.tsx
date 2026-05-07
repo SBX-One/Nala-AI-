@@ -61,7 +61,7 @@ export default function InformationBar() {
 						/>
 					</svg>
 
-					<div className="p-2 border border-border-default flex items-center rounded-2xl gap-3">
+					{/* <div className="p-2 border border-border-default flex items-center rounded-2xl gap-3">
 						<div className="rounded-full size-8 bg-surface-disabled "></div>
 						<div>
 							<p className="text-label-small-semibold text-text-heading">
@@ -71,7 +71,7 @@ export default function InformationBar() {
 								andradiva@gmail.com
 							</p>
 						</div>
-					</div>
+					</div> */}
 				</div>
 			</div>
 	);
