@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import ConversationChat from "@/components/partials/ConversationChat";
@@ -13,7 +13,7 @@ const tabs: { key: Tab; label: string }[] = [
   { key: "patientInfo", label: "Patient Info" },
 ];
 
-export default function ActiveConsultationPage() {
+function ActiveConsultationContent() {
   const searchParams = useSearchParams();
   const roomId = Number(searchParams.get("roomId")) || 0;
 
@@ -155,5 +155,17 @@ export default function ActiveConsultationPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ActiveConsultationPage() {
+  return (
+    <Suspense fallback={
+      <div className="w-full flex h-full items-center justify-center text-text-placeholder">
+        <div className="size-8 rounded-full border-3 border-accent-400 border-t-transparent animate-spin" />
+      </div>
+    }>
+      <ActiveConsultationContent />
+    </Suspense>
   );
 }
