@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import ConversationChat from "@/components/partials/ConversationChat";
 
@@ -13,7 +13,8 @@ const tabs: { key: Tab; label: string }[] = [
   { key: "patientInfo", label: "Psychiatrist Info" },
 ];
 
-export default function ActiveConsultationPage() {
+function ActiveConsultationContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const roomId = Number(searchParams.get("roomId")) || 0;
 
@@ -21,6 +22,7 @@ export default function ActiveConsultationPage() {
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [otherName, setOtherName] = useState("Psychiatrist");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Ambil ID user dari session
   useEffect(() => {
@@ -30,53 +32,69 @@ export default function ActiveConsultationPage() {
         data: { user },
       } = await supabase.auth.getUser();
 
-      if (!user) return;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
-      // Ambil UserProfile.id karena itu yang digunakan di MeetingRoom.user_id
-      const { data: profile } = await supabase
+      // Ambil User.id
+      const { data: userData, error: userError } = await supabase
+        .from("User")
+        .select("id")
+        .eq("auth_user_id", user.id)
+        .maybeSingle();
+
+      if (userError || !userData) {
+        console.error("User record not found:", userError);
+        router.push("/register/role");
+        return;
+      }
+
+      // Ambil UserProfile.id
+      const { data: profile, error: profileError } = await supabase
         .from("UserProfile")
         .select("id")
-        .eq("user_id", (
-          await supabase
-            .from("User")
-            .select("id")
-            .eq("auth_user_id", user.id)
-            .single()
-        ).data?.id)
-        .single();
+        .eq("user_id", userData.id)
+        .maybeSingle();
 
       if (profile) {
         setCurrentUserId(profile.id);
+      } else {
+        console.error("UserProfile not found:", profileError);
+        router.push("/register/user-profile");
+        return;
       }
 
       // Ambil nama psikiater dari room
       if (roomId) {
-        const { data: room } = await supabase
+        const { data: room, error: roomError } = await supabase
           .from("MeetingRoom")
           .select("psychiatrist_id")
           .eq("id", roomId)
-          .single();
+          .maybeSingle();
 
         if (room) {
           const { data: psychiatristProfile } = await supabase
             .from("PsychiatristProfile")
             .select("user_id")
             .eq("id", room.psychiatrist_id)
-            .single();
+            .maybeSingle();
 
           if (psychiatristProfile) {
-            // Ambil nama dari User table via user_id
-            const { data: userData } = await supabase
+            // Ambil nama dari UserProfile table via user_id psikiater
+            const { data: psychiatristUserData } = await supabase
               .from("UserProfile")
               .select("name")
               .eq("user_id", psychiatristProfile.user_id)
-              .single();
+              .maybeSingle();
 
-            // Fallback: Jika psikiater tidak punya UserProfile, gunakan nama default
-            if (userData) {
-              setOtherName(userData.name);
+            if (psychiatristUserData) {
+              setOtherName(psychiatristUserData.name);
             }
           }
+        } else if (roomError) {
+          console.error("Error fetching room:", roomError);
+          setError("Failed to fetch consultation room details.");
         }
       }
 
@@ -84,11 +102,45 @@ export default function ActiveConsultationPage() {
     }
 
     loadSession();
-  }, [roomId]);
+  }, [roomId, router]);
+
+  if (loading) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="size-10 rounded-full border-4 border-primary-500 border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full h-full flex items-center justify-center p-6">
+        <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-border-default shadow-sm text-center space-y-4">
+          <div className="w-16 h-16 bg-error-50 rounded-2xl flex items-center justify-center mx-auto text-error-default">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+              <path d="M12 8v4M12 16h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </div>
+          <h2 className="text-heading-6-bold text-text-heading">Something went wrong</h2>
+          <p className="text-body-base-regular text-text-subheading">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-6 py-2.5 bg-primary-500 text-white rounded-xl text-label-base-semibold hover:bg-primary-600 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (!roomId) {
     return (
-      <div className="w-full flex items-center justify-center" style={{ height: "calc(100vh - 57px)" }}>
+      <div
+        className="w-full flex items-center justify-center"
+        style={{ height: "calc(100vh - 57px)" }}
+      >
         <div className="text-center space-y-3">
           <p className="text-heading-6-bold text-text-heading">
             No Active Consultation
@@ -165,5 +217,17 @@ export default function ActiveConsultationPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ActiveConsultationPage() {
+  return (
+    <Suspense fallback={
+      <div className="w-full flex items-center justify-center" style={{ height: "calc(100vh - 57px)" }}>
+        <div className="size-8 rounded-full border-3 border-accent-400 border-t-transparent animate-spin" />
+      </div>
+    }>
+      <ActiveConsultationContent />
+    </Suspense>
   );
 }

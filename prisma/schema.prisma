@@ -11,7 +11,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output = "../app/generated/prisma"
 }
 
 datasource db {
@@ -69,6 +68,7 @@ model User {
 
   user_profile         UserProfile?
   psychiatrist_profile PsychiatristProfile?
+  ai_chat_sessions     AiChatSession[]
 }
 
 model UserProfile {
@@ -278,4 +278,29 @@ model ArticleTopic {
 
   article        Article              @relation(fields: [article_id], references: [id])
   categoryTopic  ArticleCategoryTopic @relation(fields: [category_topic], references: [id])
+}
+
+// ─────────────────────────────────────────
+// AI CHAT (NALA AI)
+// ─────────────────────────────────────────
+
+model AiChatSession {
+  id        String          @id @default(cuid())
+  user_id   Int
+  title     String          @default("New Chat")
+  created_at DateTime        @default(now())
+  updated_at DateTime        @updatedAt
+  
+  user      User            @relation(fields: [user_id], references: [id])
+  messages  AiChatMessage[]
+}
+
+model AiChatMessage {
+  id         String        @id @default(cuid())
+  session_id String
+  role       String        // "user" atau "assistant"
+  content    String        @db.Text
+  created_at DateTime      @default(now())
+  
+  session    AiChatSession @relation(fields: [session_id], references: [id], onDelete: Cascade)
 }
