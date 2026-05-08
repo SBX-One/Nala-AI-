@@ -30,10 +30,10 @@ const PSYCHIATIST_DATA = [
 ];
 
 const DATES = [
-	{ label: "Besok", day: "25", month: "OCT" },
-	{ label: "Lusa", day: "26", month: "OCT" },
-	{ label: "Rabu", day: "27", month: "OCT" },
-	{ label: "Kamis", day: "28", month: "OCT" },
+	{ label: "Besok", day: "25", month: "OCT", status: true },
+	{ label: "Lusa", day: "26", month: "OCT", status: true },
+	{ label: "Rabu", day: "27", month: "OCT", status: false },
+	{ label: "Kamis", day: "28", month: "OCT", status: false },
 ];
 
 const TIMES = ["09:00-09:45", "09:45-10:30", "10:30-11:15", "11:15-12:00"];
@@ -116,7 +116,7 @@ export default function BookingPage() {
 						<hr className="text-border-default" />
 
 						<div className="flex justify-between items-center">
-							<div>
+							<div className="grid gap-1">
 								<p className="text-label-large-bold text-text-action">
 									{idr(i.Price)}
 								</p>
@@ -130,7 +130,7 @@ export default function BookingPage() {
 									</p>
 								</div>
 							</div>
-							<button 
+							<button
 								onClick={() => handleBookClick(i)}
 								className="button-primary-large"
 							>
@@ -156,27 +156,41 @@ export default function BookingPage() {
 							{step === 1 ? (
 								<div className="flex flex-col gap-8">
 									{/* Specialist Mini Card */}
-                
+
 									<div className="flex items-center gap-4 rounded-2xl">
 										<div className="bg-surface-disabled size-20 rounded-lg shrink-0"></div>
 										<div className="grid">
-											<p className="text-body-xl-semibold">{selectedPsychiatrist?.name}</p>
-											<p className="text-body-sm-semibold text-text-action">{selectedPsychiatrist?.spesialist}</p>
+											<p className="text-body-xl-semibold">
+												{selectedPsychiatrist?.name}
+											</p>
+											<p className="text-body-sm-semibold text-text-action">
+												{
+													selectedPsychiatrist?.spesialist
+												}
+											</p>
 										</div>
 									</div>
-											<div className="flex gap-2 mt-1">
-												{selectedPsychiatrist?.advertise.slice(0, 3).map((t: string) => (
-													<span key={t} className="text-label-small-medium bg-surface-primary-light text-text-action px-2 py-1 rounded-sm ">
-														{t.trim()}
-													</span>
-												))}
-											</div>
+
+									<div className="flex gap-2 mt-1">
+										{selectedPsychiatrist?.advertise
+											.slice(0, 3)
+											.map((t: string) => (
+												<span
+													key={t}
+													className="text-label-small-medium bg-surface-primary-light text-text-action px-2 py-1 rounded-sm "
+												>
+													{t.trim()}
+												</span>
+											))}
+									</div>
 
 									{/* Description */}
 									<div className="flex flex-col gap-1">
-										<p className="text-label-caption-bold text-text-subheading ">Description</p>
+										<p className="text-label-caption-bold text-text-subheading ">
+											Description
+										</p>
 										<p className="text-body-sm-medium text-text-body">
-											Comprehensive Consultation for Professional Migraine Assessment
+											{selectedPsychiatrist?.description}
 										</p>
 									</div>
 
@@ -184,21 +198,30 @@ export default function BookingPage() {
 
 									{/* Select Date */}
 									<div className="flex flex-col gap-4">
-										<p className="text-body-base-bold">Select Date</p>
-										<div className="flex gap-3 overflow-x-auto pb-2">
+										<p className="text-label-base-bold text-text-label">
+											Select Date
+										</p>
+										<div className="flex gap-4">
 											{DATES.map((d) => (
 												<button
 													key={d.day}
-													onClick={() => setSelectedDate(d.day)}
-													className={`flex flex-col items-center justify-center min-w-[70px] h-[85px] rounded-xl border transition-all ${
-														selectedDate === d.day
-															? "border-primary-default bg-primary-50 text-primary-default ring-1 ring-primary-default"
-															: "border-border-default bg-surface-default text-text-subheading"
-													}`}
+													disabled={
+														d.status === false
+													}
+													onClick={() =>
+														setSelectedDate(d.day)
+													}
+													className={`flex flex-col gap-1 items-center justify-center rounded-lg border transition-all availbility ${selectedDate === d.day ? "active" : ""}`}
 												>
-													<span className="text-[10px] font-semibold">{d.label}</span>
-													<span className="text-xl font-bold my-1">{d.day}</span>
-													<span className="text-[10px] font-semibold">{d.month}</span>
+													<span className="text-label-small-semibold">
+														{d.label}
+													</span>
+													<span className="text-body-xl-semibold">
+														{d.day}
+													</span>
+													<span className="text-label-caption-medium">
+														{d.month}
+													</span>
 												</button>
 											))}
 										</div>
@@ -206,17 +229,17 @@ export default function BookingPage() {
 
 									{/* Select Time */}
 									<div className="flex flex-col gap-4">
-										<p className="text-body-base-bold">Select Time</p>
+										<p className="text-label-base-bold text-text-label">
+											Select Time
+										</p>
 										<div className="grid grid-cols-3 gap-3">
 											{TIMES.map((t) => (
 												<button
 													key={t}
-													onClick={() => setSelectedTime(t)}
-													className={`py-3 rounded-xl border text-sm transition-all text-center ${
-														selectedTime === t
-															? "border-primary-default bg-primary-50 text-primary-default ring-1 ring-primary-default"
-															: "border-border-default bg-surface-default text-text-body hover:bg-surface-disabled"
-													}`}
+													onClick={() =>
+														setSelectedTime(t)
+													}
+													className={`py-3 rounded-xl border text-sm transition-all text-center select-default-large ${selectedTime === t ? "active" : ""}`}
 												>
 													{t}
 												</button>
@@ -226,63 +249,80 @@ export default function BookingPage() {
 
 									{/* Complaints */}
 									<div className="flex flex-col gap-3">
-										<p className="text-body-base-bold">Complaints</p>
-										<textarea 
+										<p className="text-label-base-bold text-text-label">
+											Complaints
+										</p>
+										<textarea
 											className="w-full h-32 p-4 rounded-xl border border-border-default bg-surface-default text-body-sm-regular focus:outline-none focus:ring-1 focus:ring-primary-default transition-all"
 											placeholder="Describe your complaints here..."
 										/>
 									</div>
-
-									<div className="flex justify-between items-center mt-4">
-										<p className="text-body-base-medium text-text-subheading">Grand Total</p>
-										<p className="text-body-xl-bold text-text-action">{idr(selectedPsychiatrist?.Price || 0)}</p>
+									<div className="grid gap-4">
+										<div className="flex justify-between items-center mt-4">
+											<p className="text-body-base-medium text-text-subheading">
+												Grand Total
+											</p>
+											<p className="text-body-xl-bold text-text-action">
+												{idr(
+													selectedPsychiatrist?.Price ||
+														0,
+												)}
+											</p>
+										</div>
+										<button
+											onClick={() => setStep(2)}
+											className="button-primary-large w-full justify-center py-4 rounded-xl text-lg"
+										>
+											Book Now
+										</button>
 									</div>
-
-									<button 
-										onClick={() => setStep(2)}
-										className="button-primary-large w-full justify-center py-4 rounded-xl text-lg"
-									>
-										Book Now
-									</button>
 								</div>
 							) : (
-								<div className="flex flex-col gap-8">
+								<div className="flex flex-col justify-between min-h-full h-fit gap-8">
 									{/* Payment Method */}
 									<div className="flex flex-col gap-4">
-										<p className="text-body-base-bold">Payment Method</p>
+										<p className="text-body-base-bold">
+											Payment Method
+										</p>
 										<div className="flex flex-col gap-3">
-											{["Credit Card", "QRIS", "Bank Transfer"].map((pm) => (
+											{[
+												"Credit Card",
+												"QRIS",
+												"Bank Transfer",
+											].map((pm) => (
 												<button
 													key={pm}
-													onClick={() => setPaymentMethod(pm)}
-													className={`w-full py-4 rounded-xl border transition-all text-center font-semibold ${
-														paymentMethod === pm
-															? "border-primary-default bg-primary-50 text-primary-default ring-1 ring-primary-default"
-															: "border-border-default bg-surface-default text-text-body hover:bg-surface-disabled"
-													}`}
+													onClick={() =>
+														setPaymentMethod(pm)
+													}
+													className={`w-full py-4 rounded-xl border transition-all text-center font-semibold select-default-large ${paymentMethod === pm ? "active" : ""} `}
 												>
 													{pm}
 												</button>
 											))}
 										</div>
+									<hr className="border-border-default" />
 									</div>
 
-									<hr className="border-border-default" />
 
 									{/* Card Form - Only for Credit Card */}
 									{paymentMethod === "Credit Card" && (
 										<div className="flex flex-col gap-5">
 											<div className="flex flex-col gap-2">
-												<label className="text-body-sm-bold text-text-body">Card Holder Name</label>
-												<input 
+												<label className="text-label-small-semibold text-text-label">
+													Card Holder Name
+												</label>
+												<input
 													type="text"
 													className="w-full p-4 rounded-xl border border-border-default bg-surface-default focus:outline-none focus:ring-1 focus:ring-primary-default transition-all"
 													placeholder="Name on card"
 												/>
 											</div>
 											<div className="flex flex-col gap-2">
-												<label className="text-body-sm-bold text-text-body">Card Number</label>
-												<input 
+												<label className="text-label-small-semibold text-text-label">
+													Card Number
+												</label>
+												<input
 													type="text"
 													className="w-full p-4 rounded-xl border border-border-default bg-surface-default focus:outline-none focus:ring-1 focus:ring-primary-default transition-all"
 													placeholder="1234 5678 9101 1121"
@@ -290,16 +330,20 @@ export default function BookingPage() {
 											</div>
 											<div className="grid grid-cols-2 gap-4">
 												<div className="flex flex-col gap-2">
-													<label className="text-body-sm-bold text-text-body">Expire Date</label>
-													<input 
+													<label className="text-label-small-semibold text-text-label">
+														Expire Date
+													</label>
+													<input
 														type="text"
 														className="w-full p-4 rounded-xl border border-border-default bg-surface-default focus:outline-none focus:ring-1 focus:ring-primary-default transition-all"
 														placeholder="MM/YY"
 													/>
 												</div>
 												<div className="flex flex-col gap-2">
-													<label className="text-body-sm-bold text-text-body">CVV</label>
-													<input 
+													<label className="text-label-small-semibold text-text-label">
+														CVV
+													</label>
+													<input
 														type="text"
 														className="w-full p-4 rounded-xl border border-border-default bg-surface-default focus:outline-none focus:ring-1 focus:ring-primary-default transition-all"
 														placeholder="123"
@@ -309,23 +353,41 @@ export default function BookingPage() {
 										</div>
 									)}
 
-									<div className="mt-auto flex flex-col gap-4">
-										<div className="flex flex-col gap-2">
+									<div className="flex flex-col gap-4">
+										<div className="flex flex-col gap-4">
 											<div className="flex justify-between items-center text-text-subheading">
-												<span>Specialist</span>
-												<span>{idr(selectedPsychiatrist?.Price || 0)}</span>
+												<span className="text-label-base-semibold text-text-subheading">
+													Specialist
+												</span>
+												<span className="text-label-base-medium text-text-body">
+													{idr(
+														selectedPsychiatrist?.Price ||
+															0,
+													)}
+												</span>
 											</div>
 											<div className="flex justify-between items-center text-text-subheading">
-												<span>Platform Fee</span>
-												<span>{idr(2000)}</span>
+												<span className="text-label-base-semibold text-text-subheading">
+													Platform Fee
+												</span>
+												<span className="text-label-base-medium text-text-body">
+													{idr(2000)}
+												</span>
 											</div>
-											<div className="flex justify-between items-center mt-2">
-												<span className="text-body-base-medium">Grand Total</span>
-												<span className="text-body-xl-bold text-text-action">{idr((selectedPsychiatrist?.Price || 0) + 2000)}</span>
+											<div className="flex justify-between items-center">
+												<span className="text-label-base-semibold text-text-subheading">
+													Grand Total
+												</span>
+												<span className="text-label-large-bold text-text-action">
+													{idr(
+														(selectedPsychiatrist?.Price ||
+															0) + 2000,
+													)}
+												</span>
 											</div>
 										</div>
 
-										<button 
+										<button
 											onClick={() => {
 												alert("Booking Successful!");
 												setIsOpen(false);

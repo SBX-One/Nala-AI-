@@ -676,3 +676,35 @@
   @apply w-fit p-3 rounded-full gap-2 items-center bg-button-white border border-border-error flex text-text-error text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
 }
 
+
+/* select button  */
+
+@utility select-default-small {
+	@apply text-label-caption-medium border border-border-default px-3 py-3 active:cursor-pointer active:scale-95 hover:border-0 hover:bg-button-hover hover:text-text-on-action disabled:border-0 disabled:bg-button-disabled disabled:text-text-disabled disabled:cursor-not-allowed disabled:hover:scale-100;
+	&.active {
+		@apply border border-border-action text-text-action bg-button-secondary;
+	}
+}
+
+@utility select-default-medium {
+	@apply text-label-small-medium border border-border-default px-6 py-3 active:cursor-pointer active:scale-95 hover:border-0 hover:bg-button-hover hover:text-text-on-action disabled:border-0 disabled:bg-button-disabled disabled:text-text-disabled disabled:cursor-not-allowed disabled:hover:scale-100;
+	&.active {
+		@apply border border-border-action text-text-action bg-button-secondary;
+	}
+}
+
+@utility select-default-large {
+	@apply text-label-base-medium border border-border-default px-6 py-3.5 active:cursor-pointer active:scale-95 hover:border-0 hover:bg-button-hover hover:text-text-on-action disabled:border-0 disabled:bg-button-disabled disabled:text-text-disabled disabled:cursor-not-allowed disabled:hover:scale-100;
+	&.active {
+		@apply border border-border-action text-text-action bg-button-secondary;
+	}
+}
+
+@utility availbility {
+	@apply border border-border-default px-5 py-2 max-w-[70px] active:cursor-pointer active:scale-95 hover:border-0 hover:bg-button-hover hover:text-text-on-action disabled:border-0 disabled:bg-button-disabled disabled:text-text-disabled disabled:cursor-not-allowed disabled:hover:scale-100;
+	&.active {
+		@apply border border-border-action text-text-action bg-button-secondary;
+	}
+}
+
+
