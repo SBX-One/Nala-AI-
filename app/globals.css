@@ -680,21 +680,21 @@
 /* select button  */
 
 @utility select-default-small {
-	@apply text-label-caption-medium border border-border-default px-3 py-3 active:cursor-pointer active:scale-95 hover:border-0 hover:bg-button-hover hover:text-text-on-action disabled:border-0 disabled:bg-button-disabled disabled:text-text-disabled disabled:cursor-not-allowed disabled:hover:scale-100;
+	@apply text-label-caption-medium border border-border-default px-3 py-3 active:cursor-pointer active:scale-95 hover:border-button-hover hover:bg-button-hover hover:text-text-on-action disabled:border-0 disabled:bg-button-disabled disabled:text-text-disabled disabled:cursor-not-allowed disabled:hover:scale-100;
 	&.active {
 		@apply border border-border-action text-text-action bg-button-secondary;
 	}
 }
 
 @utility select-default-medium {
-	@apply text-label-small-medium border border-border-default px-6 py-3 active:cursor-pointer active:scale-95 hover:border-0 hover:bg-button-hover hover:text-text-on-action disabled:border-0 disabled:bg-button-disabled disabled:text-text-disabled disabled:cursor-not-allowed disabled:hover:scale-100;
+	@apply text-label-small-medium border border-border-default rounded-lg p-3 active:cursor-pointer active:scale-95 hover:border-button-hover hover:bg-button-hover hover:text-text-on-action disabled:border-0 disabled:bg-button-disabled disabled:text-text-disabled disabled:cursor-not-allowed disabled:hover:scale-100;
 	&.active {
 		@apply border border-border-action text-text-action bg-button-secondary;
 	}
 }
 
 @utility select-default-large {
-	@apply text-label-base-medium border border-border-default px-6 py-3.5 active:cursor-pointer active:scale-95 hover:border-0 hover:bg-button-hover hover:text-text-on-action disabled:border-0 disabled:bg-button-disabled disabled:text-text-disabled disabled:cursor-not-allowed disabled:hover:scale-100;
+	@apply text-label-base-medium border border-border-default px-6 py-3.5 active:cursor-pointer active:scale-95 hover:border-button-hover hover:bg-button-hover hover:text-text-on-action disabled:border-0 disabled:bg-button-disabled disabled:text-text-disabled disabled:cursor-not-allowed disabled:hover:scale-100;
 	&.active {
 		@apply border border-border-action text-text-action bg-button-secondary;
 	}
