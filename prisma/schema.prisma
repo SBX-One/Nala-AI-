@@ -90,6 +90,7 @@ model UserProfile {
 model PsychiatristProfile {
   id               Int      @id @default(autoincrement())
   user_id          Int      @unique
+  name             String?  @db.Text
   specialization   String?  @db.Text
   license_number   String?  @db.Text
   description      String?  @db.Text

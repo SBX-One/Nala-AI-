@@ -26,7 +26,7 @@ const navItems: NavItemType[] = [
 		),
 	},
 	{
-		href: "/psychiatrist/avaibility",
+		href: "/psychiatrist/availability",
 		label: "Availability",
 		icon: (
 			<svg

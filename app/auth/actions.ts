@@ -47,7 +47,7 @@ export async function selectRole(role: "user" | "psychiatry") {
         email: user.email!,
         role: role,
       },
-      { onConflict: "auth_user_id" }
+      { onConflict: "auth_user_id" },
     )
     .select("id")
     .single();
@@ -94,24 +94,30 @@ export async function signInWithEmail(formData: FormData) {
     return redirect("/login?error=Gagal+mendapatkan+data+user");
   }
 
-  // Cek role dari tabel public.User berdasarkan auth_user_id
+  // Cek role dan keberadaan profile dari tabel public.User berdasarkan auth_user_id
   const { data: userRecord } = await supabase
     .from("User")
-    .select("role")
+    .select("id, role, UserProfile(id), PsychiatristProfile(id)")
     .eq("auth_user_id", user.id)
     .single();
 
   if (!userRecord) {
-    // User ada di Auth tapi belum punya record di tabel User (belum complete profile)
+    // User ada di Auth tapi belum punya record di tabel User (belum pilih role)
     return redirect("/register/role");
   }
 
-  // Redirect berdasarkan role
+  // Cek apakah profil sudah lengkap berdasarkan role
   if (userRecord.role === "psychiatry") {
+    if (!userRecord.PsychiatristProfile) {
+      return redirect("/register/psychiatrist-profile");
+    }
     return redirect("/psychiatrist");
+  } else {
+    if (!userRecord.UserProfile) {
+      return redirect("/register/user-profile");
+    }
+    return redirect("/user");
   }
-
-  return redirect("/user");
 }
 
 export async function signUpWithEmail(formData: FormData) {
@@ -204,6 +210,7 @@ export async function savePsychiatristProfile(data: {
   experienceStart: string;
   experienceEnd: string;
   selectedExpertiseIds: number[];
+  availability: { day: string; startTime: string; endTime: string }[];
 }) {
   const supabase = await createClient();
   const {
@@ -227,6 +234,7 @@ export async function savePsychiatristProfile(data: {
     .upsert(
       {
         user_id: userRecord.id,
+        name: data.fullName,
         specialization: data.specialization || null,
         license_number: data.licenseNumber || null,
         description: data.description || null,
@@ -269,7 +277,28 @@ export async function savePsychiatristProfile(data: {
     }
   }
 
-  // 3. Update role user menjadi psychiatry setelah profile berhasil dibuat
+  // 3. Simpan availability times
+  if (data.availability && data.availability.length > 0) {
+    const availabilityRows = data.availability.map((a) => ({
+      psychiatrist_id: profileRecord.id,
+      day: a.day as any, // Cast ke enum Day
+      availability_start_time: `${a.startTime}:00`,
+      availability_end_time: `${a.endTime}:00`,
+    }));
+
+    const { error: availabilityError } = await supabase
+      .from("PsychiatristAvailabilityTime")
+      .insert(availabilityRows);
+
+    if (availabilityError) {
+      console.error(
+        "Error saving availability times:",
+        availabilityError.message,
+      );
+    }
+  }
+
+  // 4. Update role user menjadi psychiatry setelah profile berhasil dibuat
   await supabase
     .from("User")
     .update({ role: "psychiatry" })

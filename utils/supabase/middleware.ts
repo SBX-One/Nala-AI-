@@ -15,7 +15,7 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
+          cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value),
           );
           supabaseResponse = NextResponse.next({
@@ -33,99 +33,66 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Public routes accessible without login
-  const publicOnlyPaths = ["/login", "/register"]; // hanya base paths
-  const alwaysPublicPaths = ["/auth"]; // callback routes
-  const isPublicOnlyPath = publicOnlyPaths.some(
-    (path) => request.nextUrl.pathname === path,
-  );
-  const isAlwaysPublic = alwaysPublicPaths.some((path) =>
-    request.nextUrl.pathname.startsWith(path),
-  );
-  const isRegisterSubPath =
-    request.nextUrl.pathname.startsWith("/register/");
+  const pathname = request.nextUrl.pathname;
+  const isAuthPath = pathname.startsWith("/auth");
+  const isRegisterPath = pathname.startsWith("/register");
+  const isLoginPath = pathname === "/login";
+  const isPublicPath = isAuthPath || isRegisterPath || isLoginPath;
 
-  // Jika tidak login dan bukan public/auth path, redirect ke login
-  if (!user && !isPublicOnlyPath && !isAlwaysPublic && !isRegisterSubPath) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
+  // 1. Redirect if not logged in
+  if (!user && !isPublicPath) {
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Izinkan user yang belum login akses /register sub-path (seharusnya tidak terjadi,
-  // tapi jika terjadi redirect ke register)
-  if (!user && isRegisterSubPath) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/register";
-    return NextResponse.redirect(url);
-  }
-
-  // Jika sudah login dan mencoba akses /login atau /register (base), redirect ke home
-  if (user && isPublicOnlyPath) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/";
-    return NextResponse.redirect(url);
-  }
-
-  // LOGIKA CEK PROFILE: Jika user sudah login dan TIDAK di jalur /register/
-  if (user && !isRegisterSubPath && !isAlwaysPublic) {
-    // Ambil data user dan profilnya (Gunakan nama tabel yang tepat: UserProfile & PsychiatristProfile)
-    const { data: userData, error: userError } = await supabase
-      .from("User")
-      .select("role, UserProfile(id), PsychiatristProfile(id)")
-      .eq("auth_user_id", user.id)
-      .single();
-
-    if (userError) {
-      console.error("Middleware Auth Error:", userError.message);
+  // 2. Profile check if logged in
+  if (user) {
+    // Redirect logged in users away from login/base register
+    if (isLoginPath || pathname === "/register") {
+      return NextResponse.redirect(new URL("/", request.url));
     }
 
-    console.log("Middleware Profile Check:", { 
-      role: userData?.role, 
-      hasUserProfile: !!userData?.UserProfile, 
-      hasPsychiatristProfile: !!userData?.PsychiatristProfile 
-    });
+    // Skip profile check for register sub-paths and auth callbacks
+    if (!isRegisterPath && !isAuthPath) {
+      const { data: userData, error: userError } = await supabase
+        .from("User")
+        .select("role, UserProfile(id), PsychiatristProfile(id)")
+        .eq("auth_user_id", user.id)
+        .maybeSingle();
 
-    // 1. Jika data User belum ada atau belum pilih role
-    if (!userData) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/register/role";
-      return NextResponse.redirect(url);
-    }
+      // If DB error or no user record, force role selection
+      if (userError || !userData) {
+        return NextResponse.redirect(new URL("/register/role", request.url));
+      }
 
-    // 2. Jika role user tapi UserProfile belum ada
-    if (userData.role === "user" && !userData.UserProfile) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/register/user-profile";
-      return NextResponse.redirect(url);
-    }
+      // Strict role-based profile enforcement
+      const hasUserProfile = userData.UserProfile && (Array.isArray(userData.UserProfile) ? userData.UserProfile.length > 0 : true);
+      const hasPsychiatristProfile = userData.PsychiatristProfile && (Array.isArray(userData.PsychiatristProfile) ? userData.PsychiatristProfile.length > 0 : true);
 
-    // 3. Jika role psychiatry tapi PsychiatristProfile belum ada
-    if (userData.role === "psychiatry" && !userData.PsychiatristProfile) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/register/psychiatrist-profile";
-      return NextResponse.redirect(url);
-    }
+      if (userData.role === "user") {
+        if (!hasUserProfile) {
+          return NextResponse.redirect(new URL("/register/user-profile", request.url));
+        }
+        // Prevent access to psychiatrist routes
+        if (pathname.startsWith("/psychiatrist")) {
+          return NextResponse.redirect(new URL("/user", request.url));
+        }
+      }
 
-    // ─────────────────────────────────────────────────────────
-    // LOGIKA PROTEKSI ROLE: Mencegah cross-access rute
-    // ─────────────────────────────────────────────────────────
-    
-    const isUserRoute = request.nextUrl.pathname.startsWith("/user");
-    const isPsychiatristRoute = request.nextUrl.pathname.startsWith("/psychiatrist");
+      if (userData.role === "psychiatry") {
+        if (!hasPsychiatristProfile) {
+          return NextResponse.redirect(new URL("/register/psychiatrist-profile", request.url));
+        }
+        // Prevent access to user routes
+        if (pathname.startsWith("/user")) {
+          return NextResponse.redirect(new URL("/psychiatrist", request.url));
+        }
+      }
 
-    // Jika role user mencoba masuk ke rute psikiater
-    if (userData.role === "user" && isPsychiatristRoute) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/user"; // Redirect ke dashboard user (pastikan rute ini ada)
-      return NextResponse.redirect(url);
-    }
-
-    // Jika role psikiater mencoba masuk ke rute user
-    if (userData.role === "psychiatry" && isUserRoute) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/psychiatrist"; // Redirect ke dashboard psikiater (pastikan rute ini ada)
-      return NextResponse.redirect(url);
+      // Handle root redirection
+      if (pathname === "/") {
+        const target = userData.role === "psychiatry" ? "/psychiatrist" : "/user";
+        return NextResponse.redirect(new URL(target, request.url));
+      }
     }
   }
 
