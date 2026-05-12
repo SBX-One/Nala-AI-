@@ -25,9 +25,10 @@ const navItems: NavItemType[] = [
 			</svg>
 		),
 	},
+
 	{
-		href: "/psychiatrist/avaibility",
-		label: "Availability",
+		href: "/psychiatrist/consultation",
+		label: "Consultation",
 		icon: (
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
@@ -49,10 +50,14 @@ const navItems: NavItemType[] = [
 				</g>
 			</svg>
 		),
+		children: [
+			{ href: "/psychiatrist/history", label: "History" },
+			{ href: "/psychiatrist/queue", label: "Queue" },
+		],
 	},
 	{
-		href: "/psychiatrist/consultation",
-		label: "Consultation",
+		href: "/psychiatrist/availability",
+		label: "Availability",
 		icon: (
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
@@ -62,14 +67,10 @@ const navItems: NavItemType[] = [
 			>
 				<path
 					fill="currentColor"
-					d="M5 19V5v4.475V9zm3-6h3.525q.425 0 .713-.288t.287-.712t-.288-.712t-.712-.288H8q-.425 0-.712.288T7 12t.288.713T8 13m0 4h3.525q.425 0 .713-.288t.287-.712t-.288-.712t-.712-.288H8q-.425 0-.712.288T7 16t.288.713T8 17m0-8h8q.425 0 .713-.288T17 8t-.288-.712T16 7H8q-.425 0-.712.288T7 8t.288.713T8 9M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h14q.825 0 1.413.588T21 5v4.45q0 .425-.288.713T20 10.45t-.712-.287T19 9.45V5H5v14h4q.425 0 .713.288T10 20t-.288.713T9 21zm10.225-5.725Q14.5 14.55 14.5 13.5t.725-1.775T17 11t1.775.725t.725 1.775t-.725 1.775T17 16t-1.775-.725M17 17q.975 0 1.938.188t1.862.562q.575.225.888.738T22 19.6v.4q0 .425-.288.713T21 21h-8q-.425 0-.712-.288T12 20v-.4q0-.6.313-1.112t.887-.738q.9-.375 1.863-.562T17 17"
+					d="M11 13v3q0 .425.288.713T12 17t.713-.288T13 16v-3h3q.425 0 .713-.288T17 12t-.288-.712T16 11h-3V8q0-.425-.288-.712T12 7t-.712.288T11 8v3H8q-.425 0-.712.288T7 12t.288.713T8 13zm1 9q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22m0-2q3.35 0 5.675-2.325T20 12t-2.325-5.675T12 4T6.325 6.325T4 12t2.325 5.675T12 20m0-8"
 				/>
 			</svg>
 		),
-		children: [
-			{ href: "/user/session/history", label: "History" },
-			{ href: "/user/session/queue", label: "Book A Specialist" },
-		],
 	},
 	{
 		href: "/psychiatrist/article",
