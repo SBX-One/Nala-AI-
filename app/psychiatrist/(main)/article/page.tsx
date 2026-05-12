@@ -1,75 +1,120 @@
-import React from "react";
-import ArticleCard, { Article } from "@/components/partials/ArticleCard";
+"use client";
 
-const dummyArticles: Article[] = [
-	{
-		id: 1,
-		title: "Tips for managing morning panic?",
-		excerpt:
-			"I've been waking up with a racing heart lately. Does anyone have quick grounding techniques that help in the first few minutes of the day?",
-		category: "Anxiety Management",
-		readers: "120K",
-		publishedAt: "December 24, 2025",
-		image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=1000&auto=format&fit=crop",
-	},
-	{
-		id: 2,
-		title: "How can mindful breathing reduce stress?",
-		excerpt:
-			"Struggling to stay present? Learn simple breathing patterns to calm your nervous system anytime, anywhere with these expert-backed techniques.",
-		category: "Stress Relief",
-		readers: "85K",
-		publishedAt: "December 20, 2025",
-		image: "https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?q=80&w=1000&auto=format&fit=crop",
-	},
-	{
-		id: 3,
-		title: "Does improving sleep help anxiety symptoms?",
-		excerpt:
-			"Discover effective bedtime routines that promote restful sleep and reduce nighttime anxiety. Quality rest is the foundation of mental well-being.",
-		category: "Sleep Hygiene",
-		readers: "95K",
-		publishedAt: "December 18, 2025",
-		image: "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?q=80&w=1000&auto=format&fit=crop",
-	},
-];
+import { useState, useEffect, useCallback } from "react";
+import { getPsychiatristArticles, deleteArticle } from "@/app/actions/article";
+import Link from "next/link";
+import Image from "next/image";
 
-export default function page() {
-	return (
-		<div className="flex flex-col  h-full">
-			{/* Header */}
-			<div className="flex justify-between items-center py-8 px-6">
-				<div className="flex flex-col gap-2">
-					<h1 className="text-heading-3-semibold text-text-heading">
-						My Articles
-					</h1>
-					<p className="text-body-base-medium text-text-subheading">
-						Manage my published articles
-					</p>
-				</div>
-				<button className="button-primary-medium">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						className="size-4"
-						viewBox="0 0 24 24"
-					>
-						<path
-							fill="currentColor"
-							d="M11 17.825Q9.95 18.5 8.838 19t-2.338.5q-1.325 0-2.512-.513T1.75 17.65q-.325-.25-.325-.65t.325-.65q.775-.625 1.663-1.075t1.862-.65q-1.5-1.2-2.275-2.9t-.975-3.6q-.05-.45.275-.775t.8-.275q1.5.15 2.875.687T8.5 9.2V9q0-1.975.788-3.75t1.987-3.35q.275-.35.725-.35t.725.35q1.2 1.575 1.988 3.35T15.5 9q0 .05-.012.1t-.013.1q1.175-.9 2.55-1.425t2.875-.7q.45-.05.788.262t.287.788q-.175 1.9-.975 3.6t-2.3 2.9q.975.2 1.85.65t1.675 1.075q.325.25.325.65t-.325.65q-1.05.825-2.225 1.338t-2.5.512q-1.25 0-2.363-.5T13 17.825V21q0 .425-.288.713T12 22t-.712-.288T11 21zM9.6 14.6q-.275-.95-.712-1.812T7.75 11.25q-.7-.7-1.562-1.137T4.375 9.4q.275.95.713 1.813t1.137 1.562q.675.7 1.55 1.138T9.6 14.6m-3.1 2.9q.525 0 1.025-.137T8.5 17q-.475-.2-.975-.35T6.5 16.5t-1.025.15t-1 .35q.475.225.988.363T6.5 17.5m5.5-3.8q.65-1.1 1.075-2.262T13.5 9t-.425-2.437T12 4.325q-.65 1.075-1.075 2.237T10.5 9t.425 2.45T12 13.7m2.4.9q.95-.25 1.813-.687t1.537-1.138q.7-.7 1.138-1.562T19.6 9.4q-.95.275-1.812.713t-1.563 1.137q-.7.675-1.137 1.538T14.4 14.6m3.1 2.9q.525 0 1.025-.137T19.5 17q-.475-.2-.975-.35T17.5 16.5t-1.025.15t-1 .35q.475.225.988.363t1.037.137m-2.025-.5"
-						/>
-					</svg>
-					Create New Article
-				</button>
-			</div>
+export default function ArticleListPage() {
+  const [articles, setArticles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-			<hr className="border-border-default" />
+  const fetchArticles = useCallback(async () => {
+    setLoading(true);
+    const data = await getPsychiatristArticles();
+    setArticles(data);
+    setLoading(false);
+  }, []);
 
-			{/* Grid */}
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full h-fit gap-4 p-8 ">
-				{dummyArticles.map((article) => (
-					<ArticleCard key={article.id} article={article} />
-				))}
-			</div>
-		</div>
-	);
+  useEffect(() => {
+    fetchArticles();
+  }, [fetchArticles]);
+
+  const handleDelete = async (id: number) => {
+    if (confirm("Are you sure you want to delete this article?")) {
+      await deleteArticle(id);
+      fetchArticles();
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-8 max-w-6xl mx-auto">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-heading-4-bold text-text-heading">My Articles</h1>
+          <p className="text-body-base-medium text-text-subheading">Manage and publish your mental health insights</p>
+        </div>
+        <Link href="/psychiatrist/article/create" className="button-primary-large">
+          + Create New Article
+        </Link>
+      </div>
+
+      {articles.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-dashed border-border-default">
+          <p className="text-body-lg-semibold text-text-heading">No articles yet</p>
+          <p className="text-body-sm-medium text-text-subheading">Share your knowledge with the Nala community.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {articles.map((article) => (
+            <div key={article.id} className="bg-white rounded-2xl border border-border-default overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow">
+              <div className="relative h-48 bg-surface-disabled">
+                {article.image_url ? (
+                  <Image 
+                    src={article.image_url} 
+                    alt={article.title} 
+                    fill 
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-text-placeholder">
+                    No Image
+                  </div>
+                )}
+                <div className="absolute top-4 left-4 flex gap-2">
+                  <span className="bg-white/90 backdrop-blur-sm text-label-small-bold px-3 py-1 rounded-full text-text-action shadow-sm">
+                    {article.category?.name}
+                  </span>
+                  <span className={`backdrop-blur-sm text-label-small-bold px-3 py-1 rounded-full shadow-sm ${
+                    article.status === 'published' 
+                      ? 'bg-success-50/90 text-success-600' 
+                      : 'bg-neutral-100/90 text-text-subheading'
+                  }`}>
+                    {article.status === 'published' ? 'Published' : 'Draft'}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="p-6 flex-1 flex flex-col gap-3">
+                <h3 className="text-body-lg-bold text-text-heading line-clamp-2 min-h-[3.5rem]">
+                  {article.title}
+                </h3>
+                <p className="text-body-sm-medium text-text-subheading line-clamp-3">
+                  {article.overview}
+                </p>
+                
+                <div className="mt-auto pt-4 flex justify-between items-center border-t border-border-default">
+                  <span className="text-label-caption-medium text-text-subheading">
+                    {new Date(article.created_at).toLocaleDateString()} • {article.duration} min read
+                  </span>
+                  <div className="flex gap-2">
+                    <Link href={`/psychiatrist/article/edit/${article.id}`} className="p-2 hover:bg-surface-background rounded-lg text-text-action transition-colors">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                      </svg>
+                    </Link>
+                    <button onClick={() => handleDelete(article.id)} className="p-2 hover:bg-error-50 rounded-lg text-error-600 transition-colors">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }

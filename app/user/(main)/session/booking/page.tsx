@@ -220,9 +220,9 @@ export default function BookingPage() {
 
             <div className="w-full">
               <div className="flex gap-2">
-                {i.advertise.map((t: string) => (
+                {i.advertise.map((t: string, idx: number) => (
                   <span
-                    key={t}
+                    key={`${i.id}-${t}-${idx}`}
                     className="text-label-small-medium border border-border-action px-2 py-1 rounded-sm bg-surface-primary-light text-text-action"
                   >
                     {t}
