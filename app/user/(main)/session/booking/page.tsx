@@ -14,7 +14,15 @@ const idr = (number: number) => {
 
 // Helper untuk mendapatkan nama hari dari Date
 const getDayName = (date: Date) => {
-  const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+  const days = [
+    "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+  ];
   return days[date.getDay()];
 };
 
@@ -25,17 +33,20 @@ export default function BookingPage() {
   const [selectedPsychiatrist, setSelectedPsychiatrist] = useState<any>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState(1);
-  
+
   // Form States
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState<{ start: string; end: string } | null>(null);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<{
+    start: string;
+    end: string;
+  } | null>(null);
   const [complaint, setComplaint] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("Credit Card");
   const [billingInfo, setBillingInfo] = useState({
     cardHolder: "",
     cardNumber: "",
     expireDate: "",
-    cvv: ""
+    cvv: "",
   });
 
   useEffect(() => {
@@ -61,17 +72,26 @@ export default function BookingPage() {
   // Filter hari yang tersedia untuk psikiater terpilih
   const availableDates = useMemo(() => {
     if (!selectedPsychiatrist || !selectedPsychiatrist.availability) return [];
-    
+
     return nextSevenDays.map((date, index) => {
       const dayName = getDayName(date);
-      const isAvailable = selectedPsychiatrist.availability.some((a: any) => a.day === dayName);
+      const isAvailable = selectedPsychiatrist.availability.some(
+        (a: any) => a.day === dayName,
+      );
       const i = index + 1;
       return {
         date,
         isAvailable,
-        label: i === 1 ? "Besok" : i === 2 ? "Lusa" : date.toLocaleDateString('id-ID', { weekday: 'short' }),
+        label:
+          i === 1
+            ? "Besok"
+            : i === 2
+              ? "Lusa"
+              : date.toLocaleDateString("id-ID", { weekday: "short" }),
         dayNum: date.getDate().toString(),
-        month: date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()
+        month: date
+          .toLocaleDateString("en-US", { month: "short" })
+          .toUpperCase(),
       };
     });
   }, [selectedPsychiatrist, nextSevenDays]);
@@ -79,14 +99,18 @@ export default function BookingPage() {
   // Generate time slots (45 menit per sesi)
   const timeSlots = useMemo(() => {
     if (!selectedPsychiatrist || !selectedDate) return [];
-    
+
     const dayName = getDayName(selectedDate);
-    const availability = selectedPsychiatrist.availability.find((a: any) => a.day === dayName);
-    
+    const availability = selectedPsychiatrist.availability.find(
+      (a: any) => a.day === dayName,
+    );
+
     if (!availability) return [];
 
     const slots = [];
-    const current = new Date(`2000-01-01T${availability.availability_start_time}`);
+    const current = new Date(
+      `2000-01-01T${availability.availability_start_time}`,
+    );
     const end = new Date(`2000-01-01T${availability.availability_end_time}`);
 
     while (current < end) {
@@ -95,7 +119,7 @@ export default function BookingPage() {
       if (current > end) break;
       const slotEnd = current.toTimeString().slice(0, 5);
       slots.push({ start: slotStart, end: slotEnd });
-      
+
       // Tambah jeda 5 menit antar sesi jika mau, atau biarkan rapat
     }
     return slots;
@@ -121,7 +145,7 @@ export default function BookingPage() {
       const bookingData = {
         psychiatristId: selectedPsychiatrist.id,
         complaint,
-        date: selectedDate.toISOString().split('T')[0],
+        date: selectedDate.toISOString().split("T")[0],
         startTime: `${selectedTimeSlot.start}:00`,
         endTime: `${selectedTimeSlot.end}:00`,
         paymentMethod,
@@ -129,16 +153,20 @@ export default function BookingPage() {
         cardNumber: billingInfo.cardNumber,
         expireDate: billingInfo.expireDate,
         cvv: billingInfo.cvv,
-        price: selectedPsychiatrist.Price
+        price: selectedPsychiatrist.Price,
       };
-      
+
       const result = await createAppointment(bookingData);
 
       if (result.success) {
         setLastBookingInfo({
           psychiatrist: selectedPsychiatrist.name,
-          date: selectedDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
-          time: `${selectedTimeSlot.start} - ${selectedTimeSlot.end}`
+          date: selectedDate.toLocaleDateString("id-ID", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          }),
+          time: `${selectedTimeSlot.start} - ${selectedTimeSlot.end}`,
         });
         setIsOpen(false);
         setIsSuccessModalOpen(true);
@@ -247,9 +275,24 @@ export default function BookingPage() {
               <h2 className="text-heading-6-bold text-text-heading">
                 {step === 1 ? "Book Specialist" : "Payment"}
               </h2>
-              <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-neutral-100 rounded-full">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-2 hover:bg-neutral-100 rounded-full"
+              >
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M18 6L6 18M6 6L18 18"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </button>
             </div>
@@ -285,14 +328,20 @@ export default function BookingPage() {
                             setSelectedTimeSlot(null);
                           }}
                           className={`flex flex-col gap-1 items-center justify-center rounded-lg border transition-all min-w-18 py-3 shrink-0 ${
-                            !d.isAvailable ? "opacity-30 cursor-not-allowed bg-neutral-50" : 
-                            selectedDate?.toDateString() === d.date.toDateString() ? "border-primary-500 bg-primary-50 text-primary-600 ring-1 ring-primary-500" : "border-border-default bg-white hover:border-primary-200"
+                            !d.isAvailable
+                              ? "opacity-30 cursor-not-allowed bg-neutral-50"
+                              : selectedDate?.toDateString() ===
+                                  d.date.toDateString()
+                                ? "border-primary-500 bg-primary-50 text-primary-600 ring-1 ring-primary-500"
+                                : "border-border-default bg-white hover:border-primary-200"
                           }`}
                         >
                           <span className="text-label-small-semibold">
                             {d.label}
                           </span>
-                          <span className="text-body-xl-semibold">{d.dayNum}</span>
+                          <span className="text-body-xl-semibold">
+                            {d.dayNum}
+                          </span>
                           <span className="text-label-caption-medium">
                             {d.month}
                           </span>
@@ -314,7 +363,9 @@ export default function BookingPage() {
                               key={idx}
                               onClick={() => setSelectedTimeSlot(t)}
                               className={`py-3 rounded-xl border text-sm transition-all text-center ${
-                                selectedTimeSlot?.start === t.start ? "border-primary-500 bg-primary-50 text-primary-600 ring-1 ring-primary-500" : "border-border-default bg-white hover:border-primary-200"
+                                selectedTimeSlot?.start === t.start
+                                  ? "border-primary-500 bg-primary-50 text-primary-600 ring-1 ring-primary-500"
+                                  : "border-border-default bg-white hover:border-primary-200"
                               }`}
                             >
                               {t.start}-{t.end}
@@ -374,7 +425,9 @@ export default function BookingPage() {
                           key={pm}
                           onClick={() => setPaymentMethod(pm)}
                           className={`w-full py-4 rounded-xl border transition-all text-center font-semibold ${
-                            paymentMethod === pm ? "border-primary-500 bg-primary-50 text-primary-600 ring-1 ring-primary-500" : "border-border-default bg-white hover:border-primary-200"
+                            paymentMethod === pm
+                              ? "border-primary-500 bg-primary-50 text-primary-600 ring-1 ring-primary-500"
+                              : "border-border-default bg-white hover:border-primary-200"
                           }`}
                         >
                           {pm}
@@ -394,7 +447,12 @@ export default function BookingPage() {
                         <input
                           type="text"
                           value={billingInfo.cardHolder}
-                          onChange={(e) => setBillingInfo({...billingInfo, cardHolder: e.target.value})}
+                          onChange={(e) =>
+                            setBillingInfo({
+                              ...billingInfo,
+                              cardHolder: e.target.value,
+                            })
+                          }
                           className="w-full p-4 rounded-xl border border-border-default bg-surface-default focus:outline-none focus:ring-1 focus:ring-primary-default transition-all"
                           placeholder="Name on card"
                         />
@@ -406,7 +464,12 @@ export default function BookingPage() {
                         <input
                           type="text"
                           value={billingInfo.cardNumber}
-                          onChange={(e) => setBillingInfo({...billingInfo, cardNumber: e.target.value})}
+                          onChange={(e) =>
+                            setBillingInfo({
+                              ...billingInfo,
+                              cardNumber: e.target.value,
+                            })
+                          }
                           className="w-full p-4 rounded-xl border border-border-default bg-surface-default focus:outline-none focus:ring-1 focus:ring-primary-default transition-all"
                           placeholder="1234 5678 9101 1121"
                         />
@@ -419,7 +482,12 @@ export default function BookingPage() {
                           <input
                             type="text"
                             value={billingInfo.expireDate}
-                            onChange={(e) => setBillingInfo({...billingInfo, expireDate: e.target.value})}
+                            onChange={(e) =>
+                              setBillingInfo({
+                                ...billingInfo,
+                                expireDate: e.target.value,
+                              })
+                            }
                             className="w-full p-4 rounded-xl border border-border-default bg-surface-default focus:outline-none focus:ring-1 focus:ring-primary-default transition-all"
                             placeholder="MM/YY"
                           />
@@ -431,7 +499,12 @@ export default function BookingPage() {
                           <input
                             type="text"
                             value={billingInfo.cvv}
-                            onChange={(e) => setBillingInfo({...billingInfo, cvv: e.target.value})}
+                            onChange={(e) =>
+                              setBillingInfo({
+                                ...billingInfo,
+                                cvv: e.target.value,
+                              })
+                            }
                             className="w-full p-4 rounded-xl border border-border-default bg-surface-default focus:outline-none focus:ring-1 focus:ring-primary-default transition-all"
                             placeholder="123"
                           />
@@ -500,37 +573,63 @@ export default function BookingPage() {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-200 flex items-center justify-center px-4">
           <div className="bg-white w-full max-w-md rounded-3xl p-8 flex flex-col items-center gap-6 shadow-2xl animate-in fade-in zoom-in duration-300">
             <div className="size-20 bg-green-100 rounded-full flex items-center justify-center text-green-600">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+              <svg
+                width="40"
+                height="40"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M20 6L9 17L4 12"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </div>
-            
+
             <div className="text-center">
-              <h3 className="text-heading-5-bold text-text-heading mb-2">Booking Successful!</h3>
+              <h3 className="text-heading-5-bold text-text-heading mb-2">
+                Booking Successful!
+              </h3>
               <p className="text-body-base-medium text-text-subheading">
-                Your consultation with <span className="text-text-action font-semibold">{lastBookingInfo?.psychiatrist}</span> has been scheduled.
+                Your consultation with{" "}
+                <span className="text-text-action font-semibold">
+                  {lastBookingInfo?.psychiatrist}
+                </span>{" "}
+                has been scheduled.
               </p>
             </div>
 
             <div className="w-full bg-surface-background rounded-2xl p-5 border border-border-default flex flex-col gap-3">
               <div className="flex justify-between items-center">
-                <span className="text-label-small-semibold text-text-subheading">Date</span>
-                <span className="text-label-base-bold text-text-heading">{lastBookingInfo?.date}</span>
+                <span className="text-label-small-semibold text-text-subheading">
+                  Date
+                </span>
+                <span className="text-label-base-bold text-text-heading">
+                  {lastBookingInfo?.date}
+                </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-label-small-semibold text-text-subheading">Time</span>
-                <span className="text-label-base-bold text-text-heading">{lastBookingInfo?.time}</span>
+                <span className="text-label-small-semibold text-text-subheading">
+                  Time
+                </span>
+                <span className="text-label-base-bold text-text-heading">
+                  {lastBookingInfo?.time}
+                </span>
               </div>
             </div>
 
             <div className="flex flex-col w-full gap-3">
-              <button 
-                onClick={() => window.location.href = "/user/session/history"}
+              <button
+                onClick={() => (window.location.href = "/user/session/history")}
                 className="button-primary-large w-full justify-center"
               >
                 View My Sessions
               </button>
-              <button 
+              <button
                 onClick={() => setIsSuccessModalOpen(false)}
                 className="button-outline-large w-full justify-center"
               >

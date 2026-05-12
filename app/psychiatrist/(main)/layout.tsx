@@ -9,9 +9,13 @@ export default function PsychiatristLayout({
 	return (
 		<>
 			<PsychiatristSideBar />
-			<div className="flex flex-col w-full">
+			<div className="flex flex-col w-full h-screen">
 				<InformationBar />
+
+				<div className="h-full overflow-y-auto">
+
 				{children}
+				</div>
 			</div>
 		</>
 	);
