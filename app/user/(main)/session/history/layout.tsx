@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { getUserConsultations } from "@/app/actions/appointment";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
-export default function HistoryLayout({ children }: { children: React.ReactNode }) {
+function HistoryLayoutContent({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -98,3 +98,16 @@ export default function HistoryLayout({ children }: { children: React.ReactNode 
     </div>
   );
 }
+
+export default function HistoryLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+      </div>
+    }>
+      <HistoryLayoutContent>{children}</HistoryLayoutContent>
+    </Suspense>
+  );
+}
+

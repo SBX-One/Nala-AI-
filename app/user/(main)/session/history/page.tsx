@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { getUserConsultations } from "@/app/actions/appointment";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function HistoryPage() {
+function HistoryContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedPsychiatristId = searchParams.get("psyId");
@@ -45,7 +45,7 @@ export default function HistoryPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex items-center justify-center h-full py-20">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
       </div>
     );
@@ -102,3 +102,16 @@ export default function HistoryPage() {
     </div>
   );
 }
+
+export default function HistoryPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-full py-20">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+      </div>
+    }>
+      <HistoryContent />
+    </Suspense>
+  );
+}
+
