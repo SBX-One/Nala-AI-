@@ -25,7 +25,7 @@ export default function ArticleDetail({
 		<div className="bg-surface-background rounded-3xl overflow-hidden flex flex-col gap-8">
 			{/* Main Image */}
 			<div className=" border-b border-border-default p-16 flex flex-col gap-8">
-				<div className="relative aspect-[21/9] w-full rounded-2xl overflow-hidden ">
+				<div className="relative aspect-21/9 w-full rounded-2xl overflow-hidden ">
 					<Image
 						src={article.image}
 						alt={article.title}

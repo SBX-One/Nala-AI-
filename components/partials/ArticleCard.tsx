@@ -21,7 +21,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
 			href={`/psychiatrist/article/${article.id}`}
 			className="bg-surface-background border border-border-default rounded-2xl flex flex-col h-full hover:border-border-action transition-all duration-300 hover:shadow-lg group cursor-pointer"
 		>
-			<div className="relative aspect-[16/9] m-4 rounded-xl overflow-hidden shrink-0">
+			<div className="relative aspect-video m-4 rounded-xl overflow-hidden shrink-0">
 				<Image
 					src={article.image}
 					alt={article.title}
