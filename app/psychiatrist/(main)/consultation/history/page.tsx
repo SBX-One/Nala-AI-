@@ -5,11 +5,17 @@ import { getConsultationHistory } from "@/app/actions/consultation";
 import Image from "next/image";
 import ConsultationCard from "@/components/consultation/ConsultationCard";
 import ConsultationDetail from "@/components/consultation/ConsultationDetail";
+import { useSearchParams } from "next/navigation";
 
 export default function ConsultationHistoryPage() {
+  const searchParams = useSearchParams();
+  const urlId = searchParams.get("id");
+
   const [consultations, setConsultations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(
+    urlId ? parseInt(urlId) : null,
+  );
   const [error, setError] = useState<string | null>(null);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -22,8 +28,16 @@ export default function ConsultationHistoryPage() {
         setError(result.error);
       } else if (result.data) {
         setConsultations(result.data);
-        // If nothing selected, select first
-        if (!selectedId && result.data.length > 0) {
+
+        // Priority for selection:
+        // 1. Current selectedId (if set via state or url)
+        // 2. URL ID (if not yet in selectedId)
+        // 3. First item in list
+        const effectiveId = selectedId || (urlId ? parseInt(urlId) : null);
+
+        if (effectiveId) {
+          setSelectedId(effectiveId);
+        } else if (result.data.length > 0) {
           setSelectedId(result.data[0].id);
         }
       }
@@ -131,7 +145,7 @@ export default function ConsultationHistoryPage() {
       {/* Left Column - List */}
       <div
         className={`
-          fixed inset-0 top-[125px] lg:static lg:inset-auto lg:col-span-4 bg-white border-r border-border-default flex flex-col shrink-0 h-full z-5 0 transition-transform duration-300
+          fixed inset-0 top-31.25 overflow-y-auto lg:static lg:inset-auto lg:col-span-4 bg-white border-r border-border-default flex flex-col shrink-0 h-full z-50 transition-transform duration-300
           ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
       >

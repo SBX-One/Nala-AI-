@@ -13,7 +13,6 @@ const tabs: { key: Tab; label: string }[] = [
   { key: "patientInfo", label: "Patient Info" },
 ];
 
-
 function ActiveConsultationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -22,6 +21,7 @@ function ActiveConsultationContent() {
   const [active, setActive] = useState<Tab>("conversation");
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [otherName, setOtherName] = useState("Patient");
+  const [roomStatus, setRoomStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -66,15 +66,16 @@ function ActiveConsultationContent() {
         return;
       }
 
-      // Ambil nama pasien dari room
+      // Ambil data room
       if (roomId) {
         const { data: room, error: roomError } = await supabase
           .from("MeetingRoom")
-          .select("user_id")
+          .select("user_id, status")
           .eq("id", roomId)
           .maybeSingle();
 
         if (room) {
+          setRoomStatus(room.status);
           const { data: userProfile, error: userProfileError } = await supabase
             .from("UserProfile")
             .select("name")
@@ -111,14 +112,33 @@ function ActiveConsultationContent() {
       <div className="w-full h-full flex items-center justify-center p-6">
         <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-border-default shadow-sm text-center space-y-4">
           <div className="w-16 h-16 bg-error-50 rounded-2xl flex items-center justify-center mx-auto text-error-default">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-              <path d="M12 8v4M12 16h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <svg
+              width="32"
+              height="32"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="2"
+              />
+              <path
+                d="M12 8v4M12 16h.01"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
             </svg>
           </div>
-          <h2 className="text-heading-6-bold text-text-heading">Something went wrong</h2>
+          <h2 className="text-heading-6-bold text-text-heading">
+            Something went wrong
+          </h2>
           <p className="text-body-base-regular text-text-subheading">{error}</p>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="px-6 py-2.5 bg-accent-500 text-white rounded-xl text-label-base-semibold hover:bg-accent-600 transition-colors"
           >
@@ -129,16 +149,26 @@ function ActiveConsultationContent() {
     );
   }
 
-  if (!roomId) {
+  if (!roomId || roomStatus === "finished") {
     return (
       <div className="w-full flex items-center justify-center h-full">
         <div className="text-center space-y-3">
           <p className="text-heading-6-bold text-text-heading">
-            No Active Consultation
+            {roomStatus === "finished"
+              ? "Consultation Ended"
+              : "No Active Consultation"}
           </p>
           <p className="text-body-base-regular text-text-placeholder">
-            Select a consultation to start a conversation.
+            {roomStatus === "finished"
+              ? "This session has been completed."
+              : "Select a consultation to start a conversation."}
           </p>
+          <button
+            onClick={() => router.push("/psychiatrist/consultation/queue")}
+            className="button-primary-large"
+          >
+            Back to Queue
+          </button>
         </div>
       </div>
     );
@@ -213,11 +243,13 @@ function ActiveConsultationContent() {
 
 export default function ActiveConsultationPage() {
   return (
-    <Suspense fallback={
-      <div className="w-full flex h-full items-center justify-center text-text-placeholder">
-        <div className="size-8 rounded-full border-3 border-accent-400 border-t-transparent animate-spin" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="w-full flex h-full items-center justify-center text-text-placeholder">
+          <div className="size-8 rounded-full border-3 border-accent-400 border-t-transparent animate-spin" />
+        </div>
+      }
+    >
       <ActiveConsultationContent />
     </Suspense>
   );
