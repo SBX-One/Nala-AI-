@@ -27,7 +27,7 @@ export const FormTextarea: React.FC<FormTextareaProps> = ({
         {rightLabel && (
           <label
             htmlFor={id}
-            className="text-label-small-semibold text-text-heading"
+            className="text-label-small-medium text-text-heading"
           >
             {rightLabel}
           </label>

@@ -3,11 +3,16 @@
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
-export async function updateConsultation(id: number, data: { diagnose: string; psychiatrist_feedback: string; status?: string }) {
+export async function updateConsultation(
+  id: number,
+  data: { diagnose: string; psychiatrist_feedback: string; status?: string },
+) {
   const supabase = await createClient();
 
   // Verify authentication
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
   // Update the consultation in Prisma (via Supabase REST API or if you have a prisma client on server)
@@ -17,7 +22,7 @@ export async function updateConsultation(id: number, data: { diagnose: string; p
     .update({
       diagnose: data.diagnose,
       psychiatrist_feedback: data.psychiatrist_feedback,
-      status: data.status || "finished"
+      status: data.status || "finished",
     })
     .eq("id", id);
 

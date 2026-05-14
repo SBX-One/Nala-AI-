@@ -92,7 +92,7 @@ export default function ConsultationHistoryPage() {
   }
 
   return (
-    <div className="flex flex-col lg:grid lg:grid-cols-12 w-full h-[calc(100vh-70px)] bg-white overflow-hidden relative">
+    <div className="flex flex-col lg:grid lg:grid-cols-12 w-full h-[calc(100vh-70px)] bg-surface-default overflow-hidden relative">
       {/* Mobile Header Toggle */}
       <div className="lg:hidden p-4 border-b border-border-default flex items-center justify-between bg-white z-30 shrink-0">
         <h2 className="text-body-lg-bold text-text-heading">
@@ -161,7 +161,7 @@ export default function ConsultationHistoryPage() {
       </div>
 
       {/* Right Column - Detail */}
-      <div className="flex-1 lg:col-span-8 overflow-y-auto bg-surface-background custom-scrollbar">
+      <div className="flex-1 lg:col-span-8 overflow-y-auto bg-surface-default custom-scrollbar">
         {selectedSession ? (
           <ConsultationDetail
             session={selectedSession}

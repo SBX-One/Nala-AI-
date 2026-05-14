@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FormInput } from "../ui/FormInput";
 import { FormTextarea } from "../ui/FormTextarea";
+import { searchMedicines } from "@/app/actions/medicine";
 
 interface Medicine {
   name: string;
@@ -26,9 +27,22 @@ export default function MedicineModal({
 }: MedicineModalProps) {
   const [medicines, setMedicines] = useState<Medicine[]>(
     initialMedicines.length > 0
-      ? initialMedicines
+      ? initialMedicines.map(m => ({ ...m })) // Clone to avoid mutation
       : [{ name: "", dose: "", use: "", notes: "" }],
   );
+
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [activeSearchIndex, setActiveSearchIndex] = useState<number | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (isOpen && initialMedicines.length > 0) {
+      setMedicines(initialMedicines.map(m => ({ ...m })));
+    } else if (isOpen && initialMedicines.length === 0) {
+      setMedicines([{ name: "", dose: "", use: "", notes: "" }]);
+    }
+  }, [isOpen, initialMedicines]);
 
   if (!isOpen) return null;
 
@@ -48,17 +62,47 @@ export default function MedicineModal({
     const updated = [...medicines];
     updated[index][field] = value;
     setMedicines(updated);
+
+    if (field === "name") {
+      setActiveSearchIndex(index);
+      handleSearch(value);
+    }
+  };
+
+  const handleSearch = (query: string) => {
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+
+    if (!query.trim()) {
+      setSuggestions([]);
+      return;
+    }
+
+    setIsSearching(true);
+    searchTimeoutRef.current = setTimeout(async () => {
+      const result = await searchMedicines(query);
+      if (result.data) {
+        setSuggestions(result.data);
+      }
+      setIsSearching(false);
+    }, 300);
+  };
+
+  const selectSuggestion = (index: number, name: string) => {
+    const updated = [...medicines];
+    updated[index].name = name;
+    setMedicines(updated);
+    setSuggestions([]);
+    setActiveSearchIndex(null);
   };
 
   const handleSave = () => {
-    // Filter out empty rows
     const validMedicines = medicines.filter((m) => m.name.trim() !== "");
     onAdd(validMedicines);
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
+    <div className="fixed inset-0 z-110 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300" onClick={onClose}>
       <div
         className="bg-white rounded-xl p-8 max-w-2xl w-full shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300 max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
@@ -109,13 +153,46 @@ export default function MedicineModal({
               )}
 
               <div className="grid grid-cols-2 gap-4">
-                <FormInput
-                  id={`med-name-${index}`}
-                  leftLabel="Medicine Name"
-                  placeholder="e.g. Seteraline"
-                  value={med.name}
-                  onChange={(e) => handleChange(index, "name", e.target.value)}
-                />
+                <div className="relative">
+                  <FormInput
+                    id={`med-name-${index}`}
+                    leftLabel="Medicine Name"
+                    placeholder="e.g. Seteraline"
+                    value={med.name}
+                    onChange={(e) => handleChange(index, "name", e.target.value)}
+                    onFocus={() => {
+                      if (med.name) {
+                        setActiveSearchIndex(index);
+                        handleSearch(med.name);
+                      }
+                    }}
+                    autoComplete="off"
+                  />
+                  
+                  {activeSearchIndex === index && (suggestions.length > 0 || isSearching) && (
+                    <div className="absolute z-50 left-0 right-0 top-[calc(100%+4px)] bg-white border border-border-default rounded-xl shadow-xl overflow-hidden max-h-48 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                      {isSearching ? (
+                        <div className="p-4 text-center text-body-sm-medium text-text-placeholder">
+                          Searching...
+                        </div>
+                      ) : (
+                        suggestions.map((s) => (
+                          <button
+                            key={s.id}
+                            className="w-full text-left px-4 py-3 hover:bg-surface-default text-body-sm-medium text-text-heading border-b border-border-default last:border-0 transition-colors"
+                            onClick={() => selectSuggestion(index, s.name)}
+                          >
+                            <span className="font-bold">{s.name}</span>
+                            {s.description && (
+                              <p className="text-xs text-text-placeholder line-clamp-1">{s.description}</p>
+                            )}
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
+                
                 <FormInput
                   id={`med-dose-${index}`}
                   leftLabel="Dosage"
@@ -178,6 +255,11 @@ export default function MedicineModal({
           </button>
         </div>
       </div>
+      
+      {/* Click outside search handler */}
+      {activeSearchIndex !== null && (
+        <div className="fixed inset-0 z-40" onClick={() => setActiveSearchIndex(null)} />
+      )}
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { updateConsultation } from "@/app/actions/consultation";
 import FinalizeModal from "./FinalizeModal";
 import MedicineModal from "./MedicineModal";
 import MedicineCard from "./MedicineCard";
+import UpdateConsultationModal from "./UpdateConsultationModal";
 
 interface ConsultationDetailProps {
   session: any;
@@ -18,22 +19,19 @@ export default function ConsultationDetail({
   onRefresh,
 }: ConsultationDetailProps) {
   const router = useRouter();
-  const [isEditing, setIsEditing] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showFinalizeModal, setShowFinalizeModal] = useState(false);
-  const [showMedicineModal, setShowMedicineModal] = useState(false);
 
-  // Form States
+  // View States (Synced with session)
   const [diagnose, setDiagnose] = useState(session.diagnose || "");
   const [feedback, setFeedback] = useState(session.psychiatrist_feedback || "");
   const [medicines, setMedicines] = useState<any[]>(session.medicines || []);
 
-  // Update internal state when session prop changes
   useEffect(() => {
     setDiagnose(session.diagnose || "");
     setFeedback(session.psychiatrist_feedback || "");
     setMedicines(session.medicines || []);
-    setIsEditing(false);
   }, [session]);
 
   const calculateAge = (birthDate: string) => {
@@ -48,17 +46,20 @@ export default function ConsultationDetail({
     return age;
   };
 
-  const handleSubmit = async (status: "draft" | "published" = "published") => {
+  const handleSubmit = async (
+    data: { diagnose: string; feedback: string; medicines: any[] },
+    status: "draft" | "published" = "published"
+  ) => {
     setLoading(true);
     const result = await updateConsultation(session.id, {
-      diagnose,
-      psychiatrist_feedback: feedback,
+      diagnose: data.diagnose,
+      psychiatrist_feedback: data.feedback,
       status: status,
-      medicines: medicines,
+      medicines: data.medicines,
     });
 
     if (result.success) {
-      setIsEditing(false);
+      setShowUpdateModal(false);
       if (onRefresh) onRefresh();
       router.refresh();
     } else {
@@ -68,7 +69,7 @@ export default function ConsultationDetail({
   };
 
   return (
-    <div className="pb-24 lg:pb-0">
+    <div className="pb-24 lg:pb-0 bg-surface-default">
       {/* Header Action */}
       <div className="flex items-center justify-between border-b border-border-default p-5 sticky top-0 bg-white z-20">
         <span className="text-body-base-medium text-text-subheading">
@@ -80,63 +81,55 @@ export default function ConsultationDetail({
           })}
         </span>
         <div className="flex items-center gap-3">
-          {!isEditing ? (
-            <button
-              onClick={() => setIsEditing(true)}
-              className="button-secondary-medium"
+          <button
+            onClick={() => setShowUpdateModal(true)}
+            className="button-secondary-medium"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-              </svg>
-              Edit
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            Edit
+          </button>
+          {session.status === "draft" && (
+            <button
+              onClick={() => setShowFinalizeModal(true)}
+              className="button-primary-medium"
+            >
+              Submit Consultation
             </button>
-          ) : (
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setIsEditing(false)}
-                className="button-outline-medium"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleSubmit("draft")}
-                disabled={loading}
-                className="button-secondary-medium"
-              >
-                {loading ? "Saving..." : "Save as Draft"}
-              </button>
-              <button
-                onClick={() => setShowFinalizeModal(true)}
-                disabled={loading}
-                className="button-primary-medium"
-              >
-                {loading ? "Submitting..." : "Submit"}
-              </button>
-            </div>
           )}
         </div>
       </div>
+
+      <UpdateConsultationModal
+        isOpen={showUpdateModal}
+        onClose={() => setShowUpdateModal(false)}
+        initialData={{ diagnose, feedback, medicines }}
+        onSave={handleSubmit}
+        isLoading={loading}
+      />
 
       <FinalizeModal
         isOpen={showFinalizeModal}
         onClose={() => setShowFinalizeModal(false)}
         onConfirm={async () => {
-          await handleSubmit("published");
+          await handleSubmit({ diagnose, feedback, medicines }, "published");
           setShowFinalizeModal(false);
         }}
         isLoading={loading}
       />
-      <div className="bg-surface-background p-6 flex flex-col gap-4">
+
+      <div className="bg-surface-default p-6 flex flex-col gap-4">
         {/* Patient Profile Card */}
         <div className="bg-white rounded-xl border border-border-default p-6 flex gap-8 items-start ">
           <div className="relative size-32 rounded-lg overflow-hidden bg-surface-background shrink-0 border border-border-default">
@@ -225,15 +218,8 @@ export default function ConsultationDetail({
           <h3 className="text-body-xl-semibold text-text-body">
             Diagnose {session.status === "draft" && "(Draft)"}
           </h3>
-          <div className="w-full min-h-40 rounded-2xl border border-dashed border-border-default bg-surface-background flex flex-col items-center justify-start">
-            {isEditing ? (
-              <textarea
-                value={diagnose}
-                onChange={(e) => setDiagnose(e.target.value)}
-                placeholder="Type your clinical diagnosis here..."
-                className="w-full h-full min-h-35 p-6 bg-transparent outline-none text-body-base-medium text-text-heading resize-none placeholder:text-text-placeholder"
-              />
-            ) : diagnose ? (
+          <div className="w-full min-h-40 rounded-2xl border border-dashed border-border-default bg-surface-default flex flex-col items-center justify-start">
+            {diagnose ? (
               <div className="w-full p-6 text-left">
                 <p className="text-body-base-medium text-text-heading whitespace-pre-wrap">
                   {diagnose}
@@ -245,8 +231,7 @@ export default function ConsultationDetail({
                   No clinical diagnose drafted yet.
                 </h4>
                 <p className="text-body-sm-medium text-text-placeholder max-w-sm">
-                  You haven&apos;t added your diagnose for this session. Use the
-                  internal notes above
+                  You haven&apos;t added your diagnose for this session. Click Edit to start.
                 </p>
               </div>
             )}
@@ -258,15 +243,8 @@ export default function ConsultationDetail({
           <h3 className="text-body-xl-semibold text-text-body">
             Psychiatry&apos;s Feedback {session.status === "draft" && "(Draft)"}
           </h3>
-          <div className="w-full min-h-40 rounded-2xl border border-dashed border-border-default bg-surface-background flex flex-col items-center justify-start">
-            {isEditing ? (
-              <textarea
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                placeholder="Type your clinical feedback here..."
-                className="w-full h-full min-h-35 p-6 bg-transparent outline-none text-body-base-medium text-text-heading resize-none placeholder:text-text-placeholder"
-              />
-            ) : feedback ? (
+          <div className="w-full min-h-40 rounded-2xl border border-dashed border-border-default bg-surface-default flex flex-col items-center justify-start">
+            {feedback ? (
               <div className="w-full p-6 text-left">
                 <p className="text-body-base-medium text-text-heading whitespace-pre-wrap">
                   {feedback}
@@ -278,8 +256,7 @@ export default function ConsultationDetail({
                   No clinical feedback drafted yet.
                 </h4>
                 <p className="text-body-sm-medium text-text-placeholder max-w-sm">
-                  You haven&apos;t started your feedback for this session. Use
-                  the internal notes above
+                  You haven&apos;t started your feedback for this session. Click Edit to start.
                 </p>
               </div>
             )}
@@ -292,24 +269,6 @@ export default function ConsultationDetail({
             <h3 className="text-body-xl-semibold text-text-body">
               Medicine {session.status === "draft" && "(Draft)"}
             </h3>
-            {isEditing && (
-              <button
-                onClick={() => setShowMedicineModal(true)}
-                className="text-label-base-bold text-primary-600 hover:text-primary-700 transition-colors flex items-center gap-2"
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M12 5v14M5 12h14"></path>
-                </svg>
-                Manage Prescription
-              </button>
-            )}
           </div>
 
           {medicines && medicines.length > 0 ? (
@@ -321,41 +280,22 @@ export default function ConsultationDetail({
                   dose={med.dose}
                   use={med.use}
                   notes={med.notes}
+                  isEditable={false}
                 />
               ))}
             </div>
           ) : (
-            <div className="w-full py-14 px-6 rounded-2xl border border-dashed border-border-default bg-surface-background flex flex-col items-center justify-center text-center space-y-2">
+            <div className="w-full py-14 px-6 rounded-2xl border border-dashed border-border-default bg-surface-default flex flex-col items-center justify-center text-center space-y-2">
               <h4 className="text-body-base-bold text-text-heading">
                 No medication added to this prescription.
               </h4>
               <p className="text-body-sm-medium text-text-placeholder max-w-sm">
-                No medicine has been prescribed for this patient yet. Use the
-                manage button above to add specific medications.
+                No medicine has been prescribed for this patient yet. Click Edit to manage prescription.
               </p>
             </div>
           )}
         </div>
       </div>
-
-      <FinalizeModal
-        isOpen={showFinalizeModal}
-        onClose={() => setShowFinalizeModal(false)}
-        onConfirm={async () => {
-          await handleSubmit("published");
-          setShowFinalizeModal(false);
-        }}
-        isLoading={loading}
-      />
-
-      <MedicineModal
-        isOpen={showMedicineModal}
-        onClose={() => setShowMedicineModal(false)}
-        initialMedicines={medicines}
-        onAdd={(updatedMedicines) => {
-          setMedicines(updatedMedicines);
-        }}
-      />
     </div>
   );
 }

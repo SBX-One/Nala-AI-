@@ -2,6 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
+import { getOrCreateMedicine } from "./medicine";
 
 export async function getConsultationHistory() {
   const supabase = await createClient();
@@ -36,14 +37,17 @@ export async function getConsultationHistory() {
     return { error: "Invalid Psychiatrist ID" };
   }
 
-  // Fetch consultations with user profile info
+  // Fetch consultations with user profile info and medicine info
   const { data: consultations, error } = await supabase
     .from("Consultation")
     .select(
       `
       *,
       user:UserProfile(name, avatar_url, birth_date, location),
-      medicines:ConsultationMedicine(*)
+      medicines:ConsultationMedicine(
+        *,
+        medicine:Medicine(name)
+      )
     `,
     )
     .eq("psychiatrist_id", psychiatristId)
@@ -54,7 +58,16 @@ export async function getConsultationHistory() {
     return { error: error.message };
   }
 
-  return { data: consultations };
+  // Flatten the medicine names for the UI to be compatible with existing code
+  const formattedConsultations = consultations?.map(session => ({
+    ...session,
+    medicines: session.medicines?.map((m: any) => ({
+      ...m,
+      name: m.medicine?.name || "Unknown Medicine"
+    }))
+  }));
+
+  return { data: formattedConsultations };
 }
 
 export async function updateConsultation(
@@ -104,21 +117,32 @@ export async function updateConsultation(
 
     // 2. Insert new medicines
     if (data.medicines.length > 0) {
-      const { error: insertError } = await supabase
-        .from("ConsultationMedicine")
-        .insert(
-          data.medicines.map((m) => ({
-            consultation_id: id,
-            name: m.name,
-            dose: m.dose,
-            use: m.use,
-            notes: m.notes,
-          })),
+      try {
+        // Resolve all medicine IDs (get or create)
+        const medicineEntries = await Promise.all(
+          data.medicines.map(async (m) => {
+            const medicineId = await getOrCreateMedicine(m.name);
+            return {
+              consultation_id: id,
+              medicine_id: medicineId,
+              dose: m.dose,
+              use: m.use,
+              notes: m.notes,
+            };
+          })
         );
 
-      if (insertError) {
-        console.error("Error inserting medicines:", insertError);
-        return { error: insertError.message };
+        const { error: insertError } = await supabase
+          .from("ConsultationMedicine")
+          .insert(medicineEntries);
+
+        if (insertError) {
+          console.error("Error inserting medicines:", insertError);
+          return { error: insertError.message };
+        }
+      } catch (err: any) {
+        console.error("Critical error during medicine sync:", err);
+        return { error: err.message };
       }
     }
   }

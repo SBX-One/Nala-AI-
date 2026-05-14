@@ -120,15 +120,24 @@ model ConsultationBilling {
   consultation    Consultation  @relation(fields: [consultation_id], references: [id])
 }
 
+model Medicine {
+  id                    Int                    @id @default(autoincrement())
+  name                  String                 @unique
+  description           String?
+  created_at            DateTime               @default(now())
+  consultation_medicines ConsultationMedicine[]
+}
+
 model ConsultationMedicine {
   id              Int          @id @default(autoincrement())
   consultation_id Int
-  name            String
+  medicine_id     Int
   notes           String?
   use             String?
   dose            String?
   created_at      DateTime     @default(now())
   consultation    Consultation @relation(fields: [consultation_id], references: [id])
+  medicine        Medicine     @relation(fields: [medicine_id], references: [id])
 }
 
 model MeetingRoom {
