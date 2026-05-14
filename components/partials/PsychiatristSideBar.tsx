@@ -27,8 +27,8 @@ const navItems: NavItemType[] = [
   },
 
   {
-    href: "/psychiatrist/availability",
-    label: "Availability",
+    href: "/psychiatrist/consultation",
+    label: "Consultation",
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -51,8 +51,8 @@ const navItems: NavItemType[] = [
       </svg>
     ),
     children: [
-      { href: "/psychiatrist/history", label: "History" },
-      { href: "/psychiatrist/queue", label: "Queue" },
+      { href: "/psychiatrist/consultation/history", label: "History" },
+      { href: "/psychiatrist/consultation/queue", label: "Queue" },
     ],
   },
   {

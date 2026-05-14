@@ -92,13 +92,16 @@ model Consultation {
   date            DateTime               @db.Date
   start_time      DateTime               @db.Time(6)
   end_time        DateTime               @db.Time(6)
-  topic           String?
-  feedback        String?
-  created_at      DateTime               @default(now())
-  psychiatrist    PsychiatristProfile    @relation("PsychiatristConsultations", fields: [psychiatrist_id], references: [id])
-  user            UserProfile            @relation("UserConsultations", fields: [user_id], references: [id])
-  billing         ConsultationBilling?
-  medicines       ConsultationMedicine[]
+  topic              String?
+  diagnose            String?
+  psychiatrist_feedback String?
+  feedback            String?
+  status             ConsultationStatus     @default(pending)
+  created_at         DateTime               @default(now())
+  psychiatrist       PsychiatristProfile    @relation("PsychiatristConsultations", fields: [psychiatrist_id], references: [id])
+  user               UserProfile            @relation("UserConsultations", fields: [user_id], references: [id])
+  billing            ConsultationBilling?
+  medicines          ConsultationMedicine[]
 }
 
 model ConsultationBilling {
@@ -238,6 +241,8 @@ enum ConsultationStatus {
   pending
   on_going
   finished
+  draft
+  published
 }
 
 enum ArticleStatus {

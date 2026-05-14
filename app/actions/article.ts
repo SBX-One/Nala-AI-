@@ -5,7 +5,9 @@ import { revalidatePath } from "next/cache";
 
 export async function getPsychiatristArticles() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) return [];
 
@@ -13,20 +15,31 @@ export async function getPsychiatristArticles() {
   const { data: psyProfile } = await supabase
     .from("PsychiatristProfile")
     .select("id")
-    .eq("user_id", (await supabase.from("User").select("id").eq("auth_user_id", user.id).single()).data?.id)
+    .eq(
+      "user_id",
+      (
+        await supabase
+          .from("User")
+          .select("id")
+          .eq("auth_user_id", user.id)
+          .single()
+      ).data?.id,
+    )
     .single();
 
   if (!psyProfile) return [];
 
   const { data, error } = await supabase
     .from("Article")
-    .select(`
+    .select(
+      `
       *,
       category:ArticleCategory (name),
       topics:ArticleTopic (
         categoryTopic:ArticleCategoryTopic (name)
       )
-    `)
+    `,
+    )
     .eq("psychiatrist_id", psyProfile.id)
     .order("created_at", { ascending: false });
 
@@ -48,7 +61,9 @@ export async function createArticle(formData: {
   status?: string;
 }) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) throw new Error("Unauthorized");
 
@@ -93,9 +108,9 @@ export async function createArticle(formData: {
 
   // Insert Topics
   if (formData.topicIds.length > 0) {
-    const topicRows = formData.topicIds.map(topicId => ({
+    const topicRows = formData.topicIds.map((topicId) => ({
       article_id: article.id,
-      category_topic: topicId
+      category_topic: topicId,
     }));
 
     const { error: topicError } = await supabase
@@ -111,17 +126,20 @@ export async function createArticle(formData: {
   return { success: true, articleId: article.id };
 }
 
-export async function updateArticle(articleId: number, formData: {
-  title: string;
-  overview: string;
-  content: string;
-  categoryId: number;
-  imageUrl?: string;
-  topicIds: number[];
-  status?: string;
-}) {
+export async function updateArticle(
+  articleId: number,
+  formData: {
+    title: string;
+    overview: string;
+    content: string;
+    categoryId: number;
+    imageUrl?: string;
+    topicIds: number[];
+    status?: string;
+  },
+) {
   const supabase = await createClient();
-  
+
   // Update Article
   const { error: articleError } = await supabase
     .from("Article")
@@ -145,9 +163,9 @@ export async function updateArticle(articleId: number, formData: {
   await supabase.from("ArticleTopic").delete().eq("article_id", articleId);
 
   if (formData.topicIds.length > 0) {
-    const topicRows = formData.topicIds.map(topicId => ({
+    const topicRows = formData.topicIds.map((topicId) => ({
       article_id: articleId,
-      category_topic: topicId
+      category_topic: topicId,
     }));
 
     await supabase.from("ArticleTopic").insert(topicRows);
@@ -159,11 +177,8 @@ export async function updateArticle(articleId: number, formData: {
 
 export async function deleteArticle(articleId: number) {
   const supabase = await createClient();
-  
-  const { error } = await supabase
-    .from("Article")
-    .delete()
-    .eq("id", articleId);
+
+  const { error } = await supabase.from("Article").delete().eq("id", articleId);
 
   if (error) {
     console.error("Error deleting article:", error.message);

@@ -1,22 +1,43 @@
 "use client";
 
 import { savePsychiatristProfile } from "@/app/auth/actions";
-import Image from "next/image";
+import { RegisterHeader } from "@/components/ui/RegisterHeader";
+import { PersonalInfoStep } from "@/components/register/PersonalInfoStep";
+import { ProfessionalInfoStep } from "@/components/register/ProfessionalInfoStep";
+import { AvailabilityStep } from "@/components/register/AvailabilityStep";
+import { createClient } from "@/utils/supabase/client";
 import { useState, useRef, useEffect, type ChangeEvent } from "react";
-
-type Sex = "male" | "female";
-type Step = "personal" | "professional" | "availability";
+import {
+  PsychiatristRegisterProvider,
+  usePsychiatristRegister,
+} from "@/context/PsychiatristRegisterContext";
+import { useRouter } from "next/navigation";
+import { RegistrationCompleteStep } from "@/components/register/RegistrationCompleteStep";
 
 interface ExpertiseOption {
   id: number;
   name: string;
 }
 
-export default function PsychiatristProfilePage() {
+function PsychiatristProfileContent() {
+  const router = useRouter();
+  const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [step, setStep] = useState<Step>("personal");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const {
+    step,
+    setStep,
+    formData,
+    setFormData,
+    availability,
+    setAvailability,
+    isPersonalValid,
+    isProfessionalValid,
+    resetForm,
+  } = usePsychiatristRegister();
 
   // List expertise dari database
   const [expertiseOptions, setExpertiseOptions] = useState<ExpertiseOption[]>(
@@ -24,74 +45,51 @@ export default function PsychiatristProfilePage() {
   );
   const [expertiseLoading, setExpertiseLoading] = useState(true);
 
-  // Step 1: Data Personal
-  const [personal, setPersonal] = useState({
-    avatarPreview: "",
-    fullName: "",
-    sex: "" as Sex | "",
-  });
-
-  // Step 2: Data Professional (semua field dari schema PsychiatristProfile)
-  const [professional, setProfessional] = useState({
-    specialization: "",
-    licenseNumber: "",
-    description: "",
-    price: "",
-    experienceStart: "",
-    experienceEnd: "",
-    selectedExpertiseIds: [] as number[],
-  });
-
-  // Step 3: Availability
-  const [availability, setAvailability] = useState(
-    [
-      { day: "monday", label: "Monday", startTime: "09:00", endTime: "17:00", enabled: true },
-      { day: "tuesday", label: "Tuesday", startTime: "09:00", endTime: "17:00", enabled: true },
-      { day: "wednesday", label: "Wednesday", startTime: "09:00", endTime: "17:00", enabled: true },
-      { day: "thursday", label: "Thursday", startTime: "09:00", endTime: "17:00", enabled: true },
-      { day: "friday", label: "Friday", startTime: "09:00", endTime: "17:00", enabled: true },
-      { day: "saturday", label: "Saturday", startTime: "09:00", endTime: "17:00", enabled: false },
-      { day: "sunday", label: "Sunday", startTime: "09:00", endTime: "17:00", enabled: false },
-    ]
-  );
-
-  // Ambil data Expertise dari database saat komponen mount
   useEffect(() => {
+    console.log("Fetching expertises...");
     fetch("/api/expertises")
       .then((res) => res.json())
       .then((data) => {
-        // Pastikan response adalah array sebelum di-set
-        if (Array.isArray(data)) {
-          setExpertiseOptions(data);
-        } else {
-          console.error("Unexpected expertise response format:", data);
-          setExpertiseOptions([]);
-        }
+        console.log("Expertises API Response:", data);
+        if (Array.isArray(data)) setExpertiseOptions(data);
         setExpertiseLoading(false);
       })
       .catch((err) => {
-        console.error("Failed to load expertises:", err);
-        setExpertiseOptions([]);
+        console.error("Expertises Fetch Error:", err);
         setExpertiseLoading(false);
       });
   }, []);
 
-  const handleAvatarChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPersonal((prev) => ({
-          ...prev,
-          avatarPreview: reader.result as string,
-        }));
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `psychiatrist-avatars/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("avatars").getPublicUrl(filePath);
+
+      setFormData((prev) => ({ ...prev, avatarUrl: publicUrl }));
+    } catch (err: any) {
+      setError("Error uploading avatar: " + err.message);
+    } finally {
+      setUploading(false);
     }
   };
 
   const toggleExpertise = (id: number) => {
-    setProfessional((prev) => ({
+    setFormData((prev) => ({
       ...prev,
       selectedExpertiseIds: prev.selectedExpertiseIds.includes(id)
         ? prev.selectedExpertiseIds.filter((eid) => eid !== id)
@@ -99,11 +97,13 @@ export default function PsychiatristProfilePage() {
     }));
   };
 
-  const isPersonalValid =
-    personal.fullName.trim() !== "" && personal.sex !== "";
-
-  const isProfessionalValid =
-    professional.experienceStart !== "" && professional.price !== "";
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const stepParam = params.get("step");
+    if (stepParam === "availability") {
+      setStep("availability");
+    }
+  }, [setStep]);
 
   async function handleSubmit() {
     setIsSubmitting(true);
@@ -111,516 +111,197 @@ export default function PsychiatristProfilePage() {
 
     try {
       const result = await savePsychiatristProfile({
-        fullName: personal.fullName,
-        sex: personal.sex,
-        specialization: professional.specialization,
-        licenseNumber: professional.licenseNumber,
-        description: professional.description,
-        price: professional.price,
-        experienceStart: professional.experienceStart,
-        experienceEnd: professional.experienceEnd,
-        selectedExpertiseIds: professional.selectedExpertiseIds,
-        availability: availability.filter(a => a.enabled).map(a => ({
-          day: a.day,
-          startTime: a.startTime,
-          endTime: a.endTime
-        }))
+        fullName: formData.fullName,
+        sex: formData.sex as "male" | "female",
+        specialization: formData.specialization,
+        licenseNumber: formData.licenseNumber,
+        description: formData.description,
+        price: formData.price,
+        experienceStart: formData.experienceStart,
+        experienceEnd: formData.experienceEnd,
+        selectedExpertiseIds: formData.selectedExpertiseIds,
+        avatarUrl: formData.avatarUrl,
+        availability: availability
+          .filter((a) => a.enabled)
+          .map((a) => ({
+            day: a.day,
+            startTime: a.startTime,
+            endTime: a.endTime,
+          })),
       });
+
       if (result?.error) {
         setError(result.error);
         setIsSubmitting(false);
+      } else {
+        if (step === "availability") {
+          resetForm();
+          router.push("/psychiatrist");
+        } else {
+          setIsSubmitting(false);
+          router.push("/register/psychiatrist-profile/complete");
+        }
       }
-    } catch {
-      setError("Failed to save profile. Please try again.");
+    } catch (err: any) {
+      setError(err.message || "Failed to save profile. Please try again.");
       setIsSubmitting(false);
     }
   }
 
   const updateGlobalTime = (start: string, end: string) => {
-    setAvailability(prev => prev.map(a => ({ ...a, startTime: start, endTime: end })));
+    setAvailability((prev) =>
+      prev.map((a) => ({ ...a, startTime: start, endTime: end })),
+    );
   };
 
   const toggleDay = (day: string) => {
-    setAvailability(prev => prev.map(a => a.day === day ? { ...a, enabled: !a.enabled } : a));
+    setAvailability((prev) =>
+      prev.map((a) => (a.day === day ? { ...a, enabled: !a.enabled } : a)),
+    );
   };
 
-  const updateDayTime = (day: string, start: string, end: string) => {
-    setAvailability(prev => prev.map(a => a.day === day ? { ...a, startTime: start, endTime: end } : a));
+  const updateDayTime = (
+    day: string,
+    type: "startTime" | "endTime",
+    value: string,
+  ) => {
+    setAvailability((prev) =>
+      prev.map((a) => (a.day === day ? { ...a, [type]: value } : a)),
+    );
   };
 
   return (
-    <div className="flex w-full min-h-screen">
-      {/* Left Panel */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center">
-        <div className="absolute inset-0 bg-linear-to-br from-accent-600 via-accent-500 to-primary-500" />
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-20 -left-20 w-80 h-80 rounded-full bg-white/5 blur-3xl" />
-          <div className="absolute -bottom-20 right-1/4 w-96 h-96 rounded-full bg-white/5 blur-3xl" />
-        </div>
-        <div className="relative z-10 flex flex-col items-center gap-8 px-12 text-center">
-          <Image
-            src="/icon/Nala-Logo.svg"
-            alt="Nala Logo"
-            width={120}
-            height={96}
-            className="brightness-0 invert"
+    <div className="flex flex-col items-center min-h-screen w-full bg-white py-12 px-6">
+      <RegisterHeader
+        title={
+          step === "personal"
+            ? "Let’s Setup Your Personal Information"
+            : step === "professional"
+              ? "Tell Us About Your Professional Background"
+              : step === "availability"
+                ? "Set Your Availability"
+                : "All Set!"
+        }
+        description={
+          step === "complete"
+            ? "Your account has been created"
+            : "Fill this form with true information"
+        }
+      />
+
+      {/* Main Content Card */}
+      <div className="w-full max-w-2xl bg-white border border-neutral-100 rounded-[32px] p-8 md:p-12 mb-8 mt-8 shadow-sm">
+        {error && (
+          <div className="mb-8 p-4 bg-error-50 border border-error-200 rounded-xl text-text-error text-body-sm-medium animate-in fade-in slide-in-from-top-2">
+            {error}
+          </div>
+        )}
+        {step === "personal" && (
+          <PersonalInfoStep
+            handleAvatarChange={handleAvatarChange}
+            fileInputRef={fileInputRef}
+            uploading={uploading}
           />
-          <h1 className="text-heading-4-bold text-white">
-            {step === "personal" 
-              ? "Personal Details" 
-              : step === "professional" 
-                ? "Professional Profile" 
-                : "Work Availability"}
-          </h1>
-          <p className="text-body-lg-regular text-white/80 max-w-md">
-            Share your background to start helping clients through Nala.
-          </p>
-          {/* Step Progress */}
-          <div className="flex items-center gap-3">
-            {["personal", "professional", "availability"].map((s, i) => (
-              <div key={s} className="flex items-center gap-3">
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-label-small-semibold transition-all ${step === s ? "bg-white text-accent-600" : (i === 0 && (step === "professional" || step === "availability")) || (i === 1 && step === "availability") ? "bg-white/30 text-white" : "bg-white/10 text-white/50"}`}
-                >
-                  {i + 1}
-                </div>
-                {i < 2 && <div className="w-12 h-0.5 bg-white/30" />}
-              </div>
-            ))}
-          </div>
-        </div>
+        )}
+
+        {step === "professional" && (
+          <ProfessionalInfoStep
+            expertiseOptions={expertiseOptions}
+            expertiseLoading={expertiseLoading}
+            toggleExpertise={toggleExpertise}
+          />
+        )}
+
+        {step === "availability" && (
+          <AvailabilityStep
+            updateGlobalTime={updateGlobalTime}
+            toggleDay={toggleDay}
+            updateDayTime={updateDayTime}
+          />
+        )}
+
+        {step === "complete" && <RegistrationCompleteStep />}
       </div>
 
-      {/* Right Panel */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-12 overflow-y-auto">
-        <div className="w-full max-w-lg flex flex-col gap-6">
-          <div className="text-center">
-            <h2 className="text-heading-5-bold text-text-heading">
-              {step === "personal"
-                ? "Personal Information"
-                : step === "professional"
-                  ? "Professional Details"
-                  : "Availability Settings"}
-            </h2>
-            <p className="text-body-base-regular text-text-subheading">
-              Step {step === "personal" ? "1" : step === "professional" ? "2" : "3"} of 3 — Psychiatrist
-              Registration
-            </p>
-          </div>
+      {/* Navigation Buttons / Step Indicator (Outside Card) */}
+      {(step === "personal" || step === "professional" || step === "availability") && (
+        <div className="w-full max-w-2xl flex items-center justify-between px-4">
+          <button
+            onClick={() => {
+              if (step === "personal") router.push("/register/role");
+              else if (step === "professional") setStep("personal");
+              else setStep("professional");
+            }}
+            className="flex items-center gap-2 text-label-base-semibold text-primary-600 hover:text-primary-700 transition-colors"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+            >
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            Previous
+          </button>
 
-          {error && (
-            <div className="w-full p-4 bg-error-50 border border-error-200 rounded-xl text-text-error text-body-sm-medium">
-              {error}
-            </div>
-          )}
+          <span className="text-label-base-semibold text-primary-600">
+            Step {step === "personal" ? "2" : step === "professional" ? "3" : "4"}
+            /3
+          </span>
 
-          {/* ─── STEP 1: PERSONAL ─── */}
-          {step === "personal" && (
-            <div className="space-y-5">
-              {/* Avatar Upload */}
-              <div className="flex flex-col items-center gap-2">
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-28 h-28 rounded-full border-2 border-dashed border-border-default bg-neutral-50 flex items-center justify-center overflow-hidden cursor-pointer hover:border-accent-400 transition-colors group"
+          <button
+            onClick={() => {
+              if (step === "personal") {
+                if (isPersonalValid) setStep("professional");
+                else setError("Please fill all required personal information");
+              } else if (step === "professional") {
+                if (isProfessionalValid) handleSubmit();
+                else
+                  setError("Please fill all required professional information");
+              } else if (step === "availability") {
+                // Save and finish after availability
+                handleSubmit();
+              }
+            }}
+            disabled={
+              isSubmitting ||
+              (step === "personal" && !isPersonalValid) ||
+              (step === "professional" && !isProfessionalValid)
+            }
+            className="flex items-center gap-2 text-label-base-semibold text-primary-600 hover:text-primary-700 disabled:text-text-placeholder disabled:cursor-not-allowed transition-all group"
+          >
+            {isSubmitting ? (
+              <div className="size-5 rounded-full border-2 border-primary-200 border-t-primary-600 animate-spin" />
+            ) : (
+              <>
+                {step === "availability" ? "Finish" : step === "professional" ? "Create Profile" : "Next"}
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  className="group-hover:translate-x-1 transition-transform"
                 >
-                  {personal.avatarPreview ? (
-                    <img
-                      src={personal.avatarPreview}
-                      alt="Avatar preview"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center gap-1 text-text-placeholder group-hover:text-accent-500">
-                      <svg
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                      >
-                        <path
-                          d="M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                        />
-                        <path
-                          d="M3 16.8V9.2C3 8 3.8 7 5 7h.6c.5 0 1-.3 1.2-.7L7.8 4.5C8 4.2 8.5 4 9 4h6c.5 0 1 .2 1.2.5l.9 1.8c.2.4.7.7 1.2.7H19c1.2 0 2 1 2 2.2v7.6C21 17 20.2 18 19 18H5c-1.2 0-2-1-2-1.2Z"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                        />
-                      </svg>
-                      <span className="text-body-caption-regular">Upload</span>
-                    </div>
-                  )}
-                </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleAvatarChange}
-                />
-                <p className="text-body-caption-regular text-text-placeholder">
-                  Profile Photo (optional)
-                </p>
-              </div>
-
-              {/* Full Name */}
-              <div>
-                <label className="text-label-small-medium text-text-label mb-1.5 block">
-                  Full Name <span className="text-error-default">*</span>
-                </label>
-                <input
-                  value={personal.fullName}
-                  onChange={(e) =>
-                    setPersonal({ ...personal, fullName: e.target.value })
-                  }
-                  placeholder="Dr. Full Name"
-                  className="w-full px-4 py-3 rounded-xl border border-border-default focus:border-accent-500 focus:ring-2 focus:ring-accent-100 outline-none transition-all"
-                />
-              </div>
-
-              {/* Sex */}
-              <div>
-                <label className="text-label-small-medium text-text-label mb-1.5 block">
-                  Gender <span className="text-error-default">*</span>
-                </label>
-                <div className="flex gap-3">
-                  {(["male", "female"] as Sex[]).map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => setPersonal({ ...personal, sex: s })}
-                      className={`flex-1 py-3 rounded-xl border-2 capitalize font-medium transition-all ${personal.sex === s ? "border-accent-500 bg-accent-50 text-accent-600" : "border-border-default text-text-label hover:border-accent-200"}`}
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <button
-                onClick={() => setStep("professional")}
-                disabled={!isPersonalValid}
-                className={`w-full py-4 rounded-xl text-label-base-semibold transition-all ${isPersonalValid ? "bg-accent-500 text-white hover:bg-accent-600 shadow-md active:scale-[0.98]" : "bg-neutral-100 text-text-disabled cursor-not-allowed"}`}
-              >
-                Next: Professional Details →
-              </button>
-            </div>
-          )}
-
-          {/* ─── STEP 2: PROFESSIONAL ─── */}
-          {step === "professional" && (
-            <div className="space-y-5">
-              {/* Specialization */}
-              <div>
-                <label className="text-label-small-medium text-text-label mb-1.5 block">
-                  Specialization
-                </label>
-                <input
-                  value={professional.specialization}
-                  onChange={(e) =>
-                    setProfessional({
-                      ...professional,
-                      specialization: e.target.value,
-                    })
-                  }
-                  placeholder="e.g. Clinical Psychology"
-                  className="w-full px-4 py-3 rounded-xl border border-border-default focus:border-accent-500 focus:ring-2 focus:ring-accent-100 outline-none transition-all"
-                />
-              </div>
-
-              {/* License Number */}
-              <div>
-                <label className="text-label-small-medium text-text-label mb-1.5 block">
-                  License Number (SIP/SIPP)
-                </label>
-                <input
-                  value={professional.licenseNumber}
-                  onChange={(e) =>
-                    setProfessional({
-                      ...professional,
-                      licenseNumber: e.target.value,
-                    })
-                  }
-                  placeholder="e.g. SIP-12345/DKI/2024"
-                  className="w-full px-4 py-3 rounded-xl border border-border-default focus:border-accent-500 focus:ring-2 focus:ring-accent-100 outline-none transition-all"
-                />
-              </div>
-
-              {/* Price */}
-              <div>
-                <label className="text-label-small-medium text-text-label mb-1.5 block">
-                  Price per Session (IDR){" "}
-                  <span className="text-error-default">*</span>
-                </label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-placeholder text-body-base-regular">
-                    Rp
-                  </span>
-                  <input
-                    type="number"
-                    min={0}
-                    value={professional.price}
-                    onChange={(e) =>
-                      setProfessional({
-                        ...professional,
-                        price: e.target.value,
-                      })
-                    }
-                    placeholder="150000"
-                    className="w-full pl-12 pr-4 py-3 rounded-xl border border-border-default focus:border-accent-500 focus:ring-2 focus:ring-accent-100 outline-none transition-all"
-                  />
-                </div>
-              </div>
-
-              {/* Experience Start & End */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-label-small-medium text-text-label mb-1.5 block">
-                    Career Start <span className="text-error-default">*</span>
-                  </label>
-                  <input
-                    type="date"
-                    value={professional.experienceStart}
-                    max={new Date().toISOString().split("T")[0]}
-                    onChange={(e) =>
-                      setProfessional({
-                        ...professional,
-                        experienceStart: e.target.value,
-                      })
-                    }
-                    className="w-full px-4 py-3 rounded-xl border border-border-default focus:border-accent-500 focus:ring-2 focus:ring-accent-100 outline-none transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="text-label-small-medium text-text-label mb-1.5 block">
-                    Career End{" "}
-                    <span className="text-body-caption-regular text-text-placeholder">
-                      (optional)
-                    </span>
-                  </label>
-                  <input
-                    type="date"
-                    value={professional.experienceEnd}
-                    min={professional.experienceStart}
-                    onChange={(e) =>
-                      setProfessional({
-                        ...professional,
-                        experienceEnd: e.target.value,
-                      })
-                    }
-                    className="w-full px-4 py-3 rounded-xl border border-border-default focus:border-accent-500 focus:ring-2 focus:ring-accent-100 outline-none transition-all"
-                  />
-                </div>
-              </div>
-
-              {/* Description */}
-              <div>
-                <label className="text-label-small-medium text-text-label mb-1.5 block">
-                  Professional Description{" "}
-                  <span className="text-body-caption-regular text-text-placeholder">
-                    (optional)
-                  </span>
-                </label>
-                <textarea
-                  value={professional.description}
-                  onChange={(e) =>
-                    setProfessional({
-                      ...professional,
-                      description: e.target.value,
-                    })
-                  }
-                  placeholder="Share your background, approach to treatment, and what clients can expect..."
-                  rows={3}
-                  className="w-full px-4 py-3 rounded-xl border border-border-default focus:border-accent-500 focus:ring-2 focus:ring-accent-100 outline-none transition-all resize-none"
-                />
-              </div>
-
-              {/* Expertise — dari tabel Expertise di database */}
-              <div>
-                <label className="text-label-small-medium text-text-label mb-1.5 block">
-                  Areas of Expertise{" "}
-                  <span className="text-body-caption-regular text-text-placeholder">
-                    (select all that apply)
-                  </span>
-                </label>
-                {expertiseLoading ? (
-                  <div className="flex items-center gap-2 text-text-placeholder py-3">
-                    <div className="w-4 h-4 rounded-full border-2 border-accent-400 border-t-transparent animate-spin" />
-                    <span className="text-body-sm-regular">
-                      Loading expertise options...
-                    </span>
-                  </div>
-                ) : expertiseOptions.length === 0 ? (
-                  <p className="text-body-sm-regular text-text-placeholder py-2">
-                    No expertise options available. Please add some in the
-                    database first.
-                  </p>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {expertiseOptions.map((exp) => {
-                      const isSelected =
-                        professional.selectedExpertiseIds.includes(exp.id);
-                      return (
-                        <button
-                          key={exp.id}
-                          type="button"
-                          onClick={() => toggleExpertise(exp.id)}
-                          className={`px-4 py-2 rounded-full border-2 text-body-sm-medium transition-all active:scale-95 ${
-                            isSelected
-                              ? "border-accent-500 bg-accent-500 text-white shadow-sm"
-                              : "border-border-default text-text-label hover:border-accent-300 hover:bg-accent-50"
-                          }`}
-                        >
-                          {isSelected && <span className="mr-1">✓</span>}
-                          {exp.name}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-                {professional.selectedExpertiseIds.length > 0 && (
-                  <p className="text-body-caption-regular text-accent-600 mt-2">
-                    {professional.selectedExpertiseIds.length} expertise
-                    selected
-                  </p>
-                )}
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-3 pt-2">
-                <button
-                  onClick={() => setStep("personal")}
-                  className="flex-1 py-4 border-2 border-border-default rounded-xl hover:bg-neutral-50 transition-all text-label-base-medium text-text-heading"
-                >
-                  ← Back
-                </button>
-                <button
-                  onClick={() => setStep("availability")}
-                  disabled={!isProfessionalValid || isSubmitting}
-                  className={`flex-2 py-4 rounded-xl text-label-base-semibold transition-all ${
-                    isProfessionalValid && !isSubmitting
-                      ? "bg-accent-500 text-white hover:bg-accent-600 shadow-md active:scale-[0.98]"
-                      : "bg-neutral-100 text-text-disabled cursor-not-allowed"
-                  }`}
-                >
-                  Next: Availability →
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* ─── STEP 3: AVAILABILITY ─── */}
-          {step === "availability" && (
-            <div className="space-y-6">
-              <div className="p-4 bg-accent-50 border border-accent-100 rounded-2xl flex flex-col gap-3">
-                <p className="text-label-small-semibold text-accent-700">Set Global Hours</p>
-                <div className="flex items-center gap-3">
-                  <input 
-                    type="time" 
-                    className="flex-1 px-3 py-2 rounded-lg border border-accent-200 focus:outline-accent-500"
-                    defaultValue="09:00"
-                    id="globalStart"
-                  />
-                  <span className="text-accent-400">to</span>
-                  <input 
-                    type="time" 
-                    className="flex-1 px-3 py-2 rounded-lg border border-accent-200 focus:outline-accent-500"
-                    defaultValue="17:00"
-                    id="globalEnd"
-                  />
-                  <button 
-                    onClick={() => {
-                      const start = (document.getElementById("globalStart") as HTMLInputElement).value;
-                      const end = (document.getElementById("globalEnd") as HTMLInputElement).value;
-                      updateGlobalTime(start, end);
-                    }}
-                    className="px-4 py-2 bg-accent-500 text-white rounded-lg text-label-small-semibold hover:bg-accent-600 transition-colors"
-                  >
-                    Apply to All
-                  </button>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <p className="text-label-small-medium text-text-label">Weekly Schedule</p>
-                <div className="flex flex-col gap-3">
-                  {availability.map((a) => (
-                    <div 
-                      key={a.day} 
-                      className={`p-4 border rounded-2xl transition-all ${a.enabled ? "border-accent-200 bg-white shadow-sm" : "border-border-default bg-neutral-50 opacity-60"}`}
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          <input 
-                            type="checkbox" 
-                            checked={a.enabled}
-                            onChange={() => toggleDay(a.day)}
-                            className="w-5 h-5 rounded border-border-default text-accent-500 focus:ring-accent-500"
-                          />
-                          <span className={`text-body-base-semibold capitalize ${a.enabled ? "text-text-heading" : "text-text-placeholder"}`}>
-                            {a.label}
-                          </span>
-                        </div>
-                        {a.enabled && (
-                          <span className="text-body-caption-medium text-accent-600 bg-accent-50 px-2 py-1 rounded-md">
-                            Flexible
-                          </span>
-                        )}
-                      </div>
-                      
-                      {a.enabled && (
-                        <div className="flex items-center gap-3 animate-in fade-in slide-in-from-top-1 duration-200">
-                          <input 
-                            type="time" 
-                            value={a.startTime}
-                            onChange={(e) => updateDayTime(a.day, e.target.value, a.endTime)}
-                            className="flex-1 px-3 py-2 rounded-lg border border-border-default focus:border-accent-400 focus:outline-none transition-all"
-                          />
-                          <span className="text-text-placeholder">to</span>
-                          <input 
-                            type="time" 
-                            value={a.endTime}
-                            onChange={(e) => updateDayTime(a.day, a.startTime, e.target.value)}
-                            className="flex-1 px-3 py-2 rounded-lg border border-border-default focus:border-accent-400 focus:outline-none transition-all"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-2">
-                <button
-                  onClick={() => setStep("professional")}
-                  className="flex-1 py-4 border-2 border-border-default rounded-xl hover:bg-neutral-50 transition-all text-label-base-medium text-text-heading"
-                >
-                  ← Back
-                </button>
-                <button
-                  onClick={handleSubmit}
-                  disabled={isSubmitting || !availability.some(a => a.enabled)}
-                  className={`flex-2 py-4 rounded-xl text-label-base-semibold transition-all ${
-                    !isSubmitting && availability.some(a => a.enabled)
-                      ? "bg-accent-500 text-white hover:bg-accent-600 shadow-md active:scale-[0.98]"
-                      : "bg-neutral-100 text-text-disabled cursor-not-allowed"
-                  }`}
-                >
-                  {isSubmitting ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                      Saving...
-                    </span>
-                  ) : (
-                    "Complete Registration"
-                  )}
-                </button>
-              </div>
-            </div>
-          )}
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </>
+            )}
+          </button>
         </div>
-      </div>
+      )}
     </div>
+  );
+}
+
+export default function PsychiatristProfilePage() {
+  return (
+    <PsychiatristRegisterProvider>
+      <PsychiatristProfileContent />
+    </PsychiatristRegisterProvider>
   );
 }
