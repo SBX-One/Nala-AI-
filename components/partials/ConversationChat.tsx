@@ -221,7 +221,9 @@ export default function ConversationChat({
   const [error, setError] = useState<string | null>(null);
   const [editingMsg, setEditingMsg] = useState<ChatMessage | null>(null);
   const [editText, setEditText] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -339,9 +341,15 @@ export default function ConversationChat({
   }, [roomId, currentUserId]);
 
   // ── Send message ──────────────────────────────────────────────────────────
-  const handleSend = async () => {
+  const handleSend = async (fileData?: {
+    url: string;
+    type: string;
+    size: number;
+  }) => {
     const trimmed = inputValue.trim();
-    if (!trimmed || isSending) return;
+    if (!trimmed && !fileData) return;
+    if (isSending) return;
+
     setIsSending(true);
     setInputValue("");
 
@@ -349,9 +357,12 @@ export default function ConversationChat({
       id: Date.now(),
       room_id: roomId,
       sender_id: currentUserId,
-      message: trimmed,
+      message: trimmed || null,
       is_read: false,
       is_edit: false,
+      file_url: fileData?.url || null,
+      file_type: fileData?.type || null,
+      file_size: fileData?.size || null,
       created_at: new Date().toISOString(),
     };
     setMessages((prev) => [...prev, optimistic]);
@@ -363,7 +374,10 @@ export default function ConversationChat({
         body: JSON.stringify({
           room_id: roomId,
           sender_id: currentUserId,
-          message: trimmed,
+          message: trimmed || null,
+          file_url: fileData?.url || null,
+          file_type: fileData?.type || null,
+          file_size: fileData?.size || null,
         }),
       });
       const data = await res.json();
@@ -380,6 +394,60 @@ export default function ConversationChat({
       setError("Failed to send");
     } finally {
       setIsSending(false);
+    }
+  };
+
+  // ── File Upload ──────────────────────────────────────────────────────────
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Limit to images
+    if (!file.type.startsWith("image/")) {
+      alert("Only image files are supported.");
+      return;
+    }
+
+    // Max 5MB
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File size must be less than 5MB.");
+      return;
+    }
+
+    setIsUploading(true);
+    setError(null);
+
+    try {
+      const supabase = createClient();
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${roomId}/${Date.now()}.${fileExt}`;
+      const filePath = `chat_attachments/${fileName}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from("chat-attachments")
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("chat-attachments").getPublicUrl(filePath);
+
+      await handleSend({
+        url: publicUrl,
+        type: file.type,
+        size: file.size,
+      });
+    } catch (err: any) {
+      console.error("Upload error:", err);
+      setError("Failed to upload image: " + err.message);
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
@@ -468,7 +536,7 @@ export default function ConversationChat({
     );
 
   return (
-    <div className="flex flex-col flex-1 ">
+    <div className="flex flex-col flex-1 max-h-[80dvh]">
       {/* Header */}
       <div className="px-5 py-4 border-b border-border-default shrink-0 flex items-center justify-between">
         <p className="text-heading-6-bold text-text-heading">Conversation</p>
@@ -562,10 +630,25 @@ export default function ConversationChat({
       {/* Input */}
       <div className="shrink-0 border-t border-border-default bg-white px-4 py-3">
         <div className="flex items-center gap-2">
-          <button className="p-2 rounded-lg hover:bg-surface-hover transition-colors text-text-placeholder hover:text-text-heading shrink-0">
-            <svg className="size-5" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z" />
-            </svg>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept="image/*"
+            className="hidden"
+          />
+          <button
+            onClick={handleImageClick}
+            disabled={isUploading}
+            className="p-2 rounded-lg hover:bg-surface-hover transition-colors text-text-placeholder hover:text-text-heading shrink-0 disabled:opacity-50"
+          >
+            {isUploading ? (
+              <div className="size-5 rounded-full border-2 border-primary-500 border-t-transparent animate-spin" />
+            ) : (
+              <svg className="size-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z" />
+              </svg>
+            )}
           </button>
           <input
             suppressHydrationWarning
@@ -580,8 +663,8 @@ export default function ConversationChat({
             className="flex-1 border border-border-default rounded-xl px-4 py-2.5 text-sm text-text-heading bg-surface-background placeholder:text-text-placeholder focus:outline-none focus:ring-[1.5px] focus:ring-[#0066FF] focus:border-[#0066FF] transition-shadow"
           />
           <button
-            onClick={handleSend}
-            disabled={!inputValue.trim() || isSending}
+            onClick={() => handleSend()}
+            disabled={(!inputValue.trim() && !isUploading) || isSending}
             className="p-2.5 bg-[#0066FF] rounded-xl text-white hover:bg-blue-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm group shrink-0"
           >
             {isSending ? (

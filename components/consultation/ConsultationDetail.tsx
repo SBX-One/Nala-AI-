@@ -48,7 +48,7 @@ export default function ConsultationDetail({
 
   const handleSubmit = async (
     data: { diagnose: string; feedback: string; medicines: any[] },
-    status: "draft" | "published" = "published"
+    status: "draft" | "published" = "published",
   ) => {
     setLoading(true);
     const result = await updateConsultation(session.id, {
@@ -231,7 +231,8 @@ export default function ConsultationDetail({
                   No clinical diagnose drafted yet.
                 </h4>
                 <p className="text-body-sm-medium text-text-placeholder max-w-sm">
-                  You haven&apos;t added your diagnose for this session. Click Edit to start.
+                  You haven&apos;t added your diagnose for this session. Click
+                  Edit to start.
                 </p>
               </div>
             )}
@@ -256,7 +257,8 @@ export default function ConsultationDetail({
                   No clinical feedback drafted yet.
                 </h4>
                 <p className="text-body-sm-medium text-text-placeholder max-w-sm">
-                  You haven&apos;t started your feedback for this session. Click Edit to start.
+                  You haven&apos;t started your feedback for this session. Click
+                  Edit to start.
                 </p>
               </div>
             )}
@@ -290,7 +292,8 @@ export default function ConsultationDetail({
                 No medication added to this prescription.
               </h4>
               <p className="text-body-sm-medium text-text-placeholder max-w-sm">
-                No medicine has been prescribed for this patient yet. Click Edit to manage prescription.
+                No medicine has been prescribed for this patient yet. Click Edit
+                to manage prescription.
               </p>
             </div>
           )}

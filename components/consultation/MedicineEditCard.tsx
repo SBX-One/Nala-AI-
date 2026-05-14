@@ -68,11 +68,11 @@ export default function MedicineEditCard({
           </svg>
         </div>
         <div>
-          <h3 className="text-heading-5-bold text-text-heading">
-            {edited.name}
-          </h3>
-          <p className="text-body-base-medium text-text-placeholder">
-            {edited.description || "Medicine description not available"}
+          <h4 className="text-body-xl-semibold text-text-heading truncate mb-1">
+            {edited.name} {edited.use}
+          </h4>
+          <p className="text-body-sm-medium text-text-subheading">
+            {edited.dose} of Dose
           </p>
         </div>
       </div>

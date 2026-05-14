@@ -92,6 +92,7 @@ export async function updateConsultation(
     .from("Consultation")
     .update({
       diagnose: data.diagnose,
+      consultation_notes: data.consultation_notes,
       psychiatrist_feedback: data.psychiatrist_feedback,
       status: data.status || "published",
     })
@@ -293,7 +294,11 @@ export async function getQueueData() {
   };
 }
 
-export async function joinMeetingRoom(userId: number, psychiatristId: number, consultationId: number) {
+export async function joinMeetingRoom(
+  userId: number,
+  psychiatristId: number,
+  consultationId: number,
+) {
   const supabase = await createClient();
 
   // Verify authentication
@@ -310,7 +315,9 @@ export async function joinMeetingRoom(userId: number, psychiatristId: number, co
     .single();
 
   if (consData?.status === "finished" || consData?.status === "published") {
-    return { error: "This consultation has already ended and cannot be accessed." };
+    return {
+      error: "This consultation has already ended and cannot be accessed.",
+    };
   }
 
   // 1. Update Consultation status to on_going
@@ -353,10 +360,10 @@ export async function joinMeetingRoom(userId: number, psychiatristId: number, co
     // 4. Update existing active room
     const { error: updateError } = await supabase
       .from("MeetingRoom")
-      .update({ 
-        psychiatrist_join: true, 
+      .update({
+        psychiatrist_join: true,
         status: "on_going",
-        start_at: now // Update start time to when psychiatrist actually enters
+        start_at: now, // Update start time to when psychiatrist actually enters
       })
       .eq("id", room.id);
 
@@ -367,4 +374,280 @@ export async function joinMeetingRoom(userId: number, psychiatristId: number, co
   }
 
   return { success: true, roomId: room.id };
+}
+
+export async function getPatientInfo(userId: number) {
+  const supabase = await createClient();
+
+  // 1. Fetch UserProfile
+  const { data: profile, error: profileError } = await supabase
+    .from("UserProfile")
+    .select("*")
+    .eq("id", userId)
+    .single();
+
+  if (profileError) {
+    console.error("Error fetching patient profile:", profileError);
+    return { error: profileError.message };
+  }
+
+  // 1.1 Fetch latest consultation to get complaint
+  const { data: latestConsultation } = await supabase
+    .from("Consultation")
+    .select("complaint")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
+
+  const profileWithComplaint = {
+    ...profile,
+    complaint: latestConsultation?.complaint || null,
+  };
+
+  // 2. Fetch Medication History from ALL past consultations of this user
+  // We need to find consultations for this user first
+  const { data: pastConsultations } = await supabase
+    .from("Consultation")
+    .select("id")
+    .eq("user_id", userId);
+
+  const consultationIds = pastConsultations?.map((c) => c.id) || [];
+
+  let medicationHistory: any[] = [];
+  if (consultationIds.length > 0) {
+    const { data: meds, error: medsError } = await supabase
+      .from("ConsultationMedicine")
+      .select(
+        `
+        *,
+        medicine:Medicine(name)
+      `,
+      )
+      .in("consultation_id", consultationIds)
+      .order("created_at", { ascending: false });
+
+    if (medsError) {
+      console.error("Error fetching medication history:", medsError);
+    } else {
+      medicationHistory =
+        meds?.map((m: any) => ({
+          ...m,
+          name: m.medicine?.name || "Unknown",
+        })) || [];
+    }
+  }
+
+  return {
+    data: {
+      profile: profileWithComplaint,
+      medicationHistory,
+    },
+  };
+}
+
+export async function endMeetingRoom(
+  roomId: number,
+  notes?: string,
+  diagnose?: string,
+  aiSummary?: string,
+) {
+  const supabase = await createClient();
+
+  // 1. Get room details to calculate duration
+  const { data: room } = await supabase
+    .from("MeetingRoom")
+    .select("start_at, created_at, user_id, psychiatrist_id")
+    .eq("id", roomId)
+    .single();
+
+  if (!room) return { error: "Room not found" };
+
+  const startAt = new Date(room.start_at || room.created_at);
+  const endAt = new Date();
+  const duration = Math.round(
+    (endAt.getTime() - startAt.getTime()) / (1000 * 60),
+  ); // Duration in minutes
+
+  // 2. Update MeetingRoom status
+  const { error: roomError } = await supabase
+    .from("MeetingRoom")
+    .update({
+      status: "finished",
+      end_at: endAt.toISOString(),
+      duration: duration,
+    })
+    .eq("id", roomId);
+
+  if (roomError) {
+    console.error("Error ending meeting room:", roomError);
+    return { error: roomError.message };
+  }
+
+  // 3. Update Consultation status and save results
+  // We need to find the latest on_going consultation for this user/psychiatrist pair
+  const { data: consultation } = await supabase
+    .from("Consultation")
+    .select("id")
+    .eq("user_id", room.user_id)
+    .eq("psychiatrist_id", room.psychiatrist_id)
+    .eq("status", "on_going")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
+
+  if (consultation) {
+    await supabase
+      .from("Consultation")
+      .update({
+        status: "finished",
+        psychiatrist_feedback: notes,
+        diagnose: diagnose,
+        ai_summary: aiSummary,
+      })
+      .eq("id", consultation.id);
+  }
+
+  return { success: true };
+}
+
+export async function getPostConsultationData(roomId: number) {
+  const supabase = await createClient();
+
+  // 1. Get Room and Patient ID
+  const { data: room, error: roomError } = await supabase
+    .from("MeetingRoom")
+    .select("user_id, psychiatrist_id, start_at, end_at, duration")
+    .eq("id", roomId)
+    .single();
+
+  if (roomError || !room) {
+    return { error: "Room not found" };
+  }
+
+  // 2. Get Patient Info (Reuse existing logic but from DB)
+  const patientInfo = await getPatientInfo(room.user_id);
+  if (patientInfo.error) return { error: patientInfo.error };
+
+  // 3. Get Consultation Details (Results)
+  const { data: consultation } = await supabase
+    .from("Consultation")
+    .select("*, medicines:ConsultationMedicine(*, medicine:Medicine(name))")
+    .eq("user_id", room.user_id)
+    .eq("psychiatrist_id", room.psychiatrist_id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
+
+  return {
+    data: {
+      room,
+      patientProfile: patientInfo.data?.profile || null,
+      medicationHistory: patientInfo.data?.medicationHistory || [],
+      consultation: consultation || null,
+    },
+  };
+}
+
+export async function finalizeConsultation(
+  roomId: number,
+  data: {
+    diagnose?: string;
+    sessionAiSummary?: string;
+    consultationContext?: string;
+    observationNotes?: string;
+    consultationNotes?: string;
+    psychiatristFeedback?: string;
+    status?: string;
+    medicines?: { name: string; dose: string; use: string; notes: string }[];
+  },
+) {
+  const supabase = await createClient();
+
+  // 1. Get room details
+  const { data: room } = await supabase
+    .from("MeetingRoom")
+    .select("user_id, psychiatrist_id")
+    .eq("id", roomId)
+    .single();
+
+  if (!room) return { error: "Room not found" };
+
+  // 2. Update the latest consultation
+  const { data: consultation } = await supabase
+    .from("Consultation")
+    .select("id")
+    .eq("user_id", room.user_id)
+    .eq("psychiatrist_id", room.psychiatrist_id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
+
+  if (!consultation) return { error: "Consultation record not found" };
+
+  const { error } = await supabase
+    .from("Consultation")
+    .update({
+      diagnose: data.diagnose,
+      session_ai_summary: data.sessionAiSummary,
+      consultation_context: data.consultationContext,
+      observation_notes: data.observationNotes,
+      consultation_notes: data.consultationNotes,
+      psychiatrist_feedback: data.psychiatristFeedback,
+      status: data.status || "finished",
+    })
+    .eq("id", consultation.id);
+
+  if (error) {
+    console.error("Error finalizing consultation:", error);
+    return { error: error.message };
+  }
+
+  // Handle Medicines sync
+  if (data.medicines) {
+    const consultationId = consultation.id;
+    // 1. Delete existing medicines for this consultation
+    const { error: deleteError } = await supabase
+      .from("ConsultationMedicine")
+      .delete()
+      .eq("consultation_id", consultationId);
+
+    if (deleteError) {
+      console.error("Error deleting old medicines:", deleteError);
+      return { error: deleteError.message };
+    }
+
+    // 2. Insert new medicines
+    if (data.medicines.length > 0) {
+      try {
+        const medicineEntries = await Promise.all(
+          data.medicines.map(async (m) => {
+            const medicineId = await getOrCreateMedicine(m.name);
+            return {
+              consultation_id: consultationId,
+              medicine_id: medicineId,
+              dose: m.dose,
+              use: m.use,
+              notes: m.notes,
+            };
+          }),
+        );
+
+        const { error: insertError } = await supabase
+          .from("ConsultationMedicine")
+          .insert(medicineEntries);
+
+        if (insertError) {
+          console.error("Error inserting medicines:", insertError);
+          return { error: insertError.message };
+        }
+      } catch (err: any) {
+        console.error("Critical error during medicine sync:", err);
+        return { error: err.message };
+      }
+    }
+  }
+
+  revalidatePath("/psychiatrist/consultation/history");
+  return { success: true };
 }

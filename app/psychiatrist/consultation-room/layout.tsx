@@ -1,6 +1,7 @@
 
 
 import InformationBar from "@/components/partials/informationBarActiveMeeting";
+import { ConsultationRoomProvider } from "@/context/ConsultationRoomContext";
 
 export default function MeetingLayout({
 	children,
@@ -8,9 +9,11 @@ export default function MeetingLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<div className="flex flex-col w-full min-h-screen">
-			<InformationBar/>
-			{children}
-		</div>
+		<ConsultationRoomProvider>
+			<div className="flex flex-col w-full min-h-screen">
+				<InformationBar/>
+				{children}
+			</div>
+		</ConsultationRoomProvider>
 	);
 }
