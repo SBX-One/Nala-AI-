@@ -175,3 +175,40 @@ export async function getConsultationById(id: number) {
 
   return data;
 }
+
+export async function getActiveMeetingRoom(psychiatristId: number) {
+	const supabase = await createClient();
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
+	if (!user) return null;
+
+	// 1. Get internal User ID
+	const { data: userRecord } = await supabase
+		.from("User")
+		.select("id")
+		.eq("auth_user_id", user.id)
+		.single();
+
+	if (!userRecord) return null;
+
+	// 2. Get UserProfile ID
+	const { data: userProfile } = await supabase
+		.from("UserProfile")
+		.select("id")
+		.eq("user_id", userRecord.id)
+		.single();
+
+	if (!userProfile) return null;
+
+	// 3. Find active meeting room
+	const { data: room } = await supabase
+		.from("MeetingRoom")
+		.select("id")
+		.eq("user_id", userProfile.id)
+		.eq("psychiatrist_id", psychiatristId)
+		.neq("status", "finished")
+		.single();
+
+	return room?.id || null;
+}

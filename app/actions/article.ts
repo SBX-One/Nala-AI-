@@ -174,6 +174,60 @@ export async function deleteArticle(articleId: number) {
   return { success: true };
 }
 
+export async function getPublishedArticles() {
+  const supabase = await createClient();
+  
+  const { data, error } = await supabase
+    .from("Article")
+    .select(`
+      *,
+      category:ArticleCategory (name),
+      author:PsychiatristProfile (
+        name,
+        avatar_url
+      ),
+      topics:ArticleTopic (
+        categoryTopic:ArticleCategoryTopic (name)
+      )
+    `)
+    .eq("status", "published")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching published articles:", error.message);
+    return [];
+  }
+
+  return data;
+}
+
+export async function getArticleById(id: number) {
+  const supabase = await createClient();
+  
+  const { data, error } = await supabase
+    .from("Article")
+    .select(`
+      *,
+      category:ArticleCategory (name),
+      author:PsychiatristProfile (
+        name,
+        avatar_url
+      ),
+      topics:ArticleTopic (
+        categoryTopic:ArticleCategoryTopic (name)
+      )
+    `)
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    console.error("Error fetching article by id:", error.message);
+    return null;
+  }
+
+  return data;
+}
+
 export async function getArticleCategories() {
   const supabase = await createClient();
   const { data } = await supabase.from("ArticleCategory").select("*");

@@ -1,17 +1,27 @@
 import SideBar from "@/components/partials/SideBar";
 import InformationBar from "@/components/partials/InformationBar";
+import { getUserProfile } from "@/app/actions/user";
+import { createClient } from "@/utils/supabase/server";
 
-export default function UserLayout({
+export default async function UserLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	const supabase = await createClient();
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
+	const profile = await getUserProfile();
+
 	return (
 		<>
-			<SideBar />
-			<div className="flex flex-col w-full">
+		<div className="xl:flex hidden">
+			<SideBar user={user} profile={profile} />
+		</div>
+			<div className="flex flex-col w-full h-screen">
 				<InformationBar />
-				{children}
+				<div className="max-h-full overflow-y-auto">{children}</div>
 			</div>
 		</>
 	);

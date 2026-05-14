@@ -6,19 +6,24 @@ import { usePathname } from "next/navigation";
 
 export default function InformationBar() {
   const path = usePathname();
-  const newPath = path.replace("/", "");
+
+  const formatPath = (path: string) => {
+    // Handle root or base user path
+    if (path === "/" || path === "/user" || path === "/user/") return "Dashboard";
+
+    const segments = path.split("/").filter(Boolean);
+    const lastSegment = segments[segments.length - 1] || "";
+
+    return lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1);
+  };
+
+  const formattedTitle = formatPath(path);
 
   return (
     <div className="flex px-4 py-3 border-b w-full border-b-border-default items-center justify-between bg-surface-background">
       <div className="flex gap-4 items-center justify-center">
-        {/* <Image
-					src={nalaLogo}
-					alt="Nala-Logo"
-					priority
-					className="w-12.5 h-10"
-				/> */}
         <p className="text-body-xl-bold text-text-heading">
-          {newPath} {newPath === "" && "Dashboard"}
+          {formattedTitle}
         </p>
       </div>
 
