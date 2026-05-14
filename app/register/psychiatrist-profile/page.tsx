@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useState, useRef, useEffect, type ChangeEvent } from "react";
 
 type Sex = "male" | "female";
-type Step = "personal" | "professional";
+type Step = "personal" | "professional" | "availability";
 
 interface ExpertiseOption {
   id: number;
@@ -41,6 +41,19 @@ export default function PsychiatristProfilePage() {
     experienceEnd: "",
     selectedExpertiseIds: [] as number[],
   });
+
+  // Step 3: Availability
+  const [availability, setAvailability] = useState(
+    [
+      { day: "monday", label: "Monday", startTime: "09:00", endTime: "17:00", enabled: true },
+      { day: "tuesday", label: "Tuesday", startTime: "09:00", endTime: "17:00", enabled: true },
+      { day: "wednesday", label: "Wednesday", startTime: "09:00", endTime: "17:00", enabled: true },
+      { day: "thursday", label: "Thursday", startTime: "09:00", endTime: "17:00", enabled: true },
+      { day: "friday", label: "Friday", startTime: "09:00", endTime: "17:00", enabled: true },
+      { day: "saturday", label: "Saturday", startTime: "09:00", endTime: "17:00", enabled: false },
+      { day: "sunday", label: "Sunday", startTime: "09:00", endTime: "17:00", enabled: false },
+    ]
+  );
 
   // Ambil data Expertise dari database saat komponen mount
   useEffect(() => {
@@ -107,6 +120,11 @@ export default function PsychiatristProfilePage() {
         experienceStart: professional.experienceStart,
         experienceEnd: professional.experienceEnd,
         selectedExpertiseIds: professional.selectedExpertiseIds,
+        availability: availability.filter(a => a.enabled).map(a => ({
+          day: a.day,
+          startTime: a.startTime,
+          endTime: a.endTime
+        }))
       });
       if (result?.error) {
         setError(result.error);
@@ -117,6 +135,18 @@ export default function PsychiatristProfilePage() {
       setIsSubmitting(false);
     }
   }
+
+  const updateGlobalTime = (start: string, end: string) => {
+    setAvailability(prev => prev.map(a => ({ ...a, startTime: start, endTime: end })));
+  };
+
+  const toggleDay = (day: string) => {
+    setAvailability(prev => prev.map(a => a.day === day ? { ...a, enabled: !a.enabled } : a));
+  };
+
+  const updateDayTime = (day: string, start: string, end: string) => {
+    setAvailability(prev => prev.map(a => a.day === day ? { ...a, startTime: start, endTime: end } : a));
+  };
 
   return (
     <div className="flex w-full min-h-screen">
@@ -136,21 +166,25 @@ export default function PsychiatristProfilePage() {
             className="brightness-0 invert"
           />
           <h1 className="text-heading-4-bold text-white">
-            {step === "personal" ? "Personal Details" : "Professional Profile"}
+            {step === "personal" 
+              ? "Personal Details" 
+              : step === "professional" 
+                ? "Professional Profile" 
+                : "Work Availability"}
           </h1>
           <p className="text-body-lg-regular text-white/80 max-w-md">
             Share your background to start helping clients through Nala.
           </p>
           {/* Step Progress */}
           <div className="flex items-center gap-3">
-            {["personal", "professional"].map((s, i) => (
+            {["personal", "professional", "availability"].map((s, i) => (
               <div key={s} className="flex items-center gap-3">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-label-small-semibold transition-all ${step === s ? "bg-white text-accent-600" : i === 0 && step === "professional" ? "bg-white/30 text-white" : "bg-white/10 text-white/50"}`}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-label-small-semibold transition-all ${step === s ? "bg-white text-accent-600" : (i === 0 && (step === "professional" || step === "availability")) || (i === 1 && step === "availability") ? "bg-white/30 text-white" : "bg-white/10 text-white/50"}`}
                 >
                   {i + 1}
                 </div>
-                {i === 0 && <div className="w-12 h-0.5 bg-white/30" />}
+                {i < 2 && <div className="w-12 h-0.5 bg-white/30" />}
               </div>
             ))}
           </div>
@@ -164,10 +198,12 @@ export default function PsychiatristProfilePage() {
             <h2 className="text-heading-5-bold text-text-heading">
               {step === "personal"
                 ? "Personal Information"
-                : "Professional Details"}
+                : step === "professional"
+                  ? "Professional Details"
+                  : "Availability Settings"}
             </h2>
             <p className="text-body-base-regular text-text-subheading">
-              Step {step === "personal" ? "1" : "2"} of 2 — Psychiatrist
+              Step {step === "personal" ? "1" : step === "professional" ? "2" : "3"} of 3 — Psychiatrist
               Registration
             </p>
           </div>
@@ -460,10 +496,113 @@ export default function PsychiatristProfilePage() {
                   ← Back
                 </button>
                 <button
-                  onClick={handleSubmit}
+                  onClick={() => setStep("availability")}
                   disabled={!isProfessionalValid || isSubmitting}
                   className={`flex-2 py-4 rounded-xl text-label-base-semibold transition-all ${
                     isProfessionalValid && !isSubmitting
+                      ? "bg-accent-500 text-white hover:bg-accent-600 shadow-md active:scale-[0.98]"
+                      : "bg-neutral-100 text-text-disabled cursor-not-allowed"
+                  }`}
+                >
+                  Next: Availability →
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ─── STEP 3: AVAILABILITY ─── */}
+          {step === "availability" && (
+            <div className="space-y-6">
+              <div className="p-4 bg-accent-50 border border-accent-100 rounded-2xl flex flex-col gap-3">
+                <p className="text-label-small-semibold text-accent-700">Set Global Hours</p>
+                <div className="flex items-center gap-3">
+                  <input 
+                    type="time" 
+                    className="flex-1 px-3 py-2 rounded-lg border border-accent-200 focus:outline-accent-500"
+                    defaultValue="09:00"
+                    id="globalStart"
+                  />
+                  <span className="text-accent-400">to</span>
+                  <input 
+                    type="time" 
+                    className="flex-1 px-3 py-2 rounded-lg border border-accent-200 focus:outline-accent-500"
+                    defaultValue="17:00"
+                    id="globalEnd"
+                  />
+                  <button 
+                    onClick={() => {
+                      const start = (document.getElementById("globalStart") as HTMLInputElement).value;
+                      const end = (document.getElementById("globalEnd") as HTMLInputElement).value;
+                      updateGlobalTime(start, end);
+                    }}
+                    className="px-4 py-2 bg-accent-500 text-white rounded-lg text-label-small-semibold hover:bg-accent-600 transition-colors"
+                  >
+                    Apply to All
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <p className="text-label-small-medium text-text-label">Weekly Schedule</p>
+                <div className="flex flex-col gap-3">
+                  {availability.map((a) => (
+                    <div 
+                      key={a.day} 
+                      className={`p-4 border rounded-2xl transition-all ${a.enabled ? "border-accent-200 bg-white shadow-sm" : "border-border-default bg-neutral-50 opacity-60"}`}
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <input 
+                            type="checkbox" 
+                            checked={a.enabled}
+                            onChange={() => toggleDay(a.day)}
+                            className="w-5 h-5 rounded border-border-default text-accent-500 focus:ring-accent-500"
+                          />
+                          <span className={`text-body-base-semibold capitalize ${a.enabled ? "text-text-heading" : "text-text-placeholder"}`}>
+                            {a.label}
+                          </span>
+                        </div>
+                        {a.enabled && (
+                          <span className="text-body-caption-medium text-accent-600 bg-accent-50 px-2 py-1 rounded-md">
+                            Flexible
+                          </span>
+                        )}
+                      </div>
+                      
+                      {a.enabled && (
+                        <div className="flex items-center gap-3 animate-in fade-in slide-in-from-top-1 duration-200">
+                          <input 
+                            type="time" 
+                            value={a.startTime}
+                            onChange={(e) => updateDayTime(a.day, e.target.value, a.endTime)}
+                            className="flex-1 px-3 py-2 rounded-lg border border-border-default focus:border-accent-400 focus:outline-none transition-all"
+                          />
+                          <span className="text-text-placeholder">to</span>
+                          <input 
+                            type="time" 
+                            value={a.endTime}
+                            onChange={(e) => updateDayTime(a.day, a.startTime, e.target.value)}
+                            className="flex-1 px-3 py-2 rounded-lg border border-border-default focus:border-accent-400 focus:outline-none transition-all"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => setStep("professional")}
+                  className="flex-1 py-4 border-2 border-border-default rounded-xl hover:bg-neutral-50 transition-all text-label-base-medium text-text-heading"
+                >
+                  ← Back
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  disabled={isSubmitting || !availability.some(a => a.enabled)}
+                  className={`flex-2 py-4 rounded-xl text-label-base-semibold transition-all ${
+                    !isSubmitting && availability.some(a => a.enabled)
                       ? "bg-accent-500 text-white hover:bg-accent-600 shadow-md active:scale-[0.98]"
                       : "bg-neutral-100 text-text-disabled cursor-not-allowed"
                   }`}

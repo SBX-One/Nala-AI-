@@ -21,15 +21,15 @@ export default function page() {
 								className="size-4.5"
 							/>
 							<p className="text-body-base-medium text-text-body">
-								"Every day is a new opportunity to grow."
+								&quot;Every day is a new opportunity to grow.&quot;
 							</p>
 						</div>
 						<div className="flex gap-3  items-end">
-							<button className="button-primary-medium">
+							<button suppressHydrationWarning className="button-primary-medium">
 								{" "}
 								Book Session
 							</button>
-							<button className="button-secondary-medium">
+							<button suppressHydrationWarning className="button-secondary-medium">
 								{" "}
 								Chat With AI
 							</button>

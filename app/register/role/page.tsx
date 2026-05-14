@@ -2,13 +2,11 @@
 
 import { selectRole } from "@/app/auth/actions";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 type RoleChoice = "user" | "psychiatrist" | null;
 
 export default function RoleSelectionPage() {
-  const router = useRouter();
   const [selected, setSelected] = useState<RoleChoice>(null);
   const [isLoading, setIsLoading] = useState(false);
 

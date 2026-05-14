@@ -157,6 +157,7 @@ export default function SideBar() {
 					</div>
 					<div className="relative">
 						<button
+							suppressHydrationWarning
 							type="button"
 							className="text-icon-default hover:text-icon-action transition-colors cursor-pointer relative z-10"
 							onClick={(e) => {
