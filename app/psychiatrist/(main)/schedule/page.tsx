@@ -87,12 +87,18 @@ export default function SchedulePage() {
     if (!initialData) return false;
 
     // Check if selected days changed
-    if (JSON.stringify([...selectedDays].sort()) !== JSON.stringify([...initialData.selectedDays].sort())) {
+    if (
+      JSON.stringify([...selectedDays].sort()) !==
+      JSON.stringify([...initialData.selectedDays].sort())
+    ) {
       return true;
     }
 
     // Check if custom availabilities changed
-    if (JSON.stringify(customAvailabilities) !== JSON.stringify(initialData.customAvailabilities)) {
+    if (
+      JSON.stringify(customAvailabilities) !==
+      JSON.stringify(initialData.customAvailabilities)
+    ) {
       return true;
     }
 
@@ -274,7 +280,7 @@ export default function SchedulePage() {
   return (
     <div className="bg-surface-default min-h-screen">
       {/* Header */}
-      <div className="space-y-1 bg-white border-b border-border-default p-6 sticky top-0 z-50">
+      <div className="space-y-1 bg-white border-b border-border-default p-6 py-8 sticky top-0 z-50">
         <h1 className="text-[32px] font-bold text-text-heading flex items-center gap-2">
           Edit Availability & Schedule
           <span className="size-1.5 rounded-full bg-[#E11D48] mt-2" />
