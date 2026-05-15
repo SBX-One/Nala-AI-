@@ -28,7 +28,7 @@ export default function ArticleCard({ article, basePath = "/user/article" }: Art
 	return (
 		<Link
 			href={`${basePath}/${article.id}`}
-			className="bg-surface-background border border-border-default rounded-2xl flex flex-col h-full hover:border-border-action transition-all duration-300 hover:shadow-lg group cursor-pointer"
+			className="bg-surface-background border border-border-default rounded-2xl flex flex-col h-full transition-all duration-300 group cursor-pointer"
 		>
 			<div className="relative aspect-video m-4 rounded-xl overflow-hidden shrink-0 bg-surface-disabled">
 				{article.image_url ? (

@@ -576,13 +576,13 @@
 }
 /* outline butttons */
 @utility button-outline-large{
-  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-white text-label-base-medium text-neutral-600 hover:border-border-default hover:text-border-action focus:border-border-default focus:text-text-action-hover active:text-text-action-hover border flex  active:scale-95  transition-all duration-300 hover:cursor-pointer
+  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-white text-label-base-medium text-neutral-600 border-border-default hover:text-border-action focus:border-border-default focus:text-text-action-hover active:text-text-action-hover border flex  active:scale-95  transition-all duration-300 hover:cursor-pointer
 }
 @utility button-outline-medium{
-  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-white text-label-small-medium text-neutral-600 hover:border-border-default hover:text-border-action focus:border-border-default focus:text-text-action-hover active:text-text-action-hover border flex  active:scale-95 transition-all duration-300 hover:cursor-pointer
+  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-white text-label-small-medium text-neutral-600 border-border-default hover:text-border-action focus:border-border-default focus:text-text-action-hover active:text-text-action-hover border flex  active:scale-95 transition-all duration-300 hover:cursor-pointer
 }
 @utility button-outline-small{
-  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-white text-label-caption-medium text-neutral-600 hover:border-border-default hover:text-border-action focus:border-border-default focus:text-text-action-hover active:text-text-action-hover border flex  active:scale-95 transition-all duration-300 hover:cursor-pointer
+  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-white text-label-caption-medium text-neutral-600 border-border-default hover:text-border-action focus:border-border-default focus:text-text-action-hover active:text-text-action-hover border flex  active:scale-95 transition-all duration-300 hover:cursor-pointer
 }
 /* button disabled styles */
 @utility button-disabled-large{

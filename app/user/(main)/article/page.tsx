@@ -131,7 +131,7 @@ export default function ArticleListPage() {
 					/>
 
 					{/* Drawer Content */}
-					<div className="relative w-full max-w-md bg-surface-background h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+					<div className="relative w-full max-w-lg bg-surface-background h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300 rounded-l-3xl">
 						<div className="p-8 flex-1 overflow-y-auto">
 							<h2 className="text-heading-4-bold text-text-heading mb-8">
 								Filter Article
@@ -250,7 +250,7 @@ export default function ArticleListPage() {
 						</div>
 
 						{/* Footer Actions */}
-						<div className="p-8 border-t border-border-default flex gap-4">
+						<div className="p-8 flex gap-4 mt-auto">
 							<button
 								onClick={handleSaveFilter}
 								className=" button-primary-large"
@@ -363,7 +363,7 @@ export default function ArticleListPage() {
 						</p>
 					</div>
 				) : (
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 						{filteredArticles.map((article) => (
 							<ArticleCard
 								key={article.id}

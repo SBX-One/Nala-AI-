@@ -139,7 +139,7 @@ export default function SideBar({ user, profile }: { user?: any; profile?: any }
 			</div>
 
 			{/* Bottom Section */}
-			<div className="flex flex-col mt-8 gap-4">
+			<div className="flex flex-col  gap-4">
 				<div className="flex flex-col gap-3">
 					<Link
 						suppressHydrationWarning

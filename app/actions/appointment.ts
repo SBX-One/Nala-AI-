@@ -127,14 +127,15 @@ export async function getUserConsultations() {
       *,
       psychiatrist:PsychiatristProfile (
         *,
-        user:User (
-          user_profile:UserProfile (
-            name,
-            avatar_url
-          )
+        expertises:PsychiatristExpertise (
+          expertise:Expertise (name)
         )
       ),
-      billing:ConsultationBilling (*)
+      billing:ConsultationBilling (*),
+      medicines:ConsultationMedicine (
+        *,
+        medicine:Medicine (*)
+      )
     `)
     .eq("user_id", userProfile.id)
     .order("date", { ascending: false });

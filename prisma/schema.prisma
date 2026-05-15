@@ -46,10 +46,12 @@ model PsychiatristProfile {
   avatar_url         String?
   is_availability    Boolean                        @default(true)
   name               String?
+  session_duration   Int?                           @default(45)
   articles           Article[]
   consultations      Consultation[]                 @relation("PsychiatristConsultations")
   meeting_rooms      MeetingRoom[]                  @relation("PsychiatristMeetingRooms")
   availability_times PsychiatristAvailabilityTime[]
+  PsychiatristBreak  PsychiatristBreak[]
   expertises         PsychiatristExpertise[]
   user               User                           @relation(fields: [user_id], references: [id])
 }
@@ -85,20 +87,28 @@ model PsychiatristAvailabilityTime {
 }
 
 model Consultation {
-  id              Int                    @id @default(autoincrement())
-  user_id         Int
-  psychiatrist_id Int
-  complaint       String?
-  date            DateTime               @db.Date
-  start_time      DateTime               @db.Time(6)
-  end_time        DateTime               @db.Time(6)
-  topic           String?
-  feedback        String?
-  created_at      DateTime               @default(now())
-  psychiatrist    PsychiatristProfile    @relation("PsychiatristConsultations", fields: [psychiatrist_id], references: [id])
-  user            UserProfile            @relation("UserConsultations", fields: [user_id], references: [id])
-  billing         ConsultationBilling?
-  medicines       ConsultationMedicine[]
+  id                    Int                    @id @default(autoincrement())
+  user_id               Int
+  psychiatrist_id       Int
+  complaint             String?
+  date                  DateTime               @db.Date
+  start_time            DateTime               @db.Time(6)
+  end_time              DateTime               @db.Time(6)
+  topic                 String?
+  feedback              String?
+  created_at            DateTime               @default(now())
+  diagnose              String?
+  psychiatrist_feedback String?
+  status                ConsultationStatus     @default(pending)
+  ai_summary            String?
+  consultation_context  String?
+  observation_notes     String?
+  session_ai_summary    String?
+  consultation_notes    String?
+  psychiatrist          PsychiatristProfile    @relation("PsychiatristConsultations", fields: [psychiatrist_id], references: [id])
+  user                  UserProfile            @relation("UserConsultations", fields: [user_id], references: [id])
+  billing               ConsultationBilling?
+  medicines             ConsultationMedicine[]
 }
 
 model ConsultationBilling {
@@ -120,12 +130,13 @@ model ConsultationBilling {
 model ConsultationMedicine {
   id              Int          @id @default(autoincrement())
   consultation_id Int
-  name            String
   notes           String?
   use             String?
   dose            String?
   created_at      DateTime     @default(now())
+  medicine_id     Int
   consultation    Consultation @relation(fields: [consultation_id], references: [id])
+  Medicine        Medicine     @relation(fields: [medicine_id], references: [id])
 }
 
 model MeetingRoom {
@@ -137,6 +148,8 @@ model MeetingRoom {
   duration          Int?
   status            ConsultationStatus  @default(pending)
   created_at        DateTime            @default(now())
+  end_at            DateTime?
+  start_at          DateTime?
   psychiatrist      PsychiatristProfile @relation("PsychiatristMeetingRooms", fields: [psychiatrist_id], references: [id])
   user              UserProfile         @relation("UserMeetingRooms", fields: [user_id], references: [id])
   messages          Message[]
@@ -174,13 +187,13 @@ model Article {
   id              Int                 @id @default(autoincrement())
   psychiatrist_id Int
   category_id     Int
-  title           String
   overview        String?
   duration        Int?
   content         String?
   image_url       String?
-  status          ArticleStatus       @default(draft)
   created_at      DateTime            @default(now())
+  title           String
+  status          ArticleStatus       @default(draft)
   category        ArticleCategory     @relation(fields: [category_id], references: [id])
   author          PsychiatristProfile @relation(fields: [psychiatrist_id], references: [id])
   topics          ArticleTopic[]
@@ -214,6 +227,28 @@ model AiChatMessage {
   session    AiChatSession @relation(fields: [session_id], references: [id], onDelete: Cascade)
 }
 
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Medicine {
+  id                   Int                    @id @default(autoincrement())
+  name                 String                 @unique
+  description          String?
+  created_at           DateTime               @default(now())
+  ConsultationMedicine ConsultationMedicine[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model PsychiatristBreak {
+  id                  Int                 @id @default(autoincrement())
+  psychiatrist_id     Int
+  date                DateTime            @db.Date
+  start_time          DateTime?           @db.Time(6)
+  end_time            DateTime?           @db.Time(6)
+  is_full_day         Boolean             @default(true)
+  note                String?
+  created_at          DateTime            @default(now())
+  PsychiatristProfile PsychiatristProfile @relation(fields: [psychiatrist_id], references: [id])
+}
+
 enum Role {
   user
   psychiatry
@@ -238,6 +273,8 @@ enum ConsultationStatus {
   pending
   on_going
   finished
+  draft
+  published
 }
 
 enum ArticleStatus {

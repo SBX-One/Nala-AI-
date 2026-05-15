@@ -1,4 +1,5 @@
 import PlantIcon from "@/public/icon/plant-icon.svg";
+import Link from "next/link";
 import Image from "next/image";
 import ConsultationSessionCard from "@/components/partials/dashboard/ConsultationSessionCard";
 import NextAppointmentCard from "@/components/partials/dashboard/NextAppointmentCard";
@@ -43,7 +44,7 @@ export default async function page() {
 		const roomId = await getActiveMeetingRoom(currentSessionRaw.psychiatrist_id);
 		currentSession = {
 			doctorName:
-				currentSessionRaw.psychiatrist?.user?.user_profile?.name ||
+				currentSessionRaw.psychiatrist?.name ||
 				"Dr. Anonymous",
 			specialization:
 				currentSessionRaw.psychiatrist?.specialization || "Psychiatrist",
@@ -73,7 +74,7 @@ export default async function page() {
 
 			return {
 				id: c.id,
-				name: c.psychiatrist?.user?.user_profile?.name || "Dr. Anonymous",
+				name: c.psychiatrist?.name || "Dr. Anonymous",
 				time: `${c.start_time.slice(0, 5)} - ${c.end_time.slice(
 					0,
 					5,
@@ -121,18 +122,18 @@ export default async function page() {
 						</p>
 					</div>
 					<div className="flex gap-3  items-end">
-						<button
+						<Link href="/user/session/booking"
 							suppressHydrationWarning
 							className="button-primary-medium"
 						>
 							Book Session
-						</button>
-						<button
+						</Link>
+						<Link href="/user/chat"
 							suppressHydrationWarning
 							className="button-secondary-medium"
 						>
 							Chat With AI
-						</button>
+						</Link>
 					</div>
 				</div>
 			</div>
