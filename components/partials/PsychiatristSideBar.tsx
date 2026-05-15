@@ -6,8 +6,11 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import NalaLogo from "@/public/icon/Nala-Logo.svg";
 import { signOut } from "@/app/auth/actions";
+import { useSidebar } from "@/context/SidebarContext";
 
 import NavLink, { NavItemType } from "./navLink";
+
+// ... (navItems stay the same)
 
 const navItems: NavItemType[] = [
   {
@@ -95,9 +98,24 @@ export default function PsychiatristSideBar({ profile }: { profile: any }) {
   const path = usePathname() || "";
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const { isOpen, close } = useSidebar();
 
   return (
-    <div className="flex flex-col w-fit h-screen bg-surface-background border-r border-border-default px-4 py-8 justify-between">
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden animate-in fade-in duration-300"
+          onClick={close}
+        />
+      )}
+
+      {/* Sidebar Container */}
+      <div
+        className={`flex flex-col w-72 h-screen bg-surface-background border-r border-border-default px-4 py-8 justify-between fixed lg:sticky top-0 left-0 z-50 transition-transform duration-300 lg:translate-x-0 ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
       <div>
         {/* Logo Section */}
         <div className="flex items-center gap-4 mb-10">
@@ -218,6 +236,7 @@ export default function PsychiatristSideBar({ profile }: { profile: any }) {
           </div>
         </div>
       </div>
+      </div>
 
       {/* Custom Logout Confirmation Modal */}
       {isLogoutModalOpen && (
@@ -251,6 +270,6 @@ export default function PsychiatristSideBar({ profile }: { profile: any }) {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

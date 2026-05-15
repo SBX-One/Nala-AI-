@@ -4,13 +4,31 @@
 import { usePathname } from "next/navigation";
 // import Image from "next/image";
 
+import { useSidebar } from "@/context/SidebarContext";
+
 export default function InformationBar() {
   const path = usePathname();
+  const { toggle } = useSidebar();
   const newPath = path.replace("/", "");
 
   return (
     <div className="flex px-4 py-3 border-b w-full border-b-border-default items-center justify-between bg-surface-background">
       <div className="flex gap-4 items-center justify-center">
+        <button
+          onClick={toggle}
+          className="p-2 -ml-2 lg:hidden text-icon-default hover:bg-surface-default rounded-lg transition-colors"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="size-6"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"
+            />
+          </svg>
+        </button>
         {/* <Image
 					src={nalaLogo}
 					alt="Nala-Logo"

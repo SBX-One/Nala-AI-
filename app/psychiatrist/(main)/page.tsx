@@ -12,7 +12,7 @@ export default async function page() {
   console.log(data);
 
   return (
-    <div className="p-6">
+    <div className="p-6 w-full bg-surface-default">
       <div className=" grid gap-3">
         <p className="text-label-small-medium text-text-subheading">
           Welcome to your daily board
@@ -24,14 +24,14 @@ export default async function page() {
             {data?.psychiatristName || "Nanda"}
           </span>{" "}
         </p>
-        <div className="flex justify-between">
+        <div className="flex flex-col lg:items-center  lg:flex-row lg:justify-between gap-3">
           <div className="rounded-full border border-border-default p-4 bg-surface-primary-light w-fit flex gap-3">
             <Image src={starIcon} alt="Plant-Icon" priority />
             <p className="text-body-base-medium text-text-body">
-              You have {data?.kpis.todayCount || 0} appointments today!.
+              You have {data?.kpis.todayCount || 0} sessions scheduled today.
               {data?.kpis.nextSession
                 ? ` Next session at ${data.kpis.nextSession}`
-                : " No more sessions for today."}
+                : " Your schedule is clear for the rest of the day."}
             </p>
           </div>
           <div className="flex gap-3 items-end">
@@ -52,7 +52,7 @@ export default async function page() {
       </div>
 
       <div>
-        <div className="flex w-full gap-3 mt-6 overflow-x-auto pb-2">
+        <div className="grid md:flex md:w-full gap-4 mt-6 overflow-x-auto pb-2">
           <KPICard
             title="Today's Appointment"
             value={data?.kpis.todayCount?.toString() || "0"}
@@ -105,7 +105,7 @@ export default async function page() {
           />
         </div>
 
-        <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
           <TodaysSessions items={data?.sessions} />
           <UnfinishedFeedback items={data?.feedback} limit={2} />
         </div>

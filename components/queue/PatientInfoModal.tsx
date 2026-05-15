@@ -68,7 +68,7 @@ export default function PatientInfoModal({
           {/* Complaints */}
           <div className="space-y-4">
             <h4 className="text-body-xl-bold text-text-heading">Complaints</h4>
-            <div className="p-6 rounded-2xl bg-surface-default border border-border-default">
+            <div className="p-6 rounded-xl bg-surface-default border border-border-default">
               <p className="text-body-lg-medium text-text-body leading-relaxed">
                 {patient.complaints ||
                   "No specific complaint provided for this session."}
