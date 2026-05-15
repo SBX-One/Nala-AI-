@@ -17,9 +17,11 @@ import { searchMedicines } from "@/app/actions/medicine";
 import Image from "next/image";
 import toast from "react-hot-toast";
 
+import { Suspense } from "react";
+
 type Tab = "patient" | "diagnostic";
 
-export default function PostConsultationPage() {
+function PostConsultationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryRoomId = searchParams.get("roomId");
@@ -867,5 +869,24 @@ export default function PostConsultationPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function PostConsultationPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="fixed inset-0 z-[110] bg-white/80 backdrop-blur-sm flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="size-12 border-4 border-[#0066FF] border-t-transparent rounded-full animate-spin" />
+            <p className="text-body-base-semibold text-text-heading animate-pulse">
+              Loading session data...
+            </p>
+          </div>
+        </div>
+      }
+    >
+      <PostConsultationContent />
+    </Suspense>
   );
 }

@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { getConsultationHistory } from "@/app/actions/consultation";
 import Image from "next/image";
 import ConsultationCard from "@/components/consultation/ConsultationCard";
 import ConsultationDetail from "@/components/consultation/ConsultationDetail";
 import { useSearchParams } from "next/navigation";
 
-export default function ConsultationHistoryPage() {
+function ConsultationHistoryContent() {
   const searchParams = useSearchParams();
   const urlId = searchParams.get("id");
 
@@ -218,5 +218,22 @@ export default function ConsultationHistoryPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function ConsultationHistoryPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+          <p className="text-body-base-medium text-text-subheading">
+            Loading sessions...
+          </p>
+        </div>
+      }
+    >
+      <ConsultationHistoryContent />
+    </Suspense>
   );
 }
