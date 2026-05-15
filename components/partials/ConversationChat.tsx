@@ -385,9 +385,14 @@ export default function ConversationChat({
         setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
         setError(data.error);
       } else {
-        setMessages((prev) =>
-          prev.map((m) => (m.id === optimistic.id ? data : m)),
-        );
+        setMessages((prev) => {
+          // If Realtime already inserted the true message, remove the optimistic one
+          if (prev.some((m) => m.id === data.id && m.id !== optimistic.id)) {
+            return prev.filter((m) => m.id !== optimistic.id);
+          }
+          // Otherwise, replace the optimistic message with the true message
+          return prev.map((m) => (m.id === optimistic.id ? data : m));
+        });
       }
     } catch {
       setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
