@@ -64,12 +64,7 @@ function VideoCallSection({ onEndCall }: { onEndCall: () => void }) {
       t.source === Track.Source.Camera,
   );
 
-  const remoteAudioTracks = tracks.filter(
-    (t) =>
-      t.participant.identity !== localParticipant.localParticipant.identity &&
-      t.source === Track.Source.Microphone &&
-      isTrackReference(t),
-  ) as TrackReference[];
+
 
   const localTracks = tracks.filter(
     (t) =>
@@ -83,10 +78,7 @@ function VideoCallSection({ onEndCall }: { onEndCall: () => void }) {
 
   return (
     <div className="relative w-full h-full bg-black overflow-hidden">
-      {/* Remote Audio Tracks - Explicit Rendering */}
-      {remoteAudioTracks.map((t) => (
-        <AudioTrack key={t.publication?.trackSid} trackRef={t} />
-      ))}
+
 
       {/* Remote (Patient) Video - Full Area */}
       {remoteTracks.length > 0 && remoteTracks[0].publication?.track ? (
@@ -113,14 +105,6 @@ function VideoCallSection({ onEndCall }: { onEndCall: () => void }) {
               ? `Waiting for ${remoteParticipant.name || "patient"} to enable camera...`
               : "Waiting for patient to join..."}
           </p>
-          {remoteAudioTracks.length > 0 && (
-            <div className="flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full border border-white/20">
-              <div className="size-2 bg-accent-500 rounded-full animate-pulse" />
-              <p className="text-body-sm-medium text-white/80">
-                Audio Connected
-              </p>
-            </div>
-          )}
         </div>
       )}
 
