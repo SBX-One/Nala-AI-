@@ -51,6 +51,7 @@ model PsychiatristProfile {
   meeting_rooms      MeetingRoom[]                  @relation("PsychiatristMeetingRooms")
   availability_times PsychiatristAvailabilityTime[]
   expertises         PsychiatristExpertise[]
+  breaks             PsychiatristBreak[]
   user               User                           @relation(fields: [user_id], references: [id])
 }
 
@@ -143,6 +144,18 @@ model ConsultationMedicine {
   created_at      DateTime     @default(now())
   consultation    Consultation @relation(fields: [consultation_id], references: [id])
   medicine        Medicine     @relation(fields: [medicine_id], references: [id])
+}
+
+model PsychiatristBreak {
+  id              Int                 @id @default(autoincrement())
+  psychiatrist_id Int
+  date            DateTime            @db.Date
+  start_time      DateTime?           @db.Time(6)
+  end_time        DateTime?           @db.Time(6)
+  is_full_day     Boolean             @default(true)
+  note            String?
+  created_at      DateTime            @default(now())
+  psychiatrist    PsychiatristProfile @relation(fields: [psychiatrist_id], references: [id])
 }
 
 model MeetingRoom {

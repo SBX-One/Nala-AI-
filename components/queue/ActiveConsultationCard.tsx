@@ -40,7 +40,10 @@ export default function ActiveConsultationCard({
       </div>
 
       <div className="flex items-center gap-4 pt-4 border-t border-white/20">
-        <button onClick={onBackToRoom} className="button-secondary-medium flex items-center gap-2">
+        <button
+          onClick={onBackToRoom}
+          className="button-secondary-medium flex items-center gap-2"
+        >
           Enter Room
           <svg
             width="18"

@@ -164,7 +164,7 @@ export default function ConsultationQueuePage() {
     userId: number,
     psychiatristId: number,
     consultationId: number,
-    currentStatus: string
+    currentStatus: string,
   ) => {
     // Client-side block for finished sessions
     if (currentStatus === "finished" || currentStatus === "published") {
@@ -194,7 +194,7 @@ export default function ConsultationQueuePage() {
   };
 
   return (
-    <div className="p-8 bg-surface-default min-h-screen">
+    <div className="p-6 bg-surface-default min-h-screen">
       <div className="flex flex-col xl:flex-row gap-6">
         {/* Main Content */}
         <div className="flex-1 space-y-6">
@@ -282,7 +282,7 @@ export default function ConsultationQueuePage() {
               }}
             />
           ) : (
-            <div className="py-24 bg-white rounded-3xl border border-border-default flex flex-col items-center justify-center text-center space-y-4 shadow-sm animate-in fade-in duration-500">
+            <div className="py-24 bg-white rounded-xl border border-border-default flex flex-col items-center justify-center text-center space-y-4 shadow-sm animate-in fade-in duration-500">
               <h2 className="text-heading-3-bold text-primary-600">
                 No On Going Consultation
               </h2>
@@ -293,7 +293,7 @@ export default function ConsultationQueuePage() {
           )}
 
           {/* Consultation Queue List */}
-          <div className="bg-white rounded-3xl p-8 border border-border-default space-y-6 shadow-sm">
+          <div className="bg-white rounded-xl p-8 border border-border-default space-y-6 shadow-sm">
             <div className="flex items-center gap-3 mb-2">
               <div className="size-10 rounded-xl bg-primary-50 flex items-center justify-center">
                 <svg
@@ -348,7 +348,7 @@ export default function ConsultationQueuePage() {
 
         {/* Sidebar Content */}
         <div className="w-full xl:w-96 space-y-6">
-          <div className="bg-white rounded-3xl p-8 border border-border-default sticky top-8 shadow-sm">
+          <div className="bg-white rounded-xl p-8 border border-border-default sticky top-8 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
               <div className="size-10 rounded-xl bg-primary-50 flex items-center justify-center">
                 <svg

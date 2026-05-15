@@ -56,6 +56,22 @@ const navItems: NavItemType[] = [
     ],
   },
   {
+    href: "/psychiatrist/schedule",
+    label: "Schedule",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="size-6"
+        viewBox="0 0 24 24"
+      >
+        <path
+          fill="currentColor"
+          d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2m0 16H5V10h14v10M9 14H7v-2h2v2m4 0h-2v-2h2v2m4 0h-2v-2h2v2m-8 4H7v-2h2v2m4 0h-2v-2h2v2m4 0h-2v-2h2v2"
+        />
+      </svg>
+    ),
+  },
+  {
     href: "/psychiatrist/article",
     label: "Article",
     icon: (
