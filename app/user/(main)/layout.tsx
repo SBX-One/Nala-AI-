@@ -3,26 +3,28 @@ import InformationBar from "@/components/partials/InformationBar";
 import { getUserProfile } from "@/app/actions/user";
 import { createClient } from "@/utils/supabase/server";
 
-export default async function UserLayout({
-	children,
-}: Readonly<{
-	children: React.ReactNode;
-}>) {
-	const supabase = await createClient();
-	const {
-		data: { user },
-	} = await supabase.auth.getUser();
-	const profile = await getUserProfile();
+import { SidebarProvider } from "@/context/SidebarContext";
 
-	return (
-		<>
-		<div className="xl:flex hidden">
-			<SideBar user={user} profile={profile} />
-		</div>
-			<div className="flex flex-col w-full h-screen">
-				<InformationBar />
-				<div className="flex-1 min-h-0 overflow-auto">{children}</div>
-			</div>
-		</>
-	);
+export default async function UserLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const profile = await getUserProfile();
+
+  return (
+    <SidebarProvider>
+      <div className="flex h-screen overflow-hidden bg-surface-default w-full">
+        <SideBar user={user} profile={profile} />
+        <div className="flex flex-col flex-1  overflow-hidden">
+          <InformationBar />
+          <div className="flex-1 overflow-y-auto w-full">{children}</div>
+        </div>
+      </div>
+    </SidebarProvider>
+  );
 }
