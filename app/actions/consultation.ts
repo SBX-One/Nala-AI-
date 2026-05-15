@@ -349,7 +349,7 @@ export async function joinMeetingRoom(
         psychiatrist_join: true,
         start_at: now,
       })
-      .select("id")
+      .select("id, user_join, psychiatrist_join")
       .single();
 
     if (createError) {
@@ -374,6 +374,7 @@ export async function joinMeetingRoom(
     }
   }
 
+  if (!room) return { error: "Failed to initialize meeting room" };
   return { success: true, roomId: room.id };
 }
 
