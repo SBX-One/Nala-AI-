@@ -17,6 +17,11 @@ import {
   useLocalParticipant,
   TrackToggle,
   useParticipants,
+  RoomAudioRenderer,
+  useAudioPlayback,
+  AudioTrack,
+  isTrackReference,
+  TrackReference,
 } from "@livekit/components-react";
 import "@livekit/components-styles";
 import { Track } from "livekit-client";
@@ -40,8 +45,8 @@ const tabs: { key: Tab; label: string }[] = [
   { key: "patientInfo", label: "Patient Info" },
 ];
 
-// Custom Video Call Layout
-function VideoCallArea() {
+// Unified Video Call Section for Psychiatrist
+function VideoCallSection({ onEndCall }: { onEndCall: () => void }) {
   const tracks = useTracks(
     [
       { source: Track.Source.Camera, withPlaceholder: true },
@@ -59,6 +64,13 @@ function VideoCallArea() {
       t.source === Track.Source.Camera,
   );
 
+  const remoteAudioTracks = tracks.filter(
+    (t) =>
+      t.participant.identity !== localParticipant.localParticipant.identity &&
+      t.source === Track.Source.Microphone &&
+      isTrackReference(t),
+  ) as TrackReference[];
+
   const localTracks = tracks.filter(
     (t) =>
       t.participant.identity === localParticipant.localParticipant.identity &&
@@ -71,6 +83,11 @@ function VideoCallArea() {
 
   return (
     <div className="relative w-full h-full bg-black overflow-hidden">
+      {/* Remote Audio Tracks - Explicit Rendering */}
+      {remoteAudioTracks.map((t) => (
+        <AudioTrack key={t.publication?.trackSid} trackRef={t} />
+      ))}
+
       {/* Remote (Patient) Video - Full Area */}
       {remoteTracks.length > 0 && remoteTracks[0].publication?.track ? (
         <VideoTrack
@@ -96,6 +113,14 @@ function VideoCallArea() {
               ? `Waiting for ${remoteParticipant.name || "patient"} to enable camera...`
               : "Waiting for patient to join..."}
           </p>
+          {remoteAudioTracks.length > 0 && (
+            <div className="flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full border border-white/20">
+              <div className="size-2 bg-accent-500 rounded-full animate-pulse" />
+              <p className="text-body-sm-medium text-white/80">
+                Audio Connected
+              </p>
+            </div>
+          )}
         </div>
       )}
 
@@ -121,38 +146,73 @@ function VideoCallArea() {
           </div>
         )}
       </div>
+
+      {/* Controls */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-black/60 backdrop-blur-md p-3 rounded-full border border-white/20 z-30">
+        <TrackToggle
+          source={Track.Source.Microphone}
+          className="size-12 rounded-full flex items-center justify-center transition-all bg-white/20 text-white hover:bg-white/30"
+        />
+        <TrackToggle
+          source={Track.Source.Camera}
+          className="size-12 rounded-full flex items-center justify-center transition-all bg-white/20 text-white hover:bg-white/30"
+        />
+        <button
+          onClick={onEndCall}
+          className="size-12 rounded-full bg-error-default text-white flex items-center justify-center hover:bg-red-700 transition-all"
+          title="End Call"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="size-6"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9c-.98.49-1.87 1.12-2.66 1.85c-.18.18-.43.28-.7.28c-.28 0-.53-.11-.71-.29L.29 13.08a.956.956 0 0 1-.29-.7c0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71c0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29c-.27 0-.52-.1-.7-.28a11.27 11.27 0 0 0-2.67-1.85a.996.996 0 0 1-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"
+            />
+          </svg>
+        </button>
+      </div>
     </div>
   );
 }
 
-// Call Controls Component
-function CallControls({ onEndCall }: { onEndCall: () => void }) {
+function AudioPlaybackHandler() {
+  const { canPlayAudio, startAudio } = useAudioPlayback();
+  if (canPlayAudio) return null;
+
   return (
-    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-black/60 backdrop-blur-md p-3 rounded-full border border-white/20 z-20">
-      <TrackToggle
-        source={Track.Source.Microphone}
-        className="size-12 rounded-full flex items-center justify-center transition-all bg-white/20 text-white hover:bg-white/30"
-      />
-      <TrackToggle
-        source={Track.Source.Camera}
-        className="size-12 rounded-full flex items-center justify-center transition-all bg-white/20 text-white hover:bg-white/30"
-      />
-      <button
-        onClick={onEndCall}
-        className="size-12 rounded-full bg-error-default text-white flex items-center justify-center hover:bg-red-700 transition-all"
-        title="End Call"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="size-6"
-          viewBox="0 0 24 24"
+    <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+      <div className="text-center space-y-6 p-8 bg-white rounded-[32px] max-w-sm mx-4 animate-in fade-in zoom-in duration-300">
+        <div className="size-20 rounded-full bg-primary-50 flex items-center justify-center text-primary-500 mx-auto">
+          <svg
+            className="size-10"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path d="M11 5L6 9H2v6h4l5 4V5z" />
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+          </svg>
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-heading-6-bold text-text-heading">
+            Audio is Blocked
+          </h3>
+          <p className="text-body-base-regular text-text-placeholder">
+            Your browser has blocked audio playback. Click the button below to
+            enable sound for this consultation.
+          </p>
+        </div>
+        <button
+          onClick={startAudio}
+          className="w-full py-4 bg-primary-default text-white rounded-2xl text-label-base-semibold hover:bg-primary-dark shadow-lg shadow-primary-500/20 transition-all"
         >
-          <path
-            fill="currentColor"
-            d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9c-.98.49-1.87 1.12-2.66 1.85c-.18.18-.43.28-.7.28c-.28 0-.53-.11-.71-.29L.29 13.08a.956.956 0 0 1-.29-.7c0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71c0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29c-.27 0-.52-.1-.7-.28a11.27 11.27 0 0 0-2.67-1.85a.996.996 0 0 1-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"
-          />
-        </svg>
-      </button>
+          Enable Audio
+        </button>
+      </div>
     </div>
   );
 }
@@ -424,15 +484,18 @@ function ActiveConsultationContent() {
       <div className="flex-1 bg-black relative">
         {livekitToken ? (
           <LiveKitRoom
+            key={`room-${roomId}`}
             video={true}
             audio={true}
             token={livekitToken}
             serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
             onDisconnected={() => setShowEndModal(true)}
+            connect={true}
             style={{ height: "100%" }}
           >
-            <VideoCallArea />
-            <CallControls onEndCall={() => setShowEndModal(true)} />
+            <RoomAudioRenderer />
+            <VideoCallSection onEndCall={() => setShowEndModal(true)} />
+            <AudioPlaybackHandler />
           </LiveKitRoom>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-white/50 gap-4">
