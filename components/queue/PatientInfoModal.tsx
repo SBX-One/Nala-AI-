@@ -3,15 +3,22 @@
 import React from "react";
 import Image from "next/image";
 
+interface Medicine {
+  name: string;
+  dose: string;
+  use: string;
+  notes?: string;
+}
+
 interface PatientInfoModalProps {
   isOpen: boolean;
   onClose: () => void;
   patient: {
     name: string;
     avatar_url?: string;
-    complaint?: string;
-    topic?: string;
-    status?: string;
+    complaints?: string;
+    aiSummary?: string;
+    medicines?: Medicine[];
   } | null;
 }
 
@@ -29,13 +36,13 @@ export default function PatientInfoModal({
 
       {/* Modal Content */}
       <div
-        className="relative w-full rounded-l-3xl max-w-lg bg-white h-full flex flex-col animate-in slide-in-from-right duration-300 ease-out shadow-2xl"
+        className="relative w-full rounded-l-xl max-w-lg bg-white h-full flex flex-col justify-between animate-in slide-in-from-right duration-300 ease-out shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Section */}
-        <div className="p-8 border-b border-border-default space-y-6">
+        <div className="p-8 border-b border-border-default">
           <div className="flex justify-between items-center">
-            <h2 className="text-heading-5-semibold text-text-heading">
+            <h2 className="text-heading-5-bold text-text-heading">
               Patient Information
             </h2>
             <button
@@ -54,40 +61,72 @@ export default function PatientInfoModal({
               </svg>
             </button>
           </div>
-
-          <div className="flex items-center gap-6 p-4 rounded-2xl bg-surface-default border border-border-default">
-            <div className="relative size-16 rounded-full overflow-hidden border-2 border-white shadow-sm shrink-0">
-              <Image
-                src={
-                  patient.avatar_url || "/images/hospital-wheelchair/bro.svg"
-                }
-                alt={patient.name}
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div>
-              <h3 className="text-body-xl-bold text-text-heading">
-                {patient.name}
-              </h3>
-              <p className="text-body-base-medium text-text-placeholder">
-                {patient.topic || "General Consultation"}
-              </p>
-            </div>
-          </div>
         </div>
 
         {/* Body Section */}
-        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar space-y-8">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-8 flex flex-col gap-8">
+          {/* Complaints */}
           <div className="space-y-4">
-            <h4 className="text-label-base-bold text-text-label ">Complaint</h4>
-            <div className="p-6 rounded-xl bg-surface-default border border-border-default min-h-48">
+            <h4 className="text-body-xl-bold text-text-heading">Complaints</h4>
+            <div className="p-6 rounded-2xl bg-surface-default border border-border-default">
               <p className="text-body-lg-medium text-text-body leading-relaxed">
-                {patient.complaint ||
+                {patient.complaints ||
                   "No specific complaint provided for this session."}
               </p>
             </div>
           </div>
+
+          {/* AI Summary */}
+          {patient.aiSummary && (
+            <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
+              <h4 className="text-body-xl-bold text-text-heading">
+                AI Summary
+              </h4>
+              <div className="p-6 rounded-2xl bg-surface-default border border-border-default">
+                <p className="text-body-lg-medium text-text-body leading-relaxed">
+                  {patient.aiSummary}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Medicine History */}
+          {patient.medicines && patient.medicines.length > 0 && (
+            <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-700">
+              <h4 className="text-body-xl-bold text-text-heading">
+                Medicine History
+              </h4>
+              <div className="space-y-3">
+                {patient.medicines.map((med, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center gap-4 p-4 rounded-2xl bg-surface-default border border-border-default"
+                  >
+                    <div className="size-14 rounded-xl bg-surface-primary-light flex items-center justify-center text-text-action">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="size-7"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          fill="currentColor"
+                          d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m-1 11h-3v3h-2v-3H9v-2h4V8h2v4h3v2Z"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <h5 className="text-body-xl-bold text-text-heading">
+                        {med.name} {med.dose}
+                      </h5>
+                      <p className="text-body-base-medium text-text-placeholder">
+                        {med.use}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

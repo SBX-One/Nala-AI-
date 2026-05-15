@@ -44,6 +44,7 @@ model PsychiatristProfile {
   price              Int
   sex                Sex
   avatar_url         String?
+  session_duration   Int?                           @default(45)
   is_availability    Boolean                        @default(true)
   name               String?
   articles           Article[]

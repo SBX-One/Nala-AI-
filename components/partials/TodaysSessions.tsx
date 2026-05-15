@@ -1,25 +1,26 @@
+"use client";
+
 import starIcon from "@/public/icon/star.svg"
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
+import PatientInfoModal from "../queue/PatientInfoModal";
+
+interface Medicine {
+	name: string;
+	dose: string;
+	use: string;
+	notes?: string;
+}
 
 interface SessionItem {
 	id: number;
 	name: string;
 	time: string;
+	image?: string;
+	aiSummary?: string;
+	complaints?: string;
+	medicines?: Medicine[];
 }
-
-const dummySessions: SessionItem[] = [
-	{
-		id: 1,
-		name: "Rico Christian Ferry",
-		time: "Today, 10.00 - 10.45",
-	},
-	{
-		id: 2,
-		name: "Mahendra Arya",
-		time: "Today, 10.00 - 10.45",
-	},
-];
 
 interface TodaysSessionsProps {
 	items?: SessionItem[];
@@ -27,9 +28,17 @@ interface TodaysSessionsProps {
 }
 
 export default function TodaysSessions({
-	items = dummySessions,
+	items = [],
 	icon,
 }: TodaysSessionsProps) {
+	const [selectedPatient, setSelectedPatient] = useState<SessionItem | null>(null);
+	const [isModalOpen, setIsModalOpen] = useState(false);
+
+	const handleMoreInfo = (item: SessionItem) => {
+		setSelectedPatient(item);
+		setIsModalOpen(true);
+	};
+
 	const hasItems = items && items.length > 0;
 
 	return (
@@ -68,9 +77,20 @@ export default function TodaysSessions({
 							className="flex items-center justify-between p-4 rounded-xl border border-border-default hover:bg-surface-default/50 transition-colors"
 						>
 							<div className="flex gap-4.5 items-center">
-								<div className="size-12 overflow-hidden rounded-full border border-border-default bg-surface-primary-light flex items-center justify-center text-text-action font-semibold text-lg">
-									{item.name.charAt(0)}
-								</div>
+								{item.image ? (
+									<div className="size-12 overflow-hidden rounded-full border border-border-default relative">
+										<Image 
+											src={item.image} 
+											alt={item.name} 
+											fill 
+											className="object-cover"
+										/>
+									</div>
+								) : (
+									<div className="size-12 overflow-hidden rounded-full border border-border-default bg-surface-primary-light flex items-center justify-center text-text-action font-semibold text-lg">
+										{item.name.charAt(0)}
+									</div>
+								)}
 								<div className="flex flex-col">
 									<p className="text-body-lg-semibold text-text-heading">
 										{item.name}
@@ -92,7 +112,10 @@ export default function TodaysSessions({
 										className="size-5"
 									/>
 								</div>
-								<button className="button-secondary-medium">
+								<button 
+									className="button-secondary-medium"
+									onClick={() => handleMoreInfo(item)}
+								>
 									More Info
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
@@ -137,6 +160,12 @@ export default function TodaysSessions({
 					</p>
 				</div>
 			)}
+
+			<PatientInfoModal 
+				isOpen={isModalOpen}
+				onClose={() => setIsModalOpen(false)}
+				patient={selectedPatient}
+			/>
 		</div>
 	);
 }
