@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import NalaLogo from "@/public/icon/Nala-Logo.svg";
@@ -90,7 +91,7 @@ const navItems: NavItemType[] = [
   },
 ];
 
-export default function PsychiatristSideBar() {
+export default function PsychiatristSideBar({ profile }: { profile: any }) {
   const path = usePathname() || "";
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -122,15 +123,26 @@ export default function PsychiatristSideBar() {
         {/* Profile Card */}
         <div className="flex items-center justify-between pt-6 gap-2.5 border-t border-border-default">
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className="w-10 h-10 rounded-full bg-surface-disabled ">
-              {/* image */}
+            <div className="w-10 h-10 rounded-full bg-surface-disabled overflow-hidden relative">
+              {profile?.avatarUrl ? (
+                <Image
+                  src={profile.avatarUrl}
+                  alt={profile.fullName || profile.name}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-primary-100 text-primary-600 font-bold">
+                  {(profile?.fullName || profile?.name)?.charAt(0) || "P"}
+                </div>
+              )}
             </div>
             <div className="flex flex-col overflow-hidden">
-              <span className="text-label-base-semibold text-text-heading">
-                Nanda Mahardika
+              <span className="text-label-base-semibold text-text-heading truncate">
+                {profile?.name || "Psychiatrist Name"}
               </span>
-              <span className="text-label-caption-medium text-text-subheading">
-                Istrirendy@gmail.com
+              <span className="text-label-caption-medium text-text-subheading truncate">
+                {profile?.email || "Email address"}
               </span>
             </div>
           </div>
@@ -155,16 +167,50 @@ export default function PsychiatristSideBar() {
               </svg>
             </button>
 
-            {/* Logout Popup */}
+            {/* Profile & Logout Popup */}
             {isMenuOpen && (
-              <div className="absolute bottom-[120%] right-0 w-max bg-surface-background border border-border-default rounded-xl shadow-sm p-2 z-50">
+              <div className="absolute bottom-[140%] right-0 w-48 bg-white border border-border-default rounded-2xl shadow-xl p-2 z-50 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <Link
+                  href="/psychiatrist/profile"
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-surface-disabled transition-colors text-label-base-medium text-text-heading"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                  Profile
+                </Link>
                 <button
-                  className="button-error-outline-medium w-full justify-center"
+                  className="flex items-center gap-3 w-full px-4 py-3 rounded-xl hover:bg-error-50 transition-colors text-label-base-medium text-error-600"
                   onClick={() => {
                     setIsMenuOpen(false);
                     setIsLogoutModalOpen(true);
                   }}
                 >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
                   Logout
                 </button>
               </div>
