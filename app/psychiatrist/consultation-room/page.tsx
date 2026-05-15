@@ -22,6 +22,7 @@ import {
   AudioTrack,
   isTrackReference,
   TrackReference,
+  AudioVisualizer,
 } from "@livekit/components-react";
 import "@livekit/components-styles";
 import { Track } from "livekit-client";
@@ -64,7 +65,12 @@ function VideoCallSection({ onEndCall }: { onEndCall: () => void }) {
       t.source === Track.Source.Camera,
   );
 
-
+  const remoteAudioTracks = tracks.filter(
+    (t) =>
+      t.participant.identity !== localParticipant.localParticipant.identity &&
+      t.source === Track.Source.Microphone &&
+      isTrackReference(t),
+  ) as TrackReference[];
 
   const localTracks = tracks.filter(
     (t) =>
@@ -78,7 +84,10 @@ function VideoCallSection({ onEndCall }: { onEndCall: () => void }) {
 
   return (
     <div className="relative w-full h-full bg-black overflow-hidden">
-
+      {/* Remote Audio Tracks - Explicit Rendering */}
+      {remoteAudioTracks.map((t) => (
+        <AudioTrack key={t.publication?.trackSid} trackRef={t} />
+      ))}
 
       {/* Remote (Patient) Video - Full Area */}
       {remoteTracks.length > 0 && remoteTracks[0].publication?.track ? (
@@ -105,6 +114,17 @@ function VideoCallSection({ onEndCall }: { onEndCall: () => void }) {
               ? `Waiting for ${remoteParticipant.name || "patient"} to enable camera...`
               : "Waiting for patient to join..."}
           </p>
+          {remoteAudioTracks.length > 0 && (
+            <div className="flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full border border-white/20">
+              <AudioVisualizer
+                trackRef={remoteAudioTracks[0]}
+                className="w-8 h-4 text-accent-500"
+              />
+              <p className="text-body-sm-medium text-white/80">
+                Patient Mic Active
+              </p>
+            </div>
+          )}
         </div>
       )}
 
@@ -477,9 +497,9 @@ function ActiveConsultationContent() {
             connect={true}
             style={{ height: "100%" }}
           >
-            <RoomAudioRenderer />
             <VideoCallSection onEndCall={() => setShowEndModal(true)} />
             <AudioPlaybackHandler />
+            <RoomAudioRenderer />
           </LiveKitRoom>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-white/50 gap-4">
