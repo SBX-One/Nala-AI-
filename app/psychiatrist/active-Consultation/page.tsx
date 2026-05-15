@@ -11,6 +11,7 @@ import {
   useLocalParticipant,
   TrackToggle,
   useParticipants,
+  RoomAudioRenderer,
 } from "@livekit/components-react";
 import "@livekit/components-styles";
 import { Track } from "livekit-client";
@@ -322,6 +323,7 @@ function ActiveConsultationContent() {
           >
             <VideoCallArea />
             <CallControls onEndCall={handleEndCall} />
+            <RoomAudioRenderer />
           </LiveKitRoom>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-white/50 gap-4">
