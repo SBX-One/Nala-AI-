@@ -39,18 +39,18 @@ function VideoCallSection({ onEndCall }: { onEndCall: () => void }) {
 
   const remoteTracks = tracks.filter(
     (t) =>
-      t.participant.sid !== localParticipant.localParticipant.sid &&
+      t.participant.identity !== localParticipant.localParticipant.identity &&
       t.source === Track.Source.Camera,
   );
 
   const localTracks = tracks.filter(
     (t) =>
-      t.participant.sid === localParticipant.localParticipant.sid &&
+      t.participant.identity === localParticipant.localParticipant.identity &&
       t.source === Track.Source.Camera,
   );
 
   const remoteParticipant = participants.find(
-    (p) => p.sid !== localParticipant.localParticipant.sid,
+    (p) => p.identity !== localParticipant.localParticipant.identity,
   );
 
   return (
