@@ -159,7 +159,14 @@ export async function signUpWithEmail(formData: FormData) {
   return redirect("/register/role");
 }
 
-export async function saveUserProfile(formData: FormData) {
+export async function saveUserProfile(data: {
+  fullName: string;
+  displayName: string;
+  sex: "male" | "female";
+  location: string;
+  birthDate: string;
+  avatarUrl?: string | null;
+}) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -176,20 +183,16 @@ export async function saveUserProfile(formData: FormData) {
 
   if (!userRecord) return redirect("/register/role");
 
-  const name = formData.get("fullName") as string;
-  const display_name = formData.get("displayName") as string;
-  const sex = formData.get("sex") as "male" | "female";
-  const location = formData.get("location") as string;
-  const birth_date = new Date(formData.get("birthDate") as string);
+  const birth_date = new Date(data.birthDate);
 
   const { error } = await supabase.from("UserProfile").upsert({
     user_id: userRecord.id,
-    name,
-    display_name,
-    sex,
-    location,
+    name: data.fullName,
+    display_name: data.displayName,
+    sex: data.sex,
+    location: data.location,
     birth_date: birth_date.toISOString(),
-    avatar_url: null, // TODO: Handle file upload
+    avatar_url: data.avatarUrl || null,
   });
 
   if (error) {
@@ -211,6 +214,7 @@ export async function savePsychiatristProfile(data: {
   experienceEnd: string;
   selectedExpertiseIds: number[];
   availability: { day: string; startTime: string; endTime: string }[];
+  avatarUrl?: string | null;
 }) {
   const supabase = await createClient();
   const {
@@ -244,7 +248,7 @@ export async function savePsychiatristProfile(data: {
           : null,
         price: Number(data.price) || 0,
         sex: data.sex,
-        avatar_url: null,
+        avatar_url: data.avatarUrl || null,
         is_availability: true,
       },
       { onConflict: "user_id" },
@@ -259,6 +263,12 @@ export async function savePsychiatristProfile(data: {
 
   // 2. Simpan relasi expertise menggunakan expertise_id dari tabel Expertise
   if (data.selectedExpertiseIds && data.selectedExpertiseIds.length > 0) {
+    // Delete old expertise first
+    await supabase
+      .from("PsychiatristExpertise")
+      .delete()
+      .eq("psychiatrist_id", profileRecord.id);
+
     const expertiseRows = data.selectedExpertiseIds.map((expertiseId) => ({
       psychiatrist_id: profileRecord.id,
       expertise_id: expertiseId,
@@ -273,12 +283,17 @@ export async function savePsychiatristProfile(data: {
         "Error saving expertise relations:",
         expertiseError.message,
       );
-      // Tidak block registrasi, bisa diupdate nanti
     }
   }
 
   // 3. Simpan availability times
   if (data.availability && data.availability.length > 0) {
+    // Delete old availability first
+    await supabase
+      .from("PsychiatristAvailabilityTime")
+      .delete()
+      .eq("psychiatrist_id", profileRecord.id);
+
     const availabilityRows = data.availability.map((a) => ({
       psychiatrist_id: profileRecord.id,
       day: a.day as any, // Cast ke enum Day
@@ -304,7 +319,7 @@ export async function savePsychiatristProfile(data: {
     .update({ role: "psychiatry" })
     .eq("id", userRecord.id);
 
-  return redirect("/psychiatrist");
+  return { success: true };
 }
 
 export async function signOut() {

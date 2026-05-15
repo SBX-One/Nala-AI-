@@ -37,10 +37,18 @@ export async function updateSession(request: NextRequest) {
   const isAuthPath = pathname.startsWith("/auth");
   const isRegisterPath = pathname.startsWith("/register");
   const isLoginPath = pathname === "/login";
-  const isPublicPath = isAuthPath || isRegisterPath || isLoginPath;
+  const isApi = pathname.startsWith("/api");
+  const isExpertiseApi = pathname === "/api/expertises";
+  const isPublicPath = isAuthPath || isRegisterPath || isLoginPath || isExpertiseApi;
 
-  // 1. Redirect if not logged in
+  // 1. Handle not logged in
   if (!user && !isPublicPath) {
+    if (isApi) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
@@ -51,8 +59,8 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(new URL("/", request.url));
     }
 
-    // Skip profile check for register sub-paths and auth callbacks
-    if (!isRegisterPath && !isAuthPath) {
+    // Skip profile check for register sub-paths, auth callbacks and expertise api
+    if (!isRegisterPath && !isAuthPath && !isExpertiseApi) {
       const { data: userData, error: userError } = await supabase
         .from("User")
         .select("role, UserProfile(id), PsychiatristProfile(id)")
@@ -61,6 +69,12 @@ export async function updateSession(request: NextRequest) {
 
       // If DB error or no user record, force role selection
       if (userError || !userData) {
+        if (isApi) {
+          return NextResponse.json(
+            { error: "Role selection required" },
+            { status: 403 }
+          );
+        }
         return NextResponse.redirect(new URL("/register/role", request.url));
       }
 
@@ -70,6 +84,12 @@ export async function updateSession(request: NextRequest) {
 
       if (userData.role === "user") {
         if (!hasUserProfile) {
+          if (isApi) {
+            return NextResponse.json(
+              { error: "User profile incomplete" },
+              { status: 403 }
+            );
+          }
           return NextResponse.redirect(new URL("/register/user-profile", request.url));
         }
         // Prevent access to psychiatrist routes
@@ -80,6 +100,12 @@ export async function updateSession(request: NextRequest) {
 
       if (userData.role === "psychiatry") {
         if (!hasPsychiatristProfile) {
+          if (isApi) {
+            return NextResponse.json(
+              { error: "Psychiatrist profile incomplete" },
+              { status: 403 }
+            );
+          }
           return NextResponse.redirect(new URL("/register/psychiatrist-profile", request.url));
         }
         // Prevent access to user routes

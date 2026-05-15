@@ -2,710 +2,731 @@
 @plugin "@tailwindcss/typography";
 
 :root {
-	/* Neutral */
-	--color-neutral-50: #fafafa;
-	--color-neutral-100: #dadada;
-	--color-neutral-200: #b4b4b4;
-	--color-neutral-300: #8f8f8f;
-	--color-neutral-400: #696969;
-	--color-neutral-600: #363636;
-	--color-neutral-700: #292929;
-	--color-neutral-800: #1b1b1b;
-	--color-neutral-900: #0e0e0e;
-	--color-neutral-default: #444444;
-	--color-neutral-white: #ffffff;
-	--color-neutral-black: #000000;
+  /* Neutral */
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #dadada;
+  --color-neutral-200: #b4b4b4;
+  --color-neutral-300: #8f8f8f;
+  --color-neutral-400: #696969;
+  --color-neutral-600: #363636;
+  --color-neutral-700: #292929;
+  --color-neutral-800: #1b1b1b;
+  --color-neutral-900: #0e0e0e;
+  --color-neutral-default: #444444;
+  --color-neutral-white: #ffffff;
+  --color-neutral-black: #000000;
 
-	/* primary */
-	--color-primary-50: #e6f0ff;
-	--color-primary-100: #cce0ff;
-	--color-primary-200: #99c2ff;
-	--color-primary-300: #66a3ff;
-	--color-primary-400: #3385ff;
-	--color-primary-600: #004ac6;
-	--color-primary-700: #003ea3;
-	--color-primary-800: #003280;
-	--color-primary-900: #00265c;
-	--color-primary-default: #0060e5;
+  /* primary */
+  --color-primary-50: #e6f0ff;
+  --color-primary-100: #cce0ff;
+  --color-primary-200: #99c2ff;
+  --color-primary-300: #66a3ff;
+  --color-primary-400: #3385ff;
+  --color-primary-600: #004ac6;
+  --color-primary-700: #003ea3;
+  --color-primary-800: #003280;
+  --color-primary-900: #00265c;
+  --color-primary-default: #0060e5;
 
-	/* secondary */
-	--color-secondary-50: #fdfcf0;
-	--color-secondary-100: #fcf9e1;
-	--color-secondary-200: #f9f2c2;
-	--color-secondary-300: #f5eca4;
-	--color-secondary-400: #f2e585;
-	--color-secondary-600: #bfb252;
-	--color-secondary-700: #8f863e;
-	--color-secondary-800: #605929;
-	--color-secondary-900: #302d15;
-	--color-secondary-default: #efdf67;
+  /* secondary */
+  --color-secondary-50: #fdfcf0;
+  --color-secondary-100: #fcf9e1;
+  --color-secondary-200: #f9f2c2;
+  --color-secondary-300: #f5eca4;
+  --color-secondary-400: #f2e585;
+  --color-secondary-600: #bfb252;
+  --color-secondary-700: #8f863e;
+  --color-secondary-800: #605929;
+  --color-secondary-900: #302d15;
+  --color-secondary-default: #efdf67;
 
-	/* Accent */
-	--color-accent-50: #f1eefd;
-	--color-accent-100: #e2dcfa;
-	--color-accent-200: #c6b9f5;
-	--color-accent-300: #a995f0;
-	--color-accent-400: #8d72eb;
-	--color-accent-600: #5a3fb8;
-	--color-accent-700: #432f8a;
-	--color-accent-800: #2d205c;
-	--color-accent-900: #16102e;
-	--color-accent-default: #704fe6;
+  /* Accent */
+  --color-accent-50: #f1eefd;
+  --color-accent-100: #e2dcfa;
+  --color-accent-200: #c6b9f5;
+  --color-accent-300: #a995f0;
+  --color-accent-400: #8d72eb;
+  --color-accent-600: #5a3fb8;
+  --color-accent-700: #432f8a;
+  --color-accent-800: #2d205c;
+  --color-accent-900: #16102e;
+  --color-accent-default: #704fe6;
 
-	/* error*/
-	--color-error-50: #fff0f0;
-	--color-error-100: #ffcccc;
-	--color-error-200: #ff9999;
-	--color-error-300: #ff6666;
-	--color-error-400: #ff3333;
-	--color-error-600: #cc0000;
-	--color-error-700: #990000;
-	--color-error-800: #660000;
-	--color-error-900: #330000;
-	--color-error-default: #ff0000;
+  /* error*/
+  --color-error-50: #fff0f0;
+  --color-error-100: #ffcccc;
+  --color-error-200: #ff9999;
+  --color-error-300: #ff6666;
+  --color-error-400: #ff3333;
+  --color-error-600: #cc0000;
+  --color-error-700: #990000;
+  --color-error-800: #660000;
+  --color-error-900: #330000;
+  --color-error-default: #ff0000;
 
-	/* success*/
-	--color-success-50: #ebf6f0;
-	--color-success-100: #d7ece1;
-	--color-success-200: #aed9c4;
-	--color-success-300: #86c6a6;
-	--color-success-400: #5eb489;
-	--color-success-600: #2b8056;
-	--color-success-700: #206040;
-	--color-success-800: #15402b;
-	--color-success-900: #0b2015;
-	--color-success-default: #36a16b;
+  /* success*/
+  --color-success-50: #ebf6f0;
+  --color-success-100: #d7ece1;
+  --color-success-200: #aed9c4;
+  --color-success-300: #86c6a6;
+  --color-success-400: #5eb489;
+  --color-success-600: #2b8056;
+  --color-success-700: #206040;
+  --color-success-800: #15402b;
+  --color-success-900: #0b2015;
+  --color-success-default: #36a16b;
 
-	/* Warning*/
-	--color-warning-50: #fff0e6;
-	--color-warning-100: #ffe1cc;
-	--color-warning-200: #ffc399;
-	--color-warning-300: #ffa466;
-	--color-warning-400: #ff8633;
-	--color-warning-600: #993e00;
-	--color-warning-700: #993e00;
-	--color-warning-800: #662a00;
-	--color-warning-900: #331500;
-	--color-warning-default: #ff6800;
+  /* Warning*/
+  --color-warning-50: #fff0e6;
+  --color-warning-100: #ffe1cc;
+  --color-warning-200: #ffc399;
+  --color-warning-300: #ffa466;
+  --color-warning-400: #ff8633;
+  --color-warning-600: #993e00;
+  --color-warning-700: #993e00;
+  --color-warning-800: #662a00;
+  --color-warning-900: #331500;
+  --color-warning-default: #ff6800;
 
-	/* Information*/
-	--color-information-50: #eef6ff;
-	--color-information-100: #ddedff;
-	--color-information-200: #bcdbff;
-	--color-information-300: #9acaff;
-	--color-information-400: #79b8ff;
-	--color-information-600: #4685cc;
-	--color-information-700: #346499;
-	--color-information-800: #000466;
-	--color-information-900: #112133;
-	--color-information-default: #57a6ff;
-	
+  /* Information*/
+  --color-information-50: #eef6ff;
+  --color-information-100: #ddedff;
+  --color-information-200: #bcdbff;
+  --color-information-300: #9acaff;
+  --color-information-400: #79b8ff;
+  --color-information-600: #4685cc;
+  --color-information-700: #346499;
+  --color-information-800: #000466;
+  --color-information-900: #112133;
+  --color-information-default: #57a6ff;
 }
 
 @theme inline {
-	--color-neutral-50: var(--color-neutral-50);
-	--color-neutral-100: var(--color-neutral-100);
-	--color-neutral-200: var(--color-neutral-200);
-	--color-neutral-300: var(--color-neutral-300);
-	--color-neutral-400: var(--color-neutral-400);
-	--color-neutral-500: var(--color-neutral-500);
-	--color-neutral-600: var(--color-neutral-600);
-	--color-neutral-700: var(--color-neutral-700);
-	--color-neutral-800: var(--color-neutral-800);
-	--color-neutral-900: var(--color-neutral-900);
-	--color-background: var(--color-background);
+  --color-neutral-50: var(--color-neutral-50);
+  --color-neutral-100: var(--color-neutral-100);
+  --color-neutral-200: var(--color-neutral-200);
+  --color-neutral-300: var(--color-neutral-300);
+  --color-neutral-400: var(--color-neutral-400);
+  --color-neutral-500: var(--color-neutral-500);
+  --color-neutral-600: var(--color-neutral-600);
+  --color-neutral-700: var(--color-neutral-700);
+  --color-neutral-800: var(--color-neutral-800);
+  --color-neutral-900: var(--color-neutral-900);
+  --color-background: var(--color-background);
 
-	--color-primary-50: var(--color-primary-50);
-	--color-primary-100: var(--color-primary-100);
-	--color-primary-200: var(--color-primary-200);
-	--color-primary-300: var(--color-primary-300);
-	--color-primary-400: var(--color-primary-400);
-	--color-primary-500: var(--color-primary-default);
-	--color-primary-600: var(--color-primary-600);
-	--color-primary-700: var(--color-primary-700);
-	--color-primary-800: var(--color-primary-800);
-	--color-primary-900: var(--color-primary-900);
+  --color-primary-50: var(--color-primary-50);
+  --color-primary-100: var(--color-primary-100);
+  --color-primary-200: var(--color-primary-200);
+  --color-primary-300: var(--color-primary-300);
+  --color-primary-400: var(--color-primary-400);
+  --color-primary-500: var(--color-primary-default);
+  --color-primary-600: var(--color-primary-600);
+  --color-primary-700: var(--color-primary-700);
+  --color-primary-800: var(--color-primary-800);
+  --color-primary-900: var(--color-primary-900);
 
-	--color-secondary-50: var(--color-secondary-50);
-	--color-secondary-100: var(--color-secondary-100);
-	--color-secondary-200: var(--color-secondary-200);
-	--color-secondary-300: var(--color-secondary-300);
-	--color-secondary-400: var(--color-secondary-400);
-	--color-secondary-500: var(--color-secondary-default);
-	--color-secondary-600: var(--color-secondary-600);
-	--color-secondary-700: var(--color-secondary-700);
-	--color-secondary-800: var(--color-secondary-800);
-	--color-secondary-900: var(--color-secondary-900);
+  --color-secondary-50: var(--color-secondary-50);
+  --color-secondary-100: var(--color-secondary-100);
+  --color-secondary-200: var(--color-secondary-200);
+  --color-secondary-300: var(--color-secondary-300);
+  --color-secondary-400: var(--color-secondary-400);
+  --color-secondary-500: var(--color-secondary-default);
+  --color-secondary-600: var(--color-secondary-600);
+  --color-secondary-700: var(--color-secondary-700);
+  --color-secondary-800: var(--color-secondary-800);
+  --color-secondary-900: var(--color-secondary-900);
 
-	--color-accent-50: var(--color-accent-50);
-	--color-accent-100: var(--color-accent-100);
-	--color-accent-200: var(--color-accent-200);
-	--color-accent-300: var(--color-accent-300);
-	--color-accent-400: var(--color-accent-400);
-	--color-accent-500: var(--color-accent-500);
-	--color-accent-600: var(--color-accent-600);
-	--color-accent-700: var(--color-accent-700);
-	--color-accent-800: var(--color-accent-800);
-	--color-accent-900: var(--color-accent-900);
-	--color-accent-1000: var(--color-accent-1000);
+  --color-accent-50: var(--color-accent-50);
+  --color-accent-100: var(--color-accent-100);
+  --color-accent-200: var(--color-accent-200);
+  --color-accent-300: var(--color-accent-300);
+  --color-accent-400: var(--color-accent-400);
+  --color-accent-500: var(--color-accent-500);
+  --color-accent-600: var(--color-accent-600);
+  --color-accent-700: var(--color-accent-700);
+  --color-accent-800: var(--color-accent-800);
+  --color-accent-900: var(--color-accent-900);
+  --color-accent-1000: var(--color-accent-1000);
 
-	/* Surface */
-	--color-surface-background: var(--color-neutral-white);
-	--color-surface-default: var(--color-neutral-50);
-	--color-surface-primary: var(--color-primary-default);
-	--color-surface-primary-hover: var(--color-primary-600);
-	--color-surface-primary-light: var(--color-primary-50);
-	--color-surface-disabled: var(--color-neutral-100);
-	--color-surface-success: var(--color-success-50);
-	--color-surface-warning: var(--color-warning-50);
-	--color-surface-error: var(--color-error-50);
-	--color-surface-information: var(--color-information-50);
+  /* Surface */
+  --color-surface-background: var(--color-neutral-white);
+  --color-surface-default: var(--color-neutral-50);
+  --color-surface-primary: var(--color-primary-default);
+  --color-surface-primary-hover: var(--color-primary-600);
+  --color-surface-primary-light: var(--color-primary-50);
+  --color-surface-disabled: var(--color-neutral-100);
+  --color-surface-success: var(--color-success-50);
+  --color-surface-warning: var(--color-warning-50);
+  --color-surface-error: var(--color-error-50);
+  --color-surface-information: var(--color-information-50);
 
-	/* Text */
-	--color-text-heading: var(--color-neutral-800);
-	--color-text-subheading: var(--color-neutral-400);
-	--color-text-subheading-white: var(--color-neutral-100);
-	--color-text-label: var(--color-neutral-default);
-	--color-text-body: var(--color-neutral-600);
-	--color-text-placeholder: var(--color-neutral-300);
-	--color-text-disabled: var(--color-neutral-400);
-	--color-text-on-action: var(--color-neutral-white);
-	--color-text-action: var(--color-primary-default);
-	--color-text-action-hover: var(--color-primary-600);
-	--color-text-success: var(--color-success-default);
-	--color-text-warning: var(--color-warning-400);
-	--color-text-error: var(--color-error-default);
-	--color-text-information: var(--color-information-default);
-	--color-text-rating: var(--color-warning-400);
+  /* Text */
+  --color-text-heading: var(--color-neutral-800);
+  --color-text-subheading: var(--color-neutral-400);
+  --color-text-subheading-white: var(--color-neutral-100);
+  --color-text-label: var(--color-neutral-default);
+  --color-text-body: var(--color-neutral-600);
+  --color-text-placeholder: var(--color-neutral-300);
+  --color-text-disabled: var(--color-neutral-400);
+  --color-text-on-action: var(--color-neutral-white);
+  --color-text-action: var(--color-primary-default);
+  --color-text-action-hover: var(--color-primary-600);
+  --color-text-success: var(--color-success-default);
+  --color-text-warning: var(--color-warning-400);
+  --color-text-error: var(--color-error-default);
+  --color-text-information: var(--color-information-default);
+  --color-text-rating: var(--color-warning-400);
 
-	/* Button */
-	--color-button-default: var(--color-primary-default);
-	--color-button-disabled: var(--color-neutral-100);
-	--color-button-hover: var(--color-primary-700);
-	--color-button-pressed: var(--color-primary-800);
-	--color-button-secondary: var(--color-primary-50);
-	--color-button-white: var(--color-neutral-white);
-	--color-button-gray: var(--color-neutral-50);
-	--color-button-error: var(--color-error-600);
-	--color-button-warning: var(--color-warning-default);
+  /* Button */
+  --color-button-default: var(--color-primary-default);
+  --color-button-disabled: var(--color-neutral-100);
+  --color-button-hover: var(--color-primary-700);
+  --color-button-pressed: var(--color-primary-800);
+  --color-button-secondary: var(--color-primary-50);
+  --color-button-white: var(--color-neutral-white);
+  --color-button-gray: var(--color-neutral-50);
+  --color-button-error: var(--color-error-600);
+  --color-button-warning: var(--color-warning-default);
 
-	/* Links */
-	--color-links-default: var(--color-neutral-default);
-	--color-links-action: var(--color-primary-default);
-	--color-links-action-hover: var(--color-primary-600);
-	--color-links-on-action: var(--color-neutral-white);
-	--color-links-disabled: var(--color-neutral-300);
-	--color-links-information: var(--color-information-default);
-	--color-links-warning: var(--color-warning-default);
-	--color-links-error: var(--color-error-default);
-	--color-links-success: var(--color-success-default);
+  /* Links */
+  --color-links-default: var(--color-neutral-default);
+  --color-links-action: var(--color-primary-default);
+  --color-links-action-hover: var(--color-primary-600);
+  --color-links-on-action: var(--color-neutral-white);
+  --color-links-disabled: var(--color-neutral-300);
+  --color-links-information: var(--color-information-default);
+  --color-links-warning: var(--color-warning-default);
+  --color-links-error: var(--color-error-default);
+  --color-links-success: var(--color-success-default);
 
-	/* Icon */
-	--color-icon-default: var(--color-neutral-default);
-	--color-icon-action: var(--color-primary-default);
-	--color-icon-action-hover: var(--color-primary-600);
-	--color-icon-on-action: var(--color-neutral-white);
-	--color-icon-disabled: var(--color-neutral-300);
-	--color-icon-information: var(--color-information-default);
-	--color-icon-warning: var(--color-warning-default);
-	--color-icon-error: var(--color-error-600);
-	--color-icon-success: var(--color-success-default);
-	--color-icon-rating: var(--color-warning-400);
+  /* Icon */
+  --color-icon-default: var(--color-neutral-default);
+  --color-icon-action: var(--color-primary-default);
+  --color-icon-action-hover: var(--color-primary-600);
+  --color-icon-on-action: var(--color-neutral-white);
+  --color-icon-disabled: var(--color-neutral-300);
+  --color-icon-information: var(--color-information-default);
+  --color-icon-warning: var(--color-warning-default);
+  --color-icon-error: var(--color-error-600);
+  --color-icon-success: var(--color-success-default);
+  --color-icon-rating: var(--color-warning-400);
 
-	/* Border */
-	--color-border-default: var(--color-neutral-100);
-	--color-border-action: var(--color-primary-default);
-	--color-border-action-hover: var(--color-primary-600);
-	--color-border-focused: var(--color-primary-default);
-	--color-border-disabled: var(--color-neutral-200);
-	--color-border-success: var(--color-success-400);
-	--color-border-warning: var(--color-warning-default);
-	--color-border-error: var(--color-error-600);
-	--color-border-information: var(--color-information-400);
+  /* Border */
+  --color-border-default: var(--color-neutral-100);
+  --color-border-action: var(--color-primary-default);
+  --color-border-action-hover: var(--color-primary-600);
+  --color-border-focused: var(--color-primary-default);
+  --color-border-disabled: var(--color-neutral-200);
+  --color-border-success: var(--color-success-400);
+  --color-border-warning: var(--color-warning-default);
+  --color-border-error: var(--color-error-600);
+  --color-border-information: var(--color-information-400);
 
-	/* Moods */
-	--color-moods-level-1: var(--color-primary-200);
-	--color-moods-level-2: var(--color-primary-300);
-	--color-moods-level-3: var(--color-primary-400);
-	--color-moods-level-4: var(--color-primary-default);
-	--color-moods-level-5: var(--color-primary-600);
+  /* Moods */
+  --color-moods-level-1: var(--color-primary-200);
+  --color-moods-level-2: var(--color-primary-300);
+  --color-moods-level-3: var(--color-primary-400);
+  --color-moods-level-4: var(--color-primary-default);
+  --color-moods-level-5: var(--color-primary-600);
 }
 
 /* Typography Utilities */
 @utility text-display-light {
-	@apply text-[64px] leading-[120%] font-light;
+  @apply text-[64px] leading-[120%] font-light;
 }
 
 @utility text-display-regular {
-	@apply text-[64px] leading-[120%] font-normal;
+  @apply text-[64px] leading-[120%] font-normal;
 }
 
 @utility text-display-medium {
-	@apply text-[64px] leading-[120%] font-medium;
+  @apply text-[64px] leading-[120%] font-medium;
 }
 
 @utility text-display-semibold {
-	@apply text-[64px] leading-[120%] font-semibold;
+  @apply text-[64px] leading-[120%] font-semibold;
 }
 
 @utility text-display-bold {
-	@apply text-[64px] leading-[120%] font-bold;
+  @apply text-[64px] leading-[120%] font-bold;
 }
 
 @utility text-heading-1-light {
-	@apply text-[52px] leading-[120%] font-light;
+  @apply text-[52px] leading-[120%] font-light;
 }
 
 @utility text-heading-1-regular {
-	@apply text-[52px] leading-[120%] font-normal;
+  @apply text-[52px] leading-[120%] font-normal;
 }
 
 @utility text-heading-1-medium {
-	@apply text-[52px] leading-[120%] font-medium;
+  @apply text-[52px] leading-[120%] font-medium;
 }
 
 @utility text-heading-1-semibold {
-	@apply text-[52px] leading-[120%] font-semibold;
+  @apply text-[52px] leading-[120%] font-semibold;
 }
 
 @utility text-heading-1-bold {
-	@apply text-[52px] leading-[120%] font-bold;
+  @apply text-[52px] leading-[120%] font-bold;
 }
 
 @utility text-heading-2-light {
-	@apply text-[48px] leading-[120%] font-light;
+  @apply text-[48px] leading-[120%] font-light;
 }
 
 @utility text-heading-2-regular {
-	@apply text-[48px] leading-[120%] font-normal;
+  @apply text-[48px] leading-[120%] font-normal;
 }
 
 @utility text-heading-2-medium {
-	@apply text-[48px] leading-[120%] font-medium;
+  @apply text-[48px] leading-[120%] font-medium;
 }
 
 @utility text-heading-2-semibold {
-	@apply text-[48px] leading-[120%] font-semibold;
+  @apply text-[48px] leading-[120%] font-semibold;
 }
 
 @utility text-heading-2-bold {
-	@apply text-[48px] leading-[120%] font-bold;
+  @apply text-[48px] leading-[120%] font-bold;
 }
 
 @utility text-heading-3-light {
-	@apply text-[40px] leading-[120%] font-light;
+  @apply text-[40px] leading-[120%] font-light;
 }
 
 @utility text-heading-3-regular {
-	@apply text-[40px] leading-[120%] font-normal;
+  @apply text-[40px] leading-[120%] font-normal;
 }
 
 @utility text-heading-3-medium {
-	@apply text-[40px] leading-[120%] font-medium;
+  @apply text-[40px] leading-[120%] font-medium;
 }
 
 @utility text-heading-3-semibold {
-	@apply text-[40px] leading-[120%] font-semibold;
+  @apply text-[40px] leading-[120%] font-semibold;
 }
 
 @utility text-heading-3-bold {
-	@apply text-[40px] leading-[120%] font-bold;
+  @apply text-[40px] leading-[120%] font-bold;
 }
 
 @utility text-heading-4-light {
-	@apply text-[36px] leading-[120%] font-light;
+  @apply text-[36px] leading-[120%] font-light;
 }
 
 @utility text-heading-4-regular {
-	@apply text-[36px] leading-[120%] font-normal;
+  @apply text-[36px] leading-[120%] font-normal;
 }
 
 @utility text-heading-4-medium {
-	@apply text-[36px] leading-[120%] font-medium;
+  @apply text-[36px] leading-[120%] font-medium;
 }
 
 @utility text-heading-4-semibold {
-	@apply text-[36px] leading-[120%] font-semibold;
+  @apply text-[36px] leading-[120%] font-semibold;
 }
 
 @utility text-heading-4-bold {
-	@apply text-[36px] leading-[120%] font-bold;
+  @apply text-[36px] leading-[120%] font-bold;
 }
 
 @utility text-heading-5-light {
-	@apply text-[32px] leading-[120%] font-light;
+  @apply text-[32px] leading-[120%] font-light;
 }
 
 @utility text-heading-5-regular {
-	@apply text-[32px] leading-[120%] font-normal;
+  @apply text-[32px] leading-[120%] font-normal;
 }
 
 @utility text-heading-5-medium {
-	@apply text-[32px] leading-[120%] font-medium;
+  @apply text-[32px] leading-[120%] font-medium;
 }
 
 @utility text-heading-5-semibold {
-	@apply text-[32px] leading-[120%] font-semibold;
+  @apply text-[32px] leading-[120%] font-semibold;
 }
 
 @utility text-heading-5-bold {
-	@apply text-[32px] leading-[120%] font-bold;
+  @apply text-[32px] leading-[120%] font-bold;
 }
 
 @utility text-heading-6-light {
-	@apply text-[24px] leading-[120%] font-light;
+  @apply text-[24px] leading-[120%] font-light;
 }
 
 @utility text-heading-6-regular {
-	@apply text-[24px] leading-[120%] font-normal;
+  @apply text-[24px] leading-[120%] font-normal;
 }
 
 @utility text-heading-6-medium {
-	@apply text-[24px] leading-[120%] font-medium;
+  @apply text-[24px] leading-[120%] font-medium;
 }
 
 @utility text-heading-6-semibold {
-	@apply text-[24px] leading-[120%] font-semibold;
+  @apply text-[24px] leading-[120%] font-semibold;
 }
 
 @utility text-heading-6-bold {
-	@apply text-[24px] leading-[120%] font-bold;
+  @apply text-[24px] leading-[120%] font-bold;
 }
 
 @utility text-body-xl-light {
-	@apply text-[20px] leading-[150%] font-light;
+  @apply text-[20px] leading-[150%] font-light;
 }
 
 @utility text-body-xl-regular {
-	@apply text-[20px] leading-[150%] font-normal;
+  @apply text-[20px] leading-[150%] font-normal;
 }
 
 @utility text-body-xl-medium {
-	@apply text-[20px] leading-[150%] font-medium;
+  @apply text-[20px] leading-[150%] font-medium;
 }
 
 @utility text-body-xl-semibold {
-	@apply text-[20px] leading-[150%] font-semibold;
+  @apply text-[20px] leading-[150%] font-semibold;
 }
 
 @utility text-body-xl-bold {
-	@apply text-[20px] leading-[150%] font-bold;
+  @apply text-[20px] leading-[150%] font-bold;
 }
 
 @utility text-body-lg-light {
-	@apply text-[18px] leading-[150%] font-light;
+  @apply text-[18px] leading-[150%] font-light;
 }
 
 @utility text-body-lg-regular {
-	@apply text-[18px] leading-[150%] font-normal;
+  @apply text-[18px] leading-[150%] font-normal;
 }
 
 @utility text-body-lg-medium {
-	@apply text-[18px] leading-[150%] font-medium;
+  @apply text-[18px] leading-[150%] font-medium;
 }
 
 @utility text-body-lg-semibold {
-	@apply text-[18px] leading-[150%] font-semibold;
+  @apply text-[18px] leading-[150%] font-semibold;
 }
 
 @utility text-body-lg-bold {
-	@apply text-[18px] leading-[150%] font-bold;
+  @apply text-[18px] leading-[150%] font-bold;
 }
 
 @utility text-body-base-light {
-	@apply text-[16px] leading-[150%] font-light;
+  @apply text-[16px] leading-[150%] font-light;
 }
 
 @utility text-body-base-regular {
-	@apply text-[16px] leading-[150%] font-normal;
+  @apply text-[16px] leading-[150%] font-normal;
 }
 
 @utility text-body-base-medium {
-	@apply text-[16px] leading-[150%] font-medium;
+  @apply text-[16px] leading-[150%] font-medium;
 }
 
 @utility text-body-base-semibold {
-	@apply text-[16px] leading-[150%] font-semibold;
+  @apply text-[16px] leading-[150%] font-semibold;
 }
 
 @utility text-body-base-bold {
-	@apply text-[16px] leading-[150%] font-bold;
+  @apply text-[16px] leading-[150%] font-bold;
 }
 
 @utility text-body-sm-light {
-	@apply text-[14px] leading-[150%] font-light;
+  @apply text-[14px] leading-[150%] font-light;
 }
 
 @utility text-body-sm-regular {
-	@apply text-[14px] leading-[150%] font-normal;
+  @apply text-[14px] leading-[150%] font-normal;
 }
 
 @utility text-body-sm-medium {
-	@apply text-[14px] leading-[150%] font-medium;
+  @apply text-[14px] leading-[150%] font-medium;
 }
 
 @utility text-body-sm-semibold {
-	@apply text-[14px] leading-[150%] font-semibold;
+  @apply text-[14px] leading-[150%] font-semibold;
 }
 
 @utility text-body-sm-bold {
-	@apply text-[14px] leading-[150%] font-bold;
+  @apply text-[14px] leading-[150%] font-bold;
 }
 
 @utility text-body-caption-light {
-	@apply text-[12px] leading-[150%] font-light;
+  @apply text-[12px] leading-[150%] font-light;
 }
 
 @utility text-body-caption-regular {
-	@apply text-[12px] leading-[150%] font-normal;
+  @apply text-[12px] leading-[150%] font-normal;
 }
 
 @utility text-body-caption-medium {
-	@apply text-[12px] leading-[150%] font-medium;
+  @apply text-[12px] leading-[150%] font-medium;
 }
 
 @utility text-body-caption-semibold {
-	@apply text-[12px] leading-[150%] font-semibold;
+  @apply text-[12px] leading-[150%] font-semibold;
 }
 
 @utility text-body-caption-bold {
-	@apply text-[12px] leading-[150%] font-bold;
+  @apply text-[12px] leading-[150%] font-bold;
 }
 
 @utility text-label-large-light {
-	@apply text-[18px] leading-[120%] font-light;
+  @apply text-[18px] leading-[120%] font-light;
 }
 
 @utility text-label-large-regular {
-	@apply text-[18px] leading-[120%] font-normal;
+  @apply text-[18px] leading-[120%] font-normal;
 }
 
 @utility text-label-large-medium {
-	@apply text-[18px] leading-[120%] font-medium;
+  @apply text-[18px] leading-[120%] font-medium;
 }
 
 @utility text-label-large-semibold {
-	@apply text-[18px] leading-[120%] font-semibold;
+  @apply text-[18px] leading-[120%] font-semibold;
 }
 
 @utility text-label-large-bold {
-	@apply text-[18px] leading-[120%] font-bold;
+  @apply text-[18px] leading-[120%] font-bold;
 }
 
 @utility text-label-base-light {
-	@apply text-[16px] leading-[120%] font-light;
+  @apply text-[16px] leading-[120%] font-light;
 }
 
 @utility text-label-base-regular {
-	@apply text-[16px] leading-[120%] font-normal;
+  @apply text-[16px] leading-[120%] font-normal;
 }
 
 @utility text-label-base-medium {
-	@apply text-[16px] leading-[120%] font-medium;
+  @apply text-[16px] leading-[120%] font-medium;
 }
 
 @utility text-label-base-semibold {
-	@apply text-[16px] leading-[120%] font-semibold;
+  @apply text-[16px] leading-[120%] font-semibold;
 }
 
 @utility text-label-base-bold {
-	@apply text-[16px] leading-[120%] font-bold;
+  @apply text-[16px] leading-[120%] font-bold;
 }
 
 @utility text-label-small-light {
-	@apply text-[14px] leading-[120%] font-light;
+  @apply text-[14px] leading-[120%] font-light;
 }
 
 @utility text-label-small-regular {
-	@apply text-[14px] leading-[120%] font-normal;
+  @apply text-[14px] leading-[120%] font-normal;
 }
 
 @utility text-label-small-medium {
-	@apply text-[14px] leading-[120%] font-medium;
+  @apply text-[14px] leading-[120%] font-medium;
 }
 
 @utility text-label-small-semibold {
-	@apply text-[14px] leading-[120%] font-semibold;
+  @apply text-[14px] leading-[120%] font-semibold;
 }
 
 @utility text-label-small-bold {
-	@apply text-[14px] leading-[120%] font-bold;
+  @apply text-[14px] leading-[120%] font-bold;
 }
 
 @utility text-label-caption-light {
-	@apply text-[12px] leading-[120%] font-light;
+  @apply text-[12px] leading-[120%] font-light;
 }
 
 @utility text-label-caption-regular {
-	@apply text-[12px] leading-[120%] font-normal;
+  @apply text-[12px] leading-[120%] font-normal;
 }
 
 @utility text-label-caption-medium {
-	@apply text-[12px] leading-[120%] font-medium;
+  @apply text-[12px] leading-[120%] font-medium;
 }
 
 @utility text-label-caption-semibold {
-	@apply text-[12px] leading-[120%] font-semibold;
+  @apply text-[12px] leading-[120%] font-semibold;
 }
 
 @utility text-label-caption-bold {
-	@apply text-[12px] leading-[120%] font-bold;
+  @apply text-[12px] leading-[120%] font-bold;
 }
-
 
 /* primary button  */
-@utility button-primary-large{
-  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-default text-label-base-medium text-white flex hover:bg-button-hover focus:bg-button-pressed active:scale-95 transition-all duration-300 hover:cursor-pointer
+@utility button-primary-large {
+  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-default text-label-base-medium text-white flex hover:bg-button-hover focus:bg-button-pressed active:scale-95 transition-all duration-300 hover:cursor-pointer;
 }
-@utility button-primary-medium{
-  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-default text-label-small-medium text-white flex hover:bg-button-hover focus:bg-button-pressed active:scale-95 transition-all duration-300 hover:cursor-pointer
+@utility button-primary-medium {
+  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-default text-label-small-medium text-white flex hover:bg-button-hover focus:bg-button-pressed active:scale-95 transition-all duration-300 hover:cursor-pointer;
 }
-@utility button-primary-small{
-  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-default text-label-caption-medium text-white flex hover:bg-button-hover focus:bg-button-pressed focus:rounded-full active:rounded-full active:scale-95 transition-all duration-300 hover:cursor-pointer
+@utility button-primary-small {
+  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-default text-label-caption-medium text-white flex hover:bg-button-hover focus:bg-button-pressed focus:rounded-full active:rounded-full active:scale-95 transition-all duration-300 hover:cursor-pointer;
 }
 
 /* secondary butttons */
-@utility button-secondary-large{
-  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-white text-label-base-medium text-border-action border flex hover:bg-button-hover hover:text-button-white focus:bg-button-pressed active:scale-95 active:text-button-white focus:text-button-white  transition-all duration-300 hover:cursor-pointer
+@utility button-secondary-large {
+  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-white text-label-base-medium text-border-action border flex hover:bg-button-hover hover:text-button-white focus:bg-button-pressed active:scale-95 active:text-button-white focus:text-button-white  transition-all duration-300 hover:cursor-pointer;
 }
-@utility button-secondary-medium{
-  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-white text-label-small-medium text-border-action border flex hover:bg-button-hover hover:text-button-white focus:bg-button-pressed active:scale-95  active:text-button-white focus:text-button-white transition-all duration-300 hover:cursor-pointer
+@utility button-secondary-medium {
+  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-white text-label-small-medium text-border-action border flex hover:bg-button-hover hover:text-button-white focus:bg-button-pressed active:scale-95  active:text-button-white focus:text-button-white transition-all duration-300 hover:cursor-pointer;
 }
-@utility button-secondary-small{
-  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-white text-label-caption-medium text-border-action border flex hover:bg-button-hover hover:text-button-white focus:bg-button-pressed active:scale-95 active:text-button-white focus:text-button-white transition-all duration-300 hover:cursor-pointer
+@utility button-secondary-small {
+  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-white text-label-caption-medium text-border-action border flex hover:bg-button-hover hover:text-button-white focus:bg-button-pressed active:scale-95 active:text-button-white focus:text-button-white transition-all duration-300 hover:cursor-pointer;
 }
 /* outline butttons */
-@utility button-outline-large{
-  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-white text-label-base-medium text-neutral-600 hover:border-border-default hover:text-border-action focus:border-border-default focus:text-text-action-hover active:text-text-action-hover border flex  active:scale-95  transition-all duration-300 hover:cursor-pointer
+@utility button-outline-large {
+  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-white text-label-base-medium text-neutral-600 hover:border-border-default hover:text-border-action focus:border-border-default focus:text-text-action-hover active:text-text-action-hover border flex  active:scale-95  transition-all duration-300 hover:cursor-pointer;
 }
-@utility button-outline-medium{
-  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-white text-label-small-medium text-neutral-600 hover:border-border-default hover:text-border-action focus:border-border-default focus:text-text-action-hover active:text-text-action-hover border flex  active:scale-95 transition-all duration-300 hover:cursor-pointer
+@utility button-outline-medium {
+  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-white text-label-small-medium text-neutral-600 hover:border-border-default hover:text-border-action focus:border-border-default focus:text-text-action-hover active:text-text-action-hover border flex  active:scale-95 transition-all duration-300 hover:cursor-pointer;
 }
-@utility button-outline-small{
-  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-white text-label-caption-medium text-neutral-600 hover:border-border-default hover:text-border-action focus:border-border-default focus:text-text-action-hover active:text-text-action-hover border flex  active:scale-95 transition-all duration-300 hover:cursor-pointer
+@utility button-outline-small {
+  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-white text-label-caption-medium text-neutral-600 hover:border-border-default hover:text-border-action focus:border-border-default focus:text-text-action-hover active:text-text-action-hover border flex  active:scale-95 transition-all duration-300 hover:cursor-pointer;
 }
 /* button disabled styles */
-@utility button-disabled-large{
-  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-disabled flex text-text-disabled text-label-base-medium hover:cursor-help  active:scale-95 transition-all duration-300
+@utility button-disabled-large {
+  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-disabled flex text-text-disabled text-label-base-medium hover:cursor-help  active:scale-95 transition-all duration-300;
 }
-@utility button-disabled-medium{
-  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-disabled flex text-text-disabled text-label-small-medium hover:cursor-help  active:scale-95 transition-all duration-300
+@utility button-disabled-medium {
+  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-disabled flex text-text-disabled text-label-small-medium hover:cursor-help  active:scale-95 transition-all duration-300;
 }
-@utility button-disabled-small{
-  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-disabled flex text-text-disabled text-label-caption-medium hover:cursor-help  active:scale-95 transition-all duration-300
+@utility button-disabled-small {
+  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-disabled flex text-text-disabled text-label-caption-medium hover:cursor-help  active:scale-95 transition-all duration-300;
 }
 
 /* error button */
-@utility button-error-large{
-  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-error flex text-text-on-action text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
+@utility button-error-large {
+  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-error flex text-text-on-action text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300;
 }
-@utility button-error-medium{
-  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-error flex text-text-on-action text-label-small-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
+@utility button-error-medium {
+  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-error flex text-text-on-action text-label-small-medium hover:cursor-pointer  active:scale-95 transition-all duration-300;
 }
-@utility button-error-small{
-  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-error flex text-text-on-action text-label-caption-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
+@utility button-error-small {
+  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-error flex text-text-on-action text-label-caption-medium hover:cursor-pointer  active:scale-95 transition-all duration-300;
 }
-@utility button-error-secondary-large{
-  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-surface-error border border-border-error flex text-text-error text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
+@utility button-error-secondary-large {
+  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-surface-error border border-border-error flex text-text-error text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300;
 }
-@utility button-error-secondary-medium{
-  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-surface-error border border-border-error flex text-text-error text-label-small-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
+@utility button-error-secondary-medium {
+  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-surface-error border border-border-error flex text-text-error text-label-small-medium hover:cursor-pointer  active:scale-95 transition-all duration-300;
 }
-@utility button-error-secondary-small{
-  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-surface-error border border-border-error flex text-text-error text-label-caption-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
+@utility button-error-secondary-small {
+  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-surface-error border border-border-error flex text-text-error text-label-caption-medium hover:cursor-pointer  active:scale-95 transition-all duration-300;
 }
-@utility button-error-outline-large{
-  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-white border border-border-error flex text-text-error text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
+@utility button-error-outline-large {
+  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-white border border-border-error flex text-text-error text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300;
 }
-@utility button-error-outline-medium{
-  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-white border border-border-error flex text-text-error text-label-small-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
+@utility button-error-outline-medium {
+  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-white border border-border-error flex text-text-error text-label-small-medium hover:cursor-pointer  active:scale-95 transition-all duration-300;
 }
-@utility button-error-outline-small{
-  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-white border border-border-error flex text-text-error text-label-caption-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
+@utility button-error-outline-small {
+  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-white border border-border-error flex text-text-error text-label-caption-medium hover:cursor-pointer  active:scale-95 transition-all duration-300;
 }
 
 /* warning button */
-@utility button-warning-large{
-  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-warning flex text-text-on-action text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
+@utility button-warning-large {
+  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-warning flex text-text-on-action text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300;
 }
-@utility button-warning-medium{
-  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-warning flex text-text-on-action text-label-small-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
+@utility button-warning-medium {
+  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-warning flex text-text-on-action text-label-small-medium hover:cursor-pointer  active:scale-95 transition-all duration-300;
 }
-@utility button-warning-small{
-  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-warning flex text-text-on-action text-label-caption-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
+@utility button-warning-small {
+  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-warning flex text-text-on-action text-label-caption-medium hover:cursor-pointer  active:scale-95 transition-all duration-300;
 }
-@utility button-warning-secondary-large{
-  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-surface-warning border border-border-warning flex text-text-warning text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
+@utility button-warning-secondary-large {
+  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-surface-warning border border-border-warning flex text-text-warning text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300;
 }
-@utility button-warning-secondary-medium{
-  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-surface-warning border border-border-warning flex text-text-warning text-label-small-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
+@utility button-warning-secondary-medium {
+  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-surface-warning border border-border-warning flex text-text-warning text-label-small-medium hover:cursor-pointer  active:scale-95 transition-all duration-300;
 }
-@utility button-warning-secondary-small{
-  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-surface-warning border border-border-warning flex text-text-warning text-label-caption-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
+@utility button-warning-secondary-small {
+  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-surface-warning border border-border-warning flex text-text-warning text-label-caption-medium hover:cursor-pointer  active:scale-95 transition-all duration-300;
 }
-@utility button-warning-outline-large{
-  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-white border border-border-warning flex text-text-warning text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
+@utility button-warning-outline-large {
+  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-white border border-border-warning flex text-text-warning text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300;
 }
-@utility button-warning-outline-medium{
-  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-white border border-border-warning flex text-text-warning text-label-small-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
+@utility button-warning-outline-medium {
+  @apply w-fit px-4 py-3 rounded-lg gap-2 items-center bg-button-white border border-border-warning flex text-text-warning text-label-small-medium hover:cursor-pointer  active:scale-95 transition-all duration-300;
 }
-@utility button-warning-outline-small{
-  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-white border border-border-warning flex text-text-warning text-label-caption-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
-}
-
-
-
-@utility button-primary-rounded{
-  @apply w-fit p-3 rounded-full gap-2 items-center bg-button-default text-label-base-medium text-white flex hover:bg-button-hover focus:bg-button-pressed active:scale-95 transition-all duration-300 hover:cursor-pointer
-}
-@utility button-secondary-rounded{
-  @apply w-fit p-3 rounded-full gap-2 items-center bg-button-white text-label-base-medium text-border-action border flex hover:bg-button-hover hover:text-button-white focus:bg-button-pressed active:scale-95 active:text-button-white focus:text-button-white  transition-all duration-300 hover:cursor-pointer
-}
-@utility button-outline-rounded{
-  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-white text-label-base-medium text-neutral-600 hover:border-border-default hover:text-border-action focus:border-border-default focus:text-text-action-hover active:text-text-action-hover border flex  active:scale-95  transition-all duration-300 hover:cursor-pointer
-}
-@utility button-disabled-rounded{
-  @apply w-fit p-3 rounded-full gap-2 items-center bg-button-disabled flex text-text-disabled text-label-base-medium hover:cursor-help  active:scale-95 transition-all duration-300
-}
-@utility button-error-rounded{
-  @apply w-fit p-3 rounded-full gap-2 items-center bg-button-error flex text-text-on-action text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
-}
-@utility button-error-secondary-rounded{
-  @apply w-fit p-3 rounded-full gap-2 items-center bg-surface-error border border-border-error flex text-text-error text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
-}
-@utility button-error-outline-rounded{
-  @apply w-fit p-3 rounded-full gap-2 items-center bg-button-white border border-border-error flex text-text-error text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300
+@utility button-warning-outline-small {
+  @apply w-fit px-3 py-3 rounded-lg gap-2 items-center bg-button-white border border-border-warning flex text-text-warning text-label-caption-medium hover:cursor-pointer  active:scale-95 transition-all duration-300;
 }
 
+@utility button-primary-rounded {
+  @apply w-fit p-3 rounded-full gap-2 items-center bg-button-default text-label-base-medium text-white flex hover:bg-button-hover focus:bg-button-pressed active:scale-95 transition-all duration-300 hover:cursor-pointer;
+}
+@utility button-secondary-rounded {
+  @apply w-fit p-3 rounded-full gap-2 items-center bg-button-white text-label-base-medium text-border-action border flex hover:bg-button-hover hover:text-button-white focus:bg-button-pressed active:scale-95 active:text-button-white focus:text-button-white  transition-all duration-300 hover:cursor-pointer;
+}
+@utility button-outline-rounded {
+  @apply w-fit px-6 py-3 rounded-lg gap-2 items-center bg-button-white text-label-base-medium text-neutral-600 hover:border-border-default hover:text-border-action focus:border-border-default focus:text-text-action-hover active:text-text-action-hover border flex  active:scale-95  transition-all duration-300 hover:cursor-pointer;
+}
+@utility button-disabled-rounded {
+  @apply w-fit p-3 rounded-full gap-2 items-center bg-button-disabled flex text-text-disabled text-label-base-medium hover:cursor-help  active:scale-95 transition-all duration-300;
+}
+@utility button-error-rounded {
+  @apply w-fit p-3 rounded-full gap-2 items-center bg-button-error flex text-text-on-action text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300;
+}
+@utility button-error-secondary-rounded {
+  @apply w-fit p-3 rounded-full gap-2 items-center bg-surface-error border border-border-error flex text-text-error text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300;
+}
+@utility button-error-outline-rounded {
+  @apply w-fit p-3 rounded-full gap-2 items-center bg-button-white border border-border-error flex text-text-error text-label-base-medium hover:cursor-pointer  active:scale-95 transition-all duration-300;
+}
 
 /* select button  */
 
 @utility select-default-small {
-	@apply text-label-caption-medium border border-border-default px-3 py-3 active:cursor-pointer active:scale-95 hover:border-button-hover hover:bg-button-hover hover:text-text-on-action disabled:border-0 disabled:bg-button-disabled disabled:text-text-disabled disabled:cursor-not-allowed disabled:hover:scale-100;
-	&.active {
-		@apply border border-border-action text-text-action bg-button-secondary;
-	}
+  @apply text-label-caption-medium border border-border-default px-3 py-3 active:cursor-pointer active:scale-95 hover:border-button-hover hover:bg-button-hover hover:text-text-on-action disabled:border-0 disabled:bg-button-disabled disabled:text-text-disabled disabled:cursor-not-allowed disabled:hover:scale-100;
+  &.active {
+    @apply border border-border-action text-text-action bg-button-secondary;
+  }
 }
 
 @utility select-default-medium {
-	@apply text-label-small-medium border border-border-default rounded-lg p-3 active:cursor-pointer active:scale-95 hover:border-button-hover hover:bg-button-hover hover:text-text-on-action disabled:border-0 disabled:bg-button-disabled disabled:text-text-disabled disabled:cursor-not-allowed disabled:hover:scale-100;
-	&.active {
-		@apply border border-border-action text-text-action bg-button-secondary;
-	}
+  @apply text-label-small-medium border border-border-default rounded-lg p-3 active:cursor-pointer active:scale-95 hover:border-button-hover hover:bg-button-hover hover:text-text-on-action disabled:border-0 disabled:bg-button-disabled disabled:text-text-disabled disabled:cursor-not-allowed disabled:hover:scale-100;
+  &.active {
+    @apply border border-border-action text-text-action bg-button-secondary;
+  }
 }
 
 @utility select-default-large {
-	@apply text-label-base-medium border border-border-default px-6 py-3.5 active:cursor-pointer active:scale-95 hover:border-button-hover hover:bg-button-hover hover:text-text-on-action disabled:border-0 disabled:bg-button-disabled disabled:text-text-disabled disabled:cursor-not-allowed disabled:hover:scale-100;
-	&.active {
-		@apply border border-border-action text-text-action bg-button-secondary;
-	}
+  @apply text-label-base-medium border border-border-default px-6 py-3.5 active:cursor-pointer active:scale-95 hover:border-button-hover hover:bg-button-hover hover:text-text-on-action disabled:border-0 disabled:bg-button-disabled disabled:text-text-disabled disabled:cursor-not-allowed disabled:hover:scale-100;
+  &.active {
+    @apply border border-border-action text-text-action bg-button-secondary;
+  }
 }
 
 @utility availbility {
-	@apply border border-border-default px-5 py-2 max-w-[70px] active:cursor-pointer active:scale-95 hover:border-0 hover:bg-button-hover hover:text-text-on-action disabled:border-0 disabled:bg-button-disabled disabled:text-text-disabled disabled:cursor-not-allowed disabled:hover:scale-100;
-	&.active {
-		@apply border border-border-action text-text-action bg-button-secondary;
-	}
+  @apply border border-border-default px-5 py-2 max-w-[70px] active:cursor-pointer active:scale-95 hover:border-0 hover:bg-button-hover hover:text-text-on-action disabled:border-0 disabled:bg-button-disabled disabled:text-text-disabled disabled:cursor-not-allowed disabled:hover:scale-100;
+  &.active {
+    @apply border border-border-action text-text-action bg-button-secondary;
+  }
 }
 
+/* Custom Scrollbar Styles */
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
 
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--color-neutral-100);
+    border-radius: 10px;
+    transition: background 0.3s ease;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--color-neutral-200);
+  }
+
+  /* Firefox */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-neutral-100) transparent;
+  }
+}

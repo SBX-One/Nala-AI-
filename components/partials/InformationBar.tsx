@@ -1,24 +1,46 @@
 "use client";
 
-// import nalaLogo from "@/public/icon/Nala-Logo.svg";
 import { usePathname } from "next/navigation";
-// import Image from "next/image";
+import { useSidebar } from "@/context/SidebarContext";
 
 export default function InformationBar() {
   const path = usePathname();
-  const newPath = path.replace("/", "");
+  const { toggle } = useSidebar();
+
+  const formatPath = (path: string) => {
+    // Handle root or base psychiatrist path
+    if (path === "/psychiatrist" || path === "/psychiatrist/")
+      return "Dashboard";
+
+    const segments = path.split("/").filter(Boolean);
+    const lastSegment = segments[segments.length - 1] || "";
+    
+    // Capitalize and clean up segment name
+    return lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1).replace(/-/g, " ");
+  };
+
+  const formattedTitle = formatPath(path);
 
   return (
     <div className="flex px-4 py-3 border-b w-full border-b-border-default items-center justify-between bg-surface-background">
       <div className="flex gap-4 items-center justify-center">
-        {/* <Image
-					src={nalaLogo}
-					alt="Nala-Logo"
-					priority
-					className="w-12.5 h-10"
-				/> */}
-        <p className="text-body-xl-bold text-text-heading">
-          {newPath} {newPath === "" && "Dashboard"}
+        <button
+          onClick={toggle}
+          className="p-2 -ml-2 lg:hidden text-icon-default hover:bg-surface-default rounded-lg transition-colors"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="size-6"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"
+            />
+          </svg>
+        </button>
+        <p className="text-body-xl-bold text-text-heading whitespace-nowrap">
+          {formattedTitle}
         </p>
       </div>
 
@@ -64,19 +86,7 @@ export default function InformationBar() {
             d="M5 19q-.425 0-.712-.288T4 18t.288-.712T5 17h1v-7q0-2.075 1.25-3.687T10.5 4.2v-.7q0-.625.438-1.062T12 2t1.063.438T13.5 3.5v.7q2 .5 3.25 2.113T18 10v7h1q.425 0 .713.288T20 18t-.288.713T19 19zm7 3q-.825 0-1.412-.587T10 20h4q0 .825-.587 1.413T12 22m-4-5h8v-7q0-1.65-1.175-2.825T12 6T9.175 7.175T8 10z"
           />
         </svg>
-
-					{/* <div className="p-2 border border-border-default flex items-center rounded-2xl gap-3">
-						<div className="rounded-full size-8 bg-surface-disabled "></div>
-						<div>
-							<p className="text-label-small-semibold text-text-heading">
-								Andra Divano
-							</p>
-							<p className="text-label-caption-medium text-text-subheading">
-								andradiva@gmail.com
-							</p>
-						</div>
-					</div> */}
-				</div>
-			</div>
-	);
+      </div>
+    </div>
+  );
 }
