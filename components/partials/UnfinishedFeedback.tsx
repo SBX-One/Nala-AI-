@@ -83,7 +83,7 @@ export default function UnfinishedFeedback({
               </svg>
             )}
           </div>
-          <h3 className="text-body-xl-semibold text-text-body">
+          <h3 className="text-body-lg-semibold md:text-body-xl-semibold text-text-body">
             Unfinished Feedback
           </h3>
         </div>
@@ -100,7 +100,7 @@ export default function UnfinishedFeedback({
             return (
               <div
                 key={item.id}
-                className={`flex items-center justify-between p-4 rounded-xl border-2 border-border-default transition-all duration-300 hover:cursor-pointer ${
+                className={`flex flex-col gap-4 md:flex-row md:items-center justify-between p-4 rounded-xl border-2 border-border-default transition-all duration-300 hover:cursor-pointer ${
                   status === "new"
                     ? "hover:border-border-information"
                     : status === "pending"
@@ -132,7 +132,7 @@ export default function UnfinishedFeedback({
                 </div>
 
                 <div
-                  className={`flex items-center gap-2 px-3 py-1 rounded-full text-label-caption-medium ${
+                  className={`flex items-center gap-2 px-3 py-1 rounded-full text-label-caption-medium w-fit self-end md:self-auto ${
                     status === "new"
                       ? "bg-surface-information text-text-information border border-border-information"
                       : status === "pending"
@@ -141,9 +141,9 @@ export default function UnfinishedFeedback({
                   }`}
                 >
                   <div
-                    className={`${
+                    className={`w-fit  ${
                       status === "new"
-                        ? "bg-surface-information text-icon-information"
+                        ? "bg-surface-information text-icon-information "
                         : status === "pending"
                           ? "bg-surface-warning text-icon-warning"
                           : "bg-surface-error text-icon-error"

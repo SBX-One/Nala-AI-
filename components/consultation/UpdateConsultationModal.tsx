@@ -201,7 +201,9 @@ export default function UpdateConsultationModal({
                     />
 
                     {/* Suggestions Dropdown */}
-                    {(suggestions.length > 0 || isSearching) && (
+                    {(suggestions.length > 0 ||
+                      isSearching ||
+                      searchQuery.trim() !== "") && (
                       <div className="absolute z-50 left-0 right-0 top-[calc(100%+4px)] bg-white border border-border-default rounded-xl shadow-xl overflow-hidden max-h-80 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200 p-3 flex flex-col gap-2">
                         {isSearching ? (
                           <div className="p-4 text-center text-body-sm-medium text-text-placeholder">

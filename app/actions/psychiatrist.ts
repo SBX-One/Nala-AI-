@@ -201,7 +201,13 @@ export async function getPsychiatristDashboardData() {
 
   const { data: internalUser } = await supabase
     .from("User")
-    .select("id, PsychiatristProfile(id, name)")
+    .select(
+      `
+      id, 
+      PsychiatristProfile(id, name),
+      UserProfile(name)
+    `,
+    )
     .eq("auth_user_id", user.id)
     .single();
 
@@ -210,7 +216,14 @@ export async function getPsychiatristDashboardData() {
     : internalUser?.PsychiatristProfile;
 
   const psychiatristId = profile?.id;
-  const psychiatristName = profile?.name?.split(" ")[0] || "Psychiatrist";
+
+  const rawName =
+    profile?.name || internalUser?.UserProfile?.[0]?.name || "Psychiatrist";
+  const nameParts = rawName.split(" ");
+  const psychiatristName =
+    nameParts[0].toLowerCase().startsWith("dr") && nameParts.length > 1
+      ? `${nameParts[0]} ${nameParts[1]}`
+      : nameParts[0];
 
   console.log("Psychiatrist Debug:", { psychiatristId, psychiatristName });
 

@@ -194,7 +194,7 @@ export default function ConsultationQueuePage() {
   };
 
   return (
-    <div className="p-6 bg-surface-default min-h-screen">
+    <div className="p-4 md:p-6 bg-surface-default min-h-screen">
       <div className="flex flex-col xl:flex-row gap-6">
         {/* Main Content */}
         <div className="flex-1 space-y-6">
@@ -293,7 +293,7 @@ export default function ConsultationQueuePage() {
           )}
 
           {/* Consultation Queue List */}
-          <div className="bg-white rounded-xl p-8 border border-border-default space-y-6 shadow-sm">
+          <div className="bg-white rounded-xl p-6 md:p-8 border border-border-default space-y-6 shadow-sm">
             <div className="flex items-center gap-3 mb-2">
               <div className="size-10 rounded-xl bg-primary-50 flex items-center justify-center">
                 <svg
@@ -348,7 +348,7 @@ export default function ConsultationQueuePage() {
 
         {/* Sidebar Content */}
         <div className="w-full xl:w-96 space-y-6">
-          <div className="bg-white rounded-xl p-8 border border-border-default sticky top-8 shadow-sm">
+          <div className="bg-white rounded-xl p-6 md:p-8 border border-border-default sticky top-8 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
               <div className="size-10 rounded-xl bg-primary-50 flex items-center justify-center">
                 <svg
@@ -363,7 +363,7 @@ export default function ConsultationQueuePage() {
                   <circle cx="9" cy="7" r="4"></circle>
                 </svg>
               </div>
-              <h3 className="text-heading-5-bold text-text-heading">
+              <h3 className=" text-body-xl-bold md:text-heading-5-bold text-text-heading">
                 Past Consultation
               </h3>
             </div>

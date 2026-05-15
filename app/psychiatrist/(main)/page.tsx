@@ -11,23 +11,25 @@ export default async function page() {
   const data = res?.data;
   console.log(data);
 
+  console.log("DEBUG", data);
+
   return (
-    <div className="p-6 w-full bg-surface-default">
+    <div className="p-4 md:p-6 w-full bg-surface-default">
       <div className=" grid gap-3">
         <p className="text-label-small-medium text-text-subheading">
           Welcome to your daily board
         </p>
 
-        <p className="text-heading-2-bold ">
+        <p className="text-heading-6-bold md:text-heading-2-bold  ">
           Good Morning,{" "}
           <span className="text-text-action">
             {data?.psychiatristName || "Nanda"}
           </span>{" "}
         </p>
         <div className="flex flex-col lg:items-center  lg:flex-row lg:justify-between gap-3">
-          <div className="rounded-full border border-border-default p-4 bg-surface-primary-light w-fit flex gap-3">
+          <div className="rounded-xl md:rounded-full border border-border-default p-4 bg-surface-primary-light w-fit flex gap-3">
             <Image src={starIcon} alt="Plant-Icon" priority />
-            <p className="text-body-base-medium text-text-body">
+            <p className="text-body-sm-medium md:text-body-base-medium text-text-body">
               You have {data?.kpis.todayCount || 0} sessions scheduled today.
               {data?.kpis.nextSession
                 ? ` Next session at ${data.kpis.nextSession}`
@@ -105,7 +107,7 @@ export default async function page() {
           />
         </div>
 
-        <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="mt-4 md:mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
           <TodaysSessions items={data?.sessions} />
           <UnfinishedFeedback items={data?.feedback} limit={2} />
         </div>

@@ -16,7 +16,7 @@ export default function ConsultationCard({
   return (
     <div
       onClick={() => onSelect(consultation.id)}
-      className={`px-6 py-4 rounded-xl border transition-all cursor-pointer group relative ${
+      className={`md:px-6 px-4 py-4 rounded-xl border transition-all cursor-pointer group relative ${
         isSelected
           ? "border-primary-500 bg-surface-primary-light shadow-sm ring-1 ring-primary-500"
           : "border-border-default bg-white hover:border-primary-200"
@@ -51,7 +51,7 @@ export default function ConsultationCard({
           )}
         </div>
         <div className="overflow-hidden">
-          <h4 className="text-body-xl-semibold mb-1  truncate">
+          <h4 className="text-body-lg-semibold md:text-body-xl-semibold mb-1  truncate">
             {consultation.user?.name || "Anonymous Patient"}
           </h4>
           <p className="text-body-caption-medium truncate">

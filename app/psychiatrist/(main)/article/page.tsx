@@ -37,22 +37,24 @@ export default function ArticleListPage() {
 
   return (
     <div className="bg-surface-default min-h-[80dvh]">
-      <div className="flex justify-between items-center  p-6 py-8 bg-white border-b border-border-default sticky top-0 z-10">
+      <div className="flex flex-col md:flex-row justify-between md:items-center gap-y-4 md:gap-0  p-6 py-8 bg-white border-b border-border-default sticky top-0 z-10">
         <div>
-          <h1 className="text-heading-4-bold text-text-heading">My Articles</h1>
-          <p className="text-body-base-medium text-text-subheading">
+          <h1 className="text-heading-6-bold md:text-heading-4-bold text-text-heading md:mb-2">
+            My Articles
+          </h1>
+          <p className="text-body-sm-medium md:text-body-base-medium text-text-subheading">
             Manage and publish your mental health insights
           </p>
         </div>
         <Link
           href="/psychiatrist/article/create"
-          className="button-primary-large"
+          className="button-primary-small md:button-primary-large"
         >
           Create New Article
         </Link>
       </div>
 
-      <div className="p-6">
+      <div className="p-4 md:p-6">
         {articles.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl border border-dashed border-border-default">
             <p className="text-body-lg-semibold text-text-heading">

@@ -16,9 +16,12 @@ export async function getUserProfile() {
 		.eq("user_id", (await supabase.from("User").select("id").eq("auth_user_id", user.id).single()).data?.id)
 		.single();
 
-	if (error) {
-		console.error("Error fetching user profile:", error.message);
-		return null;
+	if (error || !data) {
+		console.error("Error fetching user profile:", error?.message);
+		return {
+			name: user.user_metadata?.full_name || user.email?.split("@")[0] || "User",
+			avatar_url: user.user_metadata?.avatar_url || "",
+		};
 	}
 
 	return data;

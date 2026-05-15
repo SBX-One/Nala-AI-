@@ -105,14 +105,14 @@ export default function PsychiatristSideBar({ profile }: { profile: any }) {
       {/* Mobile Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden animate-in fade-in duration-300"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-80 lg:hidden animate-in fade-in duration-300"
           onClick={close}
         />
       )}
 
       {/* Sidebar Container */}
       <div
-        className={`flex flex-col w-72 h-screen bg-surface-background border-r border-border-default px-4 py-8 justify-between fixed lg:sticky top-0 left-0 z-50 transition-transform duration-300 lg:translate-x-0 ${
+        className={`flex flex-col w-72 h-screen bg-surface-background border-r border-border-default px-4 py-8 justify-between fixed lg:sticky top-0 left-0 z-99 transition-transform duration-300 lg:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -157,7 +157,7 @@ export default function PsychiatristSideBar({ profile }: { profile: any }) {
               </div>
               <div className="flex flex-col overflow-hidden">
                 <span className="text-label-base-semibold text-text-heading truncate">
-                  {profile?.name || "Psychiatrist Name"}
+                  {profile?.fullName || profile?.name || "Psychiatrist Name"}
                 </span>
                 <span className="text-label-caption-medium text-text-subheading truncate">
                   {profile?.email || "Email address"}

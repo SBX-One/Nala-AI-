@@ -280,17 +280,17 @@ export default function SchedulePage() {
   return (
     <div className="bg-surface-default min-h-screen">
       {/* Header */}
-      <div className="space-y-1 bg-white border-b border-border-default p-6 py-8 sticky top-0 z-50">
-        <h1 className="text-[32px] font-bold text-text-heading flex items-center gap-2">
+      <div className="space-y-1 bg-white border-b border-border-default p-4 md:p-6 md:py-8 sticky top-0 z-50">
+        <h1 className="text-heading-6-semibold md:text-heading-3-semibold text-text-heading flex items-center gap-2">
           Edit Availability & Schedule
           <span className="size-1.5 rounded-full bg-[#E11D48] mt-2" />
         </h1>
-        <p className="text-body-base-medium text-text-placeholder">
+        <p className="text-body-sm-medium md:text-body-base-medium text-text-placeholder">
           Manage your consultation schedule with ease
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start p-4 md:p-6">
         {/* Left Column - Availability */}
         <div className="lg:col-span-7 space-y-6">
           <AvailabilityCard

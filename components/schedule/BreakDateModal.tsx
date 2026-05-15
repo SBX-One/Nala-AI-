@@ -162,7 +162,9 @@ export default function BreakDateModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex-1 overflow-y-auto custom-scrollbar p-8 flex flex-col gap-6">
-          <h2 className="text-heading-5-bold text-text-heading">Break Date</h2>
+          <h2 className="text-heading-6-bold md:text-heading-5-bold text-text-heading">
+            Break Date
+          </h2>
 
           {/* Inline Calendar Section */}
           <div className="space-y-6">

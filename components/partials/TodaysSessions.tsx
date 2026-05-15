@@ -64,7 +64,7 @@ export default function TodaysSessions({
               </svg>
             )}
           </div>
-          <h3 className="text-body-xl-semibold text-text-heading">
+          <h3 className="text-body-lg-semibold md:text-body-xl-semibold text-text-heading">
             Today&apos;s Sessions
           </h3>
         </div>
@@ -76,7 +76,7 @@ export default function TodaysSessions({
           {items.map((item) => (
             <div
               key={item.id}
-              className="flex items-center justify-between p-4 rounded-xl border border-border-default hover:bg-surface-default/50 transition-colors"
+              className="flex flex-col gap-6 md:flex-row  md:items-center justify-between p-4 rounded-xl border border-border-default hover:bg-surface-default/50 transition-colors"
             >
               <div className="flex gap-4.5 items-center">
                 {item.image ? (
@@ -115,7 +115,7 @@ export default function TodaysSessions({
                   />
                 </div>
                 <button
-                  className="button-secondary-medium"
+                  className="button-secondary-medium w-full md:w-fit flex justify-center"
                   onClick={() => handleMoreInfo(item)}
                 >
                   More Info

@@ -108,7 +108,7 @@ export default function ConsultationHistoryPage() {
   return (
     <div className="flex flex-col lg:grid lg:grid-cols-12 w-full h-[calc(100vh-70px)] bg-surface-default overflow-hidden relative">
       {/* Mobile Header Toggle */}
-      <div className="lg:hidden p-4 border-b border-border-default flex items-center justify-between bg-white z-30 shrink-0">
+      <div className="lg:hidden p-4 py-2 md:py-4 border-b border-border-default flex items-center justify-between bg-white z-30 shrink-0">
         <h2 className="text-body-lg-bold text-text-heading">
           {isSidebarOpen ? "Consultation List" : "Consultation Detail"}
         </h2>
@@ -149,12 +149,12 @@ export default function ConsultationHistoryPage() {
           ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
       >
-        <div className="hidden lg:block px-5 py-5 shrink-0">
+        <div className="hidden lg:block px-5 py-5 pb-50 lg:pb-10 shrink-0">
           <h2 className="text-heading-6-semibold text-text-heading">
             Past Consultation
           </h2>
         </div>
-        <div className="flex-1 overflow-y-auto px-5 pt-1 pb-20 lg:pb-0 space-y-4 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto px-5 pt-1 space-y-4 custom-scrollbar">
           {consultations.length === 0 ? (
             <div className="text-center py-10">
               <p className="text-body-sm-medium text-text-placeholder">

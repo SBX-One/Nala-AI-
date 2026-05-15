@@ -102,8 +102,8 @@ export default function CreateArticlePage() {
   return (
     <div className="flex flex-col min-h-screen bg-white">
       {/* Top Header Bar */}
-      <div className="px-8 py-4 border-b border-border-default flex justify-between items-center bg-white sticky top-0 z-10">
-        <div className="flex items-center gap-2 text-label-base-medium text-text-subheading">
+      <div className="px-4 md:px-8 py-4 border-b border-border-default flex flex-col md:flex-row gap-4 md:gap-0 justify-between md:items-center bg-white sticky top-0 z-10">
+        <div className="flex items-center gap-2 text-label-small-medium md:text-label-base-medium text-text-subheading">
           <span>Article</span>
           <svg
             width="16"
@@ -120,38 +120,38 @@ export default function CreateArticlePage() {
           </span>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="flex bg-surface-background p-1 rounded-xl border border-border-default mr-4">
+        <div className="flex flex-wrap items-center gap-2 md:gap-3">
+          <div className="flex bg-surface-background p-1 rounded-xl border border-border-default md:mr-4">
             <button
               onClick={() => setPreviewMode(false)}
-              className={`px-4 py-1.5 rounded-lg text-label-small-bold transition-all ${!previewMode ? "bg-white shadow-sm text-primary-600" : "text-text-subheading hover:text-text-heading"}`}
+              className={`px-3 md:px-4 py-1.5 rounded-lg text-label-small-bold transition-all ${!previewMode ? "bg-white shadow-sm text-primary-600" : "text-text-subheading hover:text-text-heading"}`}
             >
               Write
             </button>
             <button
               onClick={() => setPreviewMode(true)}
-              className={`px-4 py-1.5 rounded-lg text-label-small-bold transition-all ${previewMode ? "bg-white shadow-sm text-primary-600" : "text-text-subheading hover:text-text-heading"}`}
+              className={`px-3 md:px-4 py-1.5 rounded-lg text-label-small-bold transition-all ${previewMode ? "bg-white shadow-sm text-primary-600" : "text-text-subheading hover:text-text-heading"}`}
             >
               Preview
             </button>
           </div>
           <button
             onClick={() => router.back()}
-            className="px-6 py-2 rounded-lg border border-error-500 text-error-600 font-semibold hover:bg-error-50 transition-colors"
+            className="px-4 md:px-6 py-2 rounded-lg border border-error-500 text-error-600 font-semibold hover:bg-error-50 transition-colors text-label-base-bold md:text-body-base-bold"
           >
             Delete
           </button>
           <button
             onClick={handleSave}
             disabled={loading}
-            className="px-8 py-2 rounded-lg bg-primary-600 text-white font-semibold hover:bg-primary-700 transition-colors disabled:opacity-50"
+            className="flex-1 md:flex-none px-6 md:px-8 py-2 rounded-lg bg-primary-600 text-white font-semibold hover:bg-primary-700 transition-colors disabled:opacity-50 text-label-base-bold md:text-body-base-bold"
           >
             {loading ? "Saving..." : "Save"}
           </button>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-10 py-12 max-w-5xl mx-auto w-full">
+      <div className="flex-1 overflow-y-auto px-4 md:px-10 py-8 md:py-12 max-w-5xl mx-auto w-full">
         {previewMode ? (
           <ArticlePreview
             title={formData.title}
@@ -167,7 +167,7 @@ export default function CreateArticlePage() {
           <>
             {/* Image Upload Placeholder */}
             <div
-              className="relative w-full aspect-21/9 bg-surface-background rounded-3xl border-2 border-dashed border-border-default flex flex-col items-center justify-center gap-4 cursor-pointer hover:bg-neutral-50 transition-colors overflow-hidden group"
+              className="relative w-full aspect-video md:aspect-21/9 bg-surface-background rounded-2xl md:rounded-3xl border-2 border-dashed border-border-default flex flex-col items-center justify-center gap-4 cursor-pointer hover:bg-neutral-50 transition-colors overflow-hidden group"
               onClick={() => document.getElementById("cover-upload")?.click()}
             >
               <input
@@ -213,10 +213,9 @@ export default function CreateArticlePage() {
                 </div>
               ) : (
                 <>
-                  <div className="size-16 rounded-full border-2 border-text-heading flex items-center justify-center text-text-heading group-hover:scale-110 transition-transform">
+                  <div className="size-12 md:size-16 rounded-full border-2 border-text-heading flex items-center justify-center text-text-heading group-hover:scale-110 transition-transform">
                     <svg
-                      width="32"
-                      height="32"
+                      className="size-6 md:size-8"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -226,7 +225,7 @@ export default function CreateArticlePage() {
                       <line x1="5" y1="12" x2="19" y2="12"></line>
                     </svg>
                   </div>
-                  <p className="text-heading-5-bold text-text-heading">
+                  <p className="text-body-xl-bold md:text-heading-5-bold text-text-heading">
                     Upload Image Cover
                   </p>
                 </>
@@ -243,7 +242,7 @@ export default function CreateArticlePage() {
               <input
                 type="text"
                 placeholder="Add Article Title"
-                className="text-heading-3-bold text-text-heading placeholder:text-text-placeholder w-full focus:outline-none bg-transparent"
+                className="text-heading-5-bold md:text-heading-3-bold text-text-heading placeholder:text-text-placeholder w-full focus:outline-none bg-transparent"
                 value={formData.title}
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, title: e.target.value }))
@@ -253,7 +252,7 @@ export default function CreateArticlePage() {
               <textarea
                 placeholder="Add Article Description"
                 rows={2}
-                className="text-body-lg-medium text-text-subheading placeholder:text-text-placeholder w-full focus:outline-none bg-transparent resize-none"
+                className="text-body-sm-medium md:text-body-lg-medium text-text-subheading placeholder:text-text-placeholder w-full focus:outline-none bg-transparent resize-none"
                 value={formData.overview}
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, overview: e.target.value }))

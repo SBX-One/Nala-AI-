@@ -71,8 +71,8 @@ export default function ConsultationDetail({
   return (
     <div className="pb-24 lg:pb-0 bg-surface-default">
       {/* Header Action */}
-      <div className="flex items-center justify-between border-b border-border-default p-5 sticky top-0 bg-white z-20">
-        <span className="text-body-base-medium text-text-subheading">
+      <div className="flex items-center justify-between border-b border-border-default p-4 py-3 md:p-5 sticky top-0 bg-white z-20">
+        <span className="text-body-sm-medium md:text-body-base-medium text-text-subheading">
           Last Updated at{" "}
           {new Date(session.created_at).toLocaleDateString("en-US", {
             day: "numeric",
@@ -103,7 +103,7 @@ export default function ConsultationDetail({
           {session.status === "draft" && (
             <button
               onClick={() => setShowFinalizeModal(true)}
-              className="button-primary-medium"
+              className="button-primary-small md:button-primary-medium"
             >
               Submit Consultation
             </button>
@@ -129,9 +129,9 @@ export default function ConsultationDetail({
         isLoading={loading}
       />
 
-      <div className="bg-surface-default p-6 flex flex-col gap-4">
+      <div className="bg-surface-default p-4 md:p-6 flex flex-col gap-4">
         {/* Patient Profile Card */}
-        <div className="bg-white rounded-xl border border-border-default p-6 flex gap-8 items-start ">
+        <div className="bg-white rounded-xl border border-border-default p-6 flex flex-col lg:flex-row gap-8 items-start ">
           <div className="relative size-32 rounded-lg overflow-hidden bg-surface-background shrink-0 border border-border-default">
             {session.user?.avatar_url ? (
               <Image
