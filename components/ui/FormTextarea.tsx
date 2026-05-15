@@ -36,7 +36,7 @@ export const FormTextarea: React.FC<FormTextareaProps> = ({
       <div className="relative">
         <textarea
           id={id}
-          className={`w-full px-4 py-3.5 rounded-xl border border-border-default bg-white text-label-base-medium text-text-heading placeholder:text-text-placeholder focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-50 transition-all shadow-xs resize-none ${className}`}
+          className={`w-full px-4 py-3.5 rounded-xl border border-border-default bg-white text-label-base-medium text-text-heading placeholder:text-text-placeholder focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-50 transition-all shadow-xs resize-none h-fit field-sizing-content ${className}`}
           {...props}
         />
         {footer && <div className="mt-1 flex justify-end">{footer}</div>}

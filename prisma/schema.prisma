@@ -47,12 +47,10 @@ model PsychiatristProfile {
   session_duration   Int?                           @default(45)
   is_availability    Boolean                        @default(true)
   name               String?
-  session_duration   Int?                           @default(45)
   articles           Article[]
   consultations      Consultation[]                 @relation("PsychiatristConsultations")
   meeting_rooms      MeetingRoom[]                  @relation("PsychiatristMeetingRooms")
   availability_times PsychiatristAvailabilityTime[]
-  PsychiatristBreak  PsychiatristBreak[]
   expertises         PsychiatristExpertise[]
   breaks             PsychiatristBreak[]
   user               User                           @relation(fields: [user_id], references: [id])
@@ -145,7 +143,6 @@ model ConsultationMedicine {
   use             String?
   dose            String?
   created_at      DateTime     @default(now())
-  medicine_id     Int
   consultation    Consultation @relation(fields: [consultation_id], references: [id])
   medicine        Medicine     @relation(fields: [medicine_id], references: [id])
 }
@@ -173,8 +170,6 @@ model MeetingRoom {
   start_at          DateTime?
   end_at            DateTime?
   created_at        DateTime            @default(now())
-  end_at            DateTime?
-  start_at          DateTime?
   psychiatrist      PsychiatristProfile @relation("PsychiatristMeetingRooms", fields: [psychiatrist_id], references: [id])
   user              UserProfile         @relation("UserMeetingRooms", fields: [user_id], references: [id])
   messages          Message[]
@@ -253,26 +248,10 @@ model AiChatMessage {
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model Medicine {
-  id                   Int                    @id @default(autoincrement())
-  name                 String                 @unique
-  description          String?
-  created_at           DateTime               @default(now())
-  ConsultationMedicine ConsultationMedicine[]
-}
+
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model PsychiatristBreak {
-  id                  Int                 @id @default(autoincrement())
-  psychiatrist_id     Int
-  date                DateTime            @db.Date
-  start_time          DateTime?           @db.Time(6)
-  end_time            DateTime?           @db.Time(6)
-  is_full_day         Boolean             @default(true)
-  note                String?
-  created_at          DateTime            @default(now())
-  PsychiatristProfile PsychiatristProfile @relation(fields: [psychiatrist_id], references: [id])
-}
+
 
 enum Role {
   user
@@ -300,8 +279,7 @@ enum ConsultationStatus {
   finished
   draft
   published
-  draft
-  published
+
 }
 
 enum ArticleStatus {

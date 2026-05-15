@@ -15,6 +15,7 @@ import MedicineCard from "@/components/consultation/MedicineCard";
 import MedicineEditCard from "@/components/consultation/MedicineEditCard";
 import { searchMedicines } from "@/app/actions/medicine";
 import Image from "next/image";
+import toast from "react-hot-toast";
 
 type Tab = "patient" | "diagnostic";
 
@@ -170,6 +171,13 @@ export default function PostConsultationPage() {
   };
 
   const handleGenerateSessionSummary = async () => {
+    if (!consultationNotes || !diagnoseDraft) {
+      toast.error(
+        "Please fill the Consultation Notes and Diagnosis before generating AI Summary.",
+      );
+      return;
+    }
+
     setIsGenerating(true);
     try {
       const response = await fetch("/api/psychiatrist/session-summary", {
@@ -394,7 +402,7 @@ export default function PostConsultationPage() {
                 value={consultationNotes}
                 onChange={(e) => setConsultationNotes(e.target.value)}
                 placeholder="Write down patient complaints, behavioral observations and clinical notes"
-                className="min-h-[120px]"
+                className="min-h-[120px] h-fit"
               />
             </div>
 
@@ -520,18 +528,26 @@ export default function PostConsultationPage() {
                     {isGenerating ? "Analyzing..." : "Generate Analysis"}
                   </button>
                 </div>
-                <div className="p-6 bg-[#F8F9FA] border border-border-default rounded-xl min-h-32 text-body-base-regular text-text-secondary leading-relaxed">
-                  {sessionAiSummary ? (
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {sessionAiSummary}
-                    </ReactMarkdown>
-                  ) : (
-                    <p className="italic text-text-placeholder">
-                      Click the button above to generate a comprehensive session
-                      analysis...
-                    </p>
-                  )}
-                </div>
+                  <div className="p-6 bg-[#F8F9FA] border border-border-default rounded-xl min-h-32 flex flex-col items-center justify-center text-center prose prose-sm max-w-none prose-p:mb-2 prose-li:mb-1 prose-headings:text-text-heading prose-headings:mb-3 prose-strong:text-text-heading prose-ul:my-2">
+                    {sessionAiSummary ? (
+                      <div className="w-full text-left">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {sessionAiSummary}
+                        </ReactMarkdown>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <p className="text-body-base-bold text-text-heading">
+                          Ready for Analysis?
+                        </p>
+                        <p className="text-body-sm-medium text-text-placeholder max-w-sm">
+                          Please complete the <b>Consultation Notes</b> and <b>Diagnosis</b> first. 
+                          The AI will then synthesize your notes into a 
+                          comprehensive session summary and provide insights.
+                        </p>
+                      </div>
+                    )}
+                  </div>
               </div>
 
               {/* Consultation Context */}
@@ -724,7 +740,7 @@ export default function PostConsultationPage() {
                   />
 
                   {/* Suggestions Dropdown */}
-                  {(suggestions.length > 0 || isSearching) && (
+                  {(suggestions.length > 0 || isSearching || searchQuery.trim() !== "") && (
                     <div className="absolute z-50 left-0 right-0 top-[calc(100%+4px)] bg-white border border-border-default rounded-xl shadow-xl overflow-hidden max-h-80 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200 p-3 flex flex-col gap-2">
                       {isSearching ? (
                         <div className="p-4 text-center text-body-sm-medium text-text-placeholder">
