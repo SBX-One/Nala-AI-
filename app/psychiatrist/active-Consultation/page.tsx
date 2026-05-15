@@ -11,6 +11,7 @@ import {
   useLocalParticipant,
   TrackToggle,
   useParticipants,
+  RoomAudioRenderer,
 } from "@livekit/components-react";
 import "@livekit/components-styles";
 import { Track } from "livekit-client";
