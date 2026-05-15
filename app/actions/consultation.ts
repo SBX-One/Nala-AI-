@@ -74,6 +74,7 @@ export async function updateConsultation(
   id: number,
   data: {
     diagnose: string;
+    consultation_notes?: string;
     psychiatrist_feedback: string;
     status?: string;
     medicines?: { name: string; dose: string; use: string; notes: string }[];
