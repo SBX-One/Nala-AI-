@@ -12,6 +12,7 @@ import {
   TrackToggle,
   useParticipants,
   RoomAudioRenderer,
+  useAudioPlayback,
 } from "@livekit/components-react";
 import "@livekit/components-styles";
 import { Track } from "livekit-client";
@@ -139,6 +140,45 @@ function VideoCallSection({ onEndCall }: { onEndCall: () => void }) {
             </svg>
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function AudioPlaybackHandler() {
+  const { canPlayAudio, startAudio } = useAudioPlayback();
+  if (canPlayAudio) return null;
+
+  return (
+    <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+      <div className="text-center space-y-6 p-8 bg-white rounded-[32px] max-w-sm mx-4 animate-in fade-in zoom-in duration-300">
+        <div className="size-20 rounded-full bg-primary-50 flex items-center justify-center text-primary-500 mx-auto">
+          <svg
+            className="size-10"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path d="M11 5L6 9H2v6h4l5 4V5z" />
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+          </svg>
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-heading-6-bold text-text-heading">
+            Audio is Blocked
+          </h3>
+          <p className="text-body-base-regular text-text-placeholder">
+            Your browser has blocked audio playback. Click the button below to
+            enable sound for this consultation.
+          </p>
+        </div>
+        <button
+          onClick={startAudio}
+          className="w-full py-4 bg-primary-default text-white rounded-2xl text-label-base-semibold hover:bg-primary-dark shadow-lg shadow-primary-500/20 transition-all"
+        >
+          Enable Audio
+        </button>
       </div>
     </div>
   );
@@ -331,6 +371,7 @@ function ActiveConsultationContent() {
           >
             <VideoCallSection onEndCall={handleEndCall} />
             <RoomAudioRenderer />
+            <AudioPlaybackHandler />
           </LiveKitRoom>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-white/50 gap-4">
