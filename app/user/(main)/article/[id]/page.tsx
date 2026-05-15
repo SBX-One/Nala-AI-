@@ -12,14 +12,14 @@ export default async function page({
 	const { id } = await params;
 	const article = await getArticleById(parseInt(id));
 
-	if (!article) {
+	if (!article || article.status !== "published") {
 		notFound();
 	}
 
 	return (
-		<div className="flex flex-col gap-6">
+		<div className="flex flex-col gap-6 p-8 max-w-7xl mx-auto">
 			<Link
-				href="/psychiatrist/article"
+				href="/user/article"
 				className="flex items-center gap-2 text-text-subheading hover:text-text-action transition-colors w-fit"
 			>
 				<svg

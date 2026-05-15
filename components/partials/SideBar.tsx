@@ -4,6 +4,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import NalaLogo from "@/public/icon/Nala-Logo.svg";
+import Link from "next/link";
 import { signOut } from "@/app/auth/actions";
 
 import NavLink, { NavItemType } from "./navLink";
@@ -91,10 +92,18 @@ const navItems: NavItemType[] = [
 
 
 
-export default function SideBar() {
+export default function SideBar({ user, profile }: { user?: any; profile?: any }) {
 	const path = usePathname() || "";
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
+	const userName = profile?.name || "User";
+	const userEmail = user?.email || "user@example.com";
+	const avatarUrl =
+		profile?.avatar_url ||
+		`https://ui-avatars.com/api/?name=${encodeURIComponent(
+			userName,
+		)}&background=random`;
 
 	return (
 		<div className="flex flex-col  h-screen bg-surface-background border-r border-border-default px-4 py-8 justify-between">
@@ -130,28 +139,42 @@ export default function SideBar() {
 			</div>
 
 			{/* Bottom Section */}
-			<div className="flex flex-col mt-8 gap-4">
+			<div className="flex flex-col  gap-4">
 				<div className="flex flex-col gap-3">
-					<button suppressHydrationWarning className="button-primary-large w-full justify-center">
+					<Link
+						suppressHydrationWarning
+						href="/user/chat"
+						className="button-primary-large w-full justify-center"
+					>
 						Chat With Our AI
-					</button>
-					<button suppressHydrationWarning className="button-secondary-large w-full justify-center">
+					</Link>
+
+					<Link
+						suppressHydrationWarning
+						href="/user/session/booking"
+						className="button-secondary-large w-full justify-center"
+					>
 						Book Consultation
-					</button>
+					</Link>
 				</div>
 
 				{/* Profile Card */}
 				<div className="flex items-center justify-between pt-6 gap-2.5 border-t border-border-default">
 					<div className="flex items-center gap-3 overflow-hidden">
-						<div className="w-10 h-10 rounded-full bg-surface-disabled ">
-							{/* image */}
+						<div className="w-10 h-10 rounded-full bg-surface-disabled overflow-hidden relative">
+							<Image
+								src={avatarUrl}
+								alt="Avatar"
+								fill
+								className="object-cover"
+							/>
 						</div>
 						<div className="flex flex-col overflow-hidden">
-							<span className="text-label-base-semibold text-text-heading">
-								Andra Divano
+							<span className="text-label-base-semibold text-text-heading truncate">
+								{userName}
 							</span>
-							<span className="text-label-caption-medium text-text-subheading">
-								andradiva@gmail.com
+							<span className="text-label-caption-medium text-text-subheading truncate">
+								{userEmail}
 							</span>
 						</div>
 					</div>
@@ -197,7 +220,7 @@ export default function SideBar() {
 
 			{/* Custom Logout Confirmation Modal */}
 			{isLogoutModalOpen && (
-				<div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+				<div className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
 					<div className="bg-surface-background p-6 rounded-2xl shadow-xl w-full max-w-sm flex flex-col gap-4 border border-border-default">
 						<div className="flex flex-col gap-2">
 							<h3 className="text-heading-6-semibold text-text-heading">

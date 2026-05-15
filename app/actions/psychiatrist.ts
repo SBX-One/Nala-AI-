@@ -47,7 +47,9 @@ export async function getPsychiatrists() {
       PatientCount: Math.floor(Math.random() * 1000) + 100, // Dummy
       Price: p.price,
       rating: 4.8, // Dummy
+      sex: p.sex,
       availability: p.availability_times,
+      image: p.photo_url,
     };
   });
 }
