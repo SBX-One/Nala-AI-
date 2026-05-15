@@ -20,7 +20,6 @@ function DeviceTestModal({
   onClose,
   stream,
 }: {
-  sss;
   isOpen: boolean;
   onClose: () => void;
   stream: MediaStream | null;
@@ -289,7 +288,7 @@ function DeviceTestModal({
 function WaitingRoomContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const roomId = Number(searchParams.get("roomId")) || 0;
+  const consultationId = Number(searchParams.get("consultationId")) || Number(searchParams.get("roomId")) || 0;
 
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -300,10 +299,14 @@ function WaitingRoomContent() {
   const [psychiatrist, setPsychiatrist] = useState<Psychiatrist | null>(null);
   const [loading, setLoading] = useState(true);
   const [isTestModalOpen, setIsTestModalOpen] = useState(false);
+  const [roomStatus, setRoomStatus] = useState<string>("");
+  const [meetingRoomId, setMeetingRoomId] = useState<number | null>(null);
+  const [meetingRoomExists, setMeetingRoomExists] = useState(false);
 
   // Unified Media Logic
   useEffect(() => {
     let mounted = true;
+    let localStream: MediaStream | null = null;
 
     async function initMedia() {
       try {
@@ -346,6 +349,7 @@ function WaitingRoomContent() {
         }
 
         if (stream) {
+          localStream = stream;
           setMediaStream(stream);
           if (videoRef.current) {
             videoRef.current.srcObject = stream;
@@ -372,15 +376,14 @@ function WaitingRoomContent() {
 
     return () => {
       mounted = false;
-      if (mediaStream) {
-        mediaStream.getTracks().forEach((track) => track.stop());
+      if (localStream) {
+        localStream.getTracks().forEach((track) => track.stop());
       }
     };
-  }, [mediaStream]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array to prevent infinite loop
 
   const handleToggleMic = async () => {
     const nextMuted = !isMuted;
-    setIsMuted(nextMuted);
 
     if (!mediaStream && !nextMuted) {
       try {
@@ -389,9 +392,10 @@ function WaitingRoomContent() {
         });
         setMediaStream(stream);
         if (videoRef.current) videoRef.current.srcObject = stream;
+        setIsMuted(false);
       } catch (err) {
         console.warn("Failed to get audio:", err);
-        setIsMuted(true);
+        alert("Microphone access denied or device not found. Please check your browser permissions or hardware.");
       }
     } else if (mediaStream) {
       const audioTracks = mediaStream.getAudioTracks();
@@ -399,6 +403,7 @@ function WaitingRoomContent() {
         audioTracks.forEach((track) => {
           track.enabled = !nextMuted;
         });
+        setIsMuted(nextMuted);
       } else if (!nextMuted) {
         try {
           const stream = await navigator.mediaDevices.getUserMedia({
@@ -409,17 +414,19 @@ function WaitingRoomContent() {
             videoRef.current.srcObject = mediaStream;
           }
           setMediaStream(new MediaStream(mediaStream.getTracks()));
+          setIsMuted(false);
         } catch (err) {
           console.warn("Failed to get audio:", err);
-          setIsMuted(true);
+          alert("Microphone access denied or device not found. Please check your browser permissions or hardware.");
         }
+      } else {
+        setIsMuted(true);
       }
     }
   };
 
   const handleToggleCamera = async () => {
     const nextCameraOff = !isCameraOff;
-    setIsCameraOff(nextCameraOff);
 
     if (nextCameraOff) {
       if (mediaStream) {
@@ -429,11 +436,13 @@ function WaitingRoomContent() {
         });
         setMediaStream(new MediaStream(mediaStream.getTracks()));
       }
+      setIsCameraOff(true);
     } else {
       if (
         mediaStream &&
         mediaStream.getVideoTracks().some((t) => t.readyState === "live")
       ) {
+        setIsCameraOff(false);
         return;
       }
       try {
@@ -449,9 +458,10 @@ function WaitingRoomContent() {
           if (videoRef.current) videoRef.current.srcObject = mediaStream;
           setMediaStream(new MediaStream(mediaStream.getTracks()));
         }
+        setIsCameraOff(false);
       } catch (err) {
         console.warn("Error restarting camera:", err);
-        setIsCameraOff(true);
+        alert("Camera access denied or device not found. Please check your browser permissions or hardware.");
       }
     }
   };
@@ -462,46 +472,38 @@ function WaitingRoomContent() {
     let mounted = true;
 
     async function loadData() {
-      if (!roomId) return;
+      if (!consultationId) return;
 
-      const { data: room } = await supabase
-        .from("MeetingRoom")
-        .select(
-          `
+      const { data: consultation } = await supabase
+        .from("Consultation")
+        .select(`
+          *,
+          psychiatrist:PsychiatristProfile (
             *,
-            psychiatrist:PsychiatristProfile (
-              *,
-              expertises:PsychiatristExpertise (
-                expertise:Expertise (name)
-              )
+            expertises:PsychiatristExpertise (
+              expertise:Expertise (name)
             )
-          `,
-        )
-        .eq("id", roomId)
+          )
+        `)
+        .eq("id", consultationId)
         .single();
 
-      if (room && mounted) {
-        setRoomStatus(room.status);
-
-        // If already on-going, redirect immediately
-        if (room.status === "on-going") {
-          router.push(`/user/active-Consultation?roomId=${roomId}`);
-          return;
-        }
-
-        // Calculate time left based on start_time
-        if (room.start_time) {
-          const startTime = new Date(room.start_time).getTime();
+      if (consultation && mounted) {
+        if (consultation.date && consultation.start_time) {
+          const startDateTimeStr = `${consultation.date}T${consultation.start_time}`;
+          const startTime = new Date(startDateTimeStr).getTime();
           const now = new Date().getTime();
           const diffInSeconds = Math.max(
             0,
             Math.floor((startTime - now) / 1000),
           );
           setTimeLeft(diffInSeconds);
+        } else {
+          setTimeLeft(0);
         }
 
-        if (room.psychiatrist) {
-          const p = room.psychiatrist;
+        if (consultation.psychiatrist) {
+          const p = consultation.psychiatrist;
           setPsychiatrist({
             name: p.name || "Dr. Anonymous",
             specialization: p.specialization || "General Psychiatrist",
@@ -512,38 +514,58 @@ function WaitingRoomContent() {
             photo_url: p.photo_url,
           });
         }
+
+        const { data: room } = await supabase
+          .from("MeetingRoom")
+          .select("id, status")
+          .eq("user_id", consultation.user_id)
+          .eq("psychiatrist_id", consultation.psychiatrist_id)
+          .neq("status", "finished")
+          .limit(1)
+          .single();
+
+        if (room) {
+          setMeetingRoomId(room.id);
+          setRoomStatus(room.status);
+          setMeetingRoomExists(true);
+        } else {
+          setMeetingRoomExists(false);
+        }
       }
       if (mounted) setLoading(false);
     }
 
     loadData();
 
-    // Subscribe to room changes
+    return () => {
+      mounted = false;
+    };
+  }, [consultationId, router]);
+
+  useEffect(() => {
+    if (!meetingRoomId) return;
+    const supabase = createClient();
     const channel = supabase
-      .channel(`room-${roomId}`)
+      .channel(`room-${meetingRoomId}`)
       .on(
         "postgres_changes",
         {
           event: "UPDATE",
           schema: "public",
           table: "MeetingRoom",
-          filter: `id=eq.${roomId}`,
+          filter: `id=eq.${meetingRoomId}`,
         },
         (payload) => {
           const newStatus = payload.new.status;
           setRoomStatus(newStatus);
-          if (newStatus === "on-going") {
-            router.push(`/user/active-Consultation?roomId=${roomId}`);
-          }
         },
       )
       .subscribe();
 
     return () => {
-      mounted = false;
       supabase.removeChannel(channel);
     };
-  }, [roomId, router]);
+  }, [meetingRoomId, router]);
 
   useEffect(() => {
     if (timeLeft <= 0) return;
@@ -553,9 +575,45 @@ function WaitingRoomContent() {
     return () => clearInterval(timer);
   }, [timeLeft]);
 
+  // Fallback Polling if timer hits 0 but room doesn't exist yet
+  useEffect(() => {
+    if (timeLeft <= 0 && !meetingRoomExists && !loading && consultationId) {
+      const interval = setInterval(async () => {
+        const supabase = createClient();
+        const { data: consultation } = await supabase
+          .from("Consultation")
+          .select("user_id, psychiatrist_id")
+          .eq("id", consultationId)
+          .single();
+
+        if (consultation) {
+          const { data: room } = await supabase
+            .from("MeetingRoom")
+            .select("id, status")
+            .eq("user_id", consultation.user_id)
+            .eq("psychiatrist_id", consultation.psychiatrist_id)
+            .neq("status", "finished")
+            .limit(1)
+            .single();
+
+          if (room) {
+            setMeetingRoomId(room.id);
+            setRoomStatus(room.status);
+            setMeetingRoomExists(true);
+          }
+        }
+      }, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [timeLeft, meetingRoomExists, loading, consultationId]);
+
   const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
+    const hours = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
+    if (hours > 0) {
+      return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    }
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
@@ -573,6 +631,8 @@ function WaitingRoomContent() {
       </div>
     );
   }
+
+  const isJoinEnabled = timeLeft <= 0 && meetingRoomExists && roomStatus === "on_going";
 
   return (
     <div className="min-h-screen w-full bg-surface-background flex flex-col">
@@ -632,7 +692,7 @@ function WaitingRoomContent() {
             <div className="flex items-center gap-4  rounded-3xl px-4 py-2 border border-border-default">
               <button
                 onClick={handleToggleMic}
-                className={`size-12 rounded-full flex items-center justify-center transition-all border border-border-default ${isMuted ? "button-error-small" : "bg-surface-default text-text-heading hover:bg-surface-disabled"}`}
+                className={`size-12 rounded-full flex items-center justify-center transition-all border ${isMuted ? "bg-button-error text-white border-transparent" : "border-border-default bg-surface-default text-text-heading hover:bg-surface-disabled"}`}
               >
                 {isMuted ? (
                   <svg
@@ -664,7 +724,7 @@ function WaitingRoomContent() {
               </button>
               <button
                 onClick={handleToggleCamera}
-                className={`size-12 rounded-full flex items-center justify-center transition-all border border-border-default ${isCameraOff ? "button-error-small " : "bg-surface-default text-text-heading hover:bg-surface-disabled"}`}
+                className={`size-12 rounded-full flex items-center justify-center transition-all border ${isCameraOff ? "bg-button-error text-white border-transparent" : "border-border-default bg-surface-default text-text-heading hover:bg-surface-disabled"}`}
               >
                 {isCameraOff ? (
                   <svg
@@ -785,27 +845,36 @@ function WaitingRoomContent() {
               <h2 className="text-display-bold text-text-body leading-none tabular-nums">
                 {formatTime(timeLeft)}
               </h2>
-              <button
-                disabled={timeLeft > 0}
-                className={` ${timeLeft > 0 ? "button-disabled-large" : "button-primary-large"}`}
-                onClick={() =>
-                  router.push(`/user/active-Consultation?roomId=${roomId}`)
-                }
-              >
-                {timeLeft > 0 && (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="size-5"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2s2 .9 2 2s-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"
-                    />
-                  </svg>
-                )}
-                Join Room
-              </button>
+              <div className="flex gap-4 w-full">
+                <button
+                  className="button-secondary-large flex-1 justify-center"
+                  onClick={() => window.location.reload()}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="size-5" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 11A8.1 8.1 0 0 0 4.5 9M4 5v4h4m-4 4a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/></svg>
+                  Refresh
+                </button>
+                <button
+                  disabled={!isJoinEnabled}
+                  className={`flex-1 justify-center ${!isJoinEnabled ? "button-disabled-large" : "button-primary-large"}`}
+                  onClick={() => {
+                    if (meetingRoomId) router.push(`/user/active-Consultation?roomId=${meetingRoomId}`);
+                  }}
+                >
+                  {!isJoinEnabled && (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="size-5"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        fill="currentColor"
+                        d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2s2 .9 2 2s-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"
+                      />
+                    </svg>
+                  )}
+                  Join Room
+                </button>
+              </div>
             </div>
           </div>
         </div>

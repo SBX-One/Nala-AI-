@@ -34,10 +34,19 @@ export default async function page() {
 		return scoreA - scoreB;
 	});
 
-	// Find if there is a session today
-	const currentSessionRaw = consultations.find(
-		(c: any) => new Date(c.date).toISOString().split("T")[0] === today,
-	);
+	const currentTime = todayDate.toTimeString().slice(0, 5); // "HH:MM"
+
+	// Find if there is an active session today (not finished/draft/published and time not over)
+	const currentSessionRaw = consultations
+		.filter(
+			(c: any) => {
+				const isToday = new Date(c.date).toISOString().split("T")[0] === today;
+				const isPendingOrOngoing = c.status === "pending" || c.status === "on_going" || c.status === "on-going";
+				const isTimeNotOver = c.end_time.slice(0, 5) >= currentTime;
+				return isToday && isPendingOrOngoing && isTimeNotOver;
+			}
+		)
+		.sort((a: any, b: any) => a.start_time.localeCompare(b.start_time))[0];
 
 	let currentSession = null;
 	if (currentSessionRaw) {
@@ -50,15 +59,17 @@ export default async function page() {
 				currentSessionRaw.psychiatrist?.specialization || "Psychiatrist",
 			time: currentSessionRaw.start_time.slice(0, 5),
 			id: currentSessionRaw.id,
-			roomId: roomId,
+			roomId: currentSessionRaw.id, // Pass consultationId to Waiting Room
 		};
 	}
 
-	// Upcoming are future ones or today but different from currentSession
+	// Upcoming are future ones or today but different from currentSession, and not finished/over
 	const upcomingAppointments = consultations
 		.filter((c: any) => {
 			const cDate = new Date(c.date).toISOString().split("T")[0];
-			return cDate >= today && c.id !== currentSessionRaw?.id;
+			const isPendingOrOngoing = c.status === "pending" || c.status === "on_going" || c.status === "on-going";
+			const isTimeNotOver = cDate > today || (cDate === today && c.end_time.slice(0, 5) >= currentTime);
+			return cDate >= today && isPendingOrOngoing && isTimeNotOver && c.id !== currentSessionRaw?.id;
 		})
 		.map((c: any) => {
 			const dateObj = new Date(c.date);
