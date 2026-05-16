@@ -13,6 +13,17 @@ import TiptapEditor from "@/components/partials/TiptapEditor";
 import UnsavedChangesModal from "@/components/partials/UnsavedChangesModal";
 import Image from "next/image";
 
+interface ArticleFormState {
+  title: string;
+  overview: string;
+  content: string;
+  categoryId: number;
+  imageUrl: string;
+  status: string;
+  topicIds: number[];
+  otherTopic: string;
+}
+
 export default function CreateArticlePage() {
   const router = useRouter();
   const supabase = createClient();
@@ -25,15 +36,15 @@ export default function CreateArticlePage() {
     "category" | "topics" | null
   >(null);
 
-  const [formData, setFormData] = useState(() => {
-    const initialState = {
+  const [formData, setFormData] = useState<ArticleFormState>(() => {
+    const initialState: ArticleFormState = {
       title: "",
       overview: "",
       content: "",
       categoryId: 0,
       imageUrl: "",
       status: "draft",
-      topicIds: [] as number[],
+      topicIds: [],
       otherTopic: "",
     };
     if (typeof window !== "undefined") {
@@ -88,7 +99,7 @@ export default function CreateArticlePage() {
       const cats = await getArticleCategories();
       setCategories(cats);
       if (cats.length > 0) {
-        setFormData((prev: any) => ({ ...prev, categoryId: cats[0].id }));
+        setFormData((prev) => ({ ...prev, categoryId: cats[0].id }));
       }
     };
     fetchCats();

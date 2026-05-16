@@ -15,6 +15,17 @@ import TiptapEditor from "@/components/partials/TiptapEditor";
 import Image from "next/image";
 import UnsavedChangesModal from "@/components/partials/UnsavedChangesModal";
 
+interface ArticleFormState {
+  title: string;
+  overview: string;
+  content: string;
+  categoryId: number;
+  imageUrl: string;
+  status: string;
+  topicIds: number[];
+  otherTopic: string;
+}
+
 export default function EditArticlePage() {
   const router = useRouter();
   const params = useParams();
@@ -29,14 +40,14 @@ export default function EditArticlePage() {
     "category" | "topics" | null
   >(null);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ArticleFormState>({
     title: "",
     overview: "",
     content: "",
     categoryId: 0,
     imageUrl: "",
     status: "draft",
-    topicIds: [] as number[],
+    topicIds: [],
     otherTopic: "",
   });
   const [isOtherSelected, setIsOtherSelected] = useState(false);
@@ -180,7 +191,7 @@ export default function EditArticlePage() {
   };
 
   const toggleTopic = (id: number) => {
-    setFormData((prev: any) => {
+    setFormData((prev) => {
       const newData = {
         ...prev,
         topicIds: prev.topicIds.includes(id)
