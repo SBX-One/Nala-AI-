@@ -35,7 +35,10 @@ async function main() {
     await prisma.articleCategoryTopic.upsert({
       where: { id: topics.indexOf(top) + 1 },
       update: {},
-      create: { name: top }
+      create: { 
+        name: top,
+        category_id: 1
+      }
     });
   }
 
