@@ -8,15 +8,27 @@ import { useState } from "react";
 export default function DailyRecommendationCard() {
 	const [items, setItems] = useState([
 		{ id: 1, title: "Drink 4L of Water", time: "12.00 PM", completed: true },
-		{ id: 2, title: "Meditate for 15 Minutes", completed: false },
-		{ id: 3, title: "Eat 5 Servings of Vegetables", completed: false },
+		{ id: 2, title: "Meditate for 15 Minutes", time: null as string | null, completed: false },
+		{ id: 3, title: "Eat 5 Servings of Vegetables", time: null as string | null, completed: false },
 	]);
 
 	const toggleTask = (id: number) => {
 		setItems((prev) =>
-			prev.map((item) =>
-				item.id === id ? { ...item, completed: !item.completed } : item,
-			),
+			prev.map((item) => {
+				if (item.id === id) {
+					const isCompleting = !item.completed;
+					const currentTime = isCompleting
+						? new Date().toLocaleTimeString("en-US", {
+								hour: "2-digit",
+								minute: "2-digit",
+								hour12: true,
+							}).replace(":", ".")
+						: null;
+
+					return { ...item, completed: isCompleting, time: currentTime };
+				}
+				return item;
+			}),
 		);
 	};
 
@@ -57,7 +69,7 @@ export default function DailyRecommendationCard() {
 						>
 							{item.title}
 						</span>
-						{item.time && (
+						{item.completed && item.time && (
 							<span className="text-body-caption-medium text-text-subheading">
 								{item.time}
 							</span>
@@ -66,14 +78,6 @@ export default function DailyRecommendationCard() {
 				))}
 			</div>
 
-			{/* Footer */}
-			<div className="mt-8 flex items-center gap-4">
-				<div className="h-px bg-border-default flex-1"></div>
-				<button className="text-label-caption-semibold text-text-subheading hover:text-text-action transition-colors">
-					Show More
-				</button>
-				<div className="h-px bg-border-default flex-1"></div>
-			</div>
 		</div>
 	);
 }
