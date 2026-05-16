@@ -75,22 +75,24 @@ export default function InformationBar() {
   const formattedTitle = formatPath(path);
 
   return (
-    <div className="flex px-4 py-3 border-b w-full border-b-border-default items-center justify-between bg-surface-background">
-      <div className="flex gap-4 items-center justify-start w-full">
+    <div className="flex px-4 py-2 md:py-3 border-b w-full border-b-border-default items-center justify-between bg-surface-background gap-4">
+      <div className="flex gap-2 md:gap-4 items-center justify-start shrink-0">
         <Image
           src={nalaLogo}
           alt="Nala-Logo"
           priority
-          className="w-12.5 h-10"
+          className="w-8 h-6 md:w-12.5 md:h-10"
         />
-        <p className="text-body-xl-bold text-text-heading">{formattedTitle}</p>
+        <p className="text-body-sm-bold md:text-body-xl-bold text-text-heading whitespace-nowrap">
+          {formattedTitle}
+        </p>
       </div>
 
-      <div className="flex items-center gap-6 w-full justify-end">
-        <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 md:gap-6 justify-end min-w-0">
+        <div className="flex items-center gap-2 md:gap-4 shrink-0">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="size-6 text-icon-default cursor-pointer hover:text-text-heading transition-colors"
+            className="size-5 md:size-6 text-icon-default cursor-pointer hover:text-text-heading transition-colors"
             viewBox="0 0 24 24"
           >
             <path
@@ -100,7 +102,7 @@ export default function InformationBar() {
           </svg>
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="size-6 text-icon-default cursor-pointer hover:text-text-heading transition-colors"
+            className="size-5 md:size-6 text-icon-default cursor-pointer hover:text-text-heading transition-colors"
             viewBox="0 0 24 24"
           >
             <path
@@ -111,8 +113,8 @@ export default function InformationBar() {
         </div>
 
         {user && (
-          <div className="p-2 border border-border-default flex items-center rounded-full bg-white gap-3 pr-4 ">
-            <div className="size-8 rounded-full overflow-hidden bg-primary-100 flex items-center justify-center shrink-0">
+          <div className="p-1 md:p-2 border border-border-default flex items-center rounded-full bg-white gap-2 md:gap-3 md:pr-4 shrink-0">
+            <div className="size-7 md:size-8 rounded-full overflow-hidden bg-primary-100 flex items-center justify-center shrink-0">
               {user.avatar ? (
                 <img
                   src={user.avatar}
@@ -120,12 +122,12 @@ export default function InformationBar() {
                   className="size-full object-cover"
                 />
               ) : (
-                <span className="text-label-small-bold text-primary-700">
+                <span className="text-[10px] md:text-label-small-bold text-primary-700">
                   {getInitials(user.name)}
                 </span>
               )}
             </div>
-            <div className="flex flex-col min-w-[100px]">
+            <div className="hidden md:flex flex-col min-w-[100px]">
               <p className="text-label-small-bold text-text-heading leading-tight truncate">
                 {user.name}
               </p>

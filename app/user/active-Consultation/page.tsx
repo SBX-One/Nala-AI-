@@ -118,15 +118,15 @@ function VideoCallSection({
 			</div>
 
 			{/* Controls */}
-			<div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-30">
-				<div className="flex items-center gap-4 bg-white/10 backdrop-blur-xl rounded-[2rem] px-6 py-3 border border-white/20 shadow-2xl">
+			<div className="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 z-30">
+				<div className="flex items-center gap-2 md:gap-4 bg-white/10 backdrop-blur-xl rounded-full px-3 md:px-6 py-2 md:py-3 border border-white/20 shadow-2xl">
 					<button
 						onClick={() =>
 							localParticipant.setMicrophoneEnabled(
 								!isMicrophoneEnabled,
 							)
 						}
-						className={`size-12 rounded-full flex items-center justify-center transition-all border ${
+						className={`size-10 md:size-12 rounded-full flex items-center justify-center transition-all border ${
 							!isMicrophoneEnabled
 								? "bg-error-default text-white border-transparent"
 								: "border-white/20 bg-white/10 text-white hover:bg-white/20"
@@ -135,7 +135,7 @@ function VideoCallSection({
 						{!isMicrophoneEnabled ? (
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
-								className="size-6"
+								className="size-5 md:size-6"
 								viewBox="0 0 24 24"
 							>
 								<path
@@ -146,7 +146,7 @@ function VideoCallSection({
 						) : (
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
-								className="size-6"
+								className="size-5 md:size-6"
 								viewBox="0 0 24 24"
 							>
 								<path
@@ -165,7 +165,7 @@ function VideoCallSection({
 						onClick={() =>
 							localParticipant.setCameraEnabled(!isCameraEnabled)
 						}
-						className={`size-12 rounded-full flex items-center justify-center transition-all border ${
+						className={`size-10 md:size-12 rounded-full flex items-center justify-center transition-all border ${
 							!isCameraEnabled
 								? "bg-error-default text-white border-transparent"
 								: "border-white/20 bg-white/10 text-white hover:bg-white/20"
@@ -174,7 +174,7 @@ function VideoCallSection({
 						{!isCameraEnabled ? (
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
-								className="size-6"
+								className="size-5 md:size-6"
 								viewBox="0 0 24 24"
 							>
 								<path
@@ -185,7 +185,7 @@ function VideoCallSection({
 						) : (
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
-								className="size-6"
+								className="size-5 md:size-6"
 								viewBox="0 0 24 24"
 							>
 								<path
@@ -198,7 +198,7 @@ function VideoCallSection({
 
 					<button
 						onClick={() => setIsChatOpen(!isChatOpen)}
-						className={`size-12 rounded-full flex lg:hidden items-center justify-center transition-all border ${
+						className={`size-10 md:size-12 rounded-full flex lg:hidden items-center justify-center transition-all border ${
 							isChatOpen
 								? "bg-primary-default text-white border-transparent"
 								: "border-white/20 bg-white/10 text-white hover:bg-white/20"
@@ -206,7 +206,7 @@ function VideoCallSection({
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
-							className="size-6"
+							className="size-5 md:size-6"
 							viewBox="0 0 24 24"
 							fill="none"
 							stroke="currentColor"
@@ -218,16 +218,16 @@ function VideoCallSection({
 						</svg>
 					</button>
 
-					<div className="w-px h-8 bg-white/20 mx-1" />
+					<div className="w-px h-6 md:h-8 bg-white/20 mx-1" />
 
 					<button
 						onClick={onEndCall}
-						className="size-12 rounded-full bg-error-default text-white flex items-center justify-center hover:bg-red-700 transition-all shadow-lg"
+						className="size-10 md:size-12 rounded-full bg-error-default text-white flex items-center justify-center hover:bg-red-700 transition-all shadow-lg"
 						title="End Call"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
-							className="size-6"
+							className="size-5 md:size-6"
 							viewBox="0 0 24 24"
 						>
 							<path
