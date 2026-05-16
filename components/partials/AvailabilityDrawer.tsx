@@ -77,13 +77,34 @@ export default function AvailabilityDrawer({
       onClick={onClose}
     >
       <div 
-        className="bg-white w-full max-w-lg h-full rounded-l-3xl shadow-2xl overflow-hidden flex flex-col animate-in slide-in-from-right duration-300"
+        className="bg-white w-full md:max-w-lg h-full md:rounded-l-3xl shadow-2xl overflow-hidden flex flex-col animate-in slide-in-from-right duration-300"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-8 flex-1 overflow-y-auto">
-          <h2 className="text-heading-4-bold text-text-heading mb-8">
-            Filter Availability
-          </h2>
+        <div className="p-6 sm:p-8 flex-1 overflow-y-auto">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-heading-6-bold sm:text-heading-4-bold text-text-heading">
+              Filter Availability
+            </h2>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-surface-default rounded-full text-icon-default transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="size-6"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M18 6L6 18M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
 
           <div className="bg-surface-default p-6 rounded-3xl border border-border-default mb-8">
             <div className="flex justify-between items-center mb-6 px-2">

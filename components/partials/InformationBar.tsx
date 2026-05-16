@@ -8,15 +8,47 @@ export default function InformationBar() {
   const { toggle } = useSidebar();
 
   const formatPath = (path: string) => {
-    // Handle root or base psychiatrist path
-    if (path === "/psychiatrist" || path === "/psychiatrist/")
-      return "Dashboard";
-
     const segments = path.split("/").filter(Boolean);
+    if (segments.length === 0) return "Dashboard";
+
+    // Base paths
+    if (segments.length === 1 && (segments[0] === "user" || segments[0] === "psychiatrist")) {
+      return "Dashboard";
+    }
+
+    const isUser = segments[0] === "user";
+    const isPsych = segments[0] === "psychiatrist";
+
+    if (isUser) {
+      // Mapping for user paths
+      if (segments[1] === "article") return "Article";
+      if (segments[1] === "chat") return "Chat";
+      if (segments[1] === "habit-tracker") return "Habit Tracker";
+      if (segments[1] === "profile") return "Profile";
+      
+      if (segments[1] === "session") {
+        if (segments[2] === "booking") return "Booking";
+        if (segments[2] === "history") return "History";
+        return "Sessions";
+      }
+    }
+
+    if (isPsych) {
+      if (segments[1] === "consultation") {
+        if (segments[2] === "queue") return "Queue";
+        if (segments[2] === "history") return "History";
+        return "Consultation";
+      }
+      if (segments[1] === "schedule") return "Schedule";
+      if (segments[1] === "article") return "Article";
+      if (segments[1] === "profile") return "Profile";
+    }
+
     const lastSegment = segments[segments.length - 1] || "";
-    
-    // Capitalize and clean up segment name
-    return lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1).replace(/-/g, " ");
+    return (
+      lastSegment.charAt(0).toUpperCase() +
+      lastSegment.slice(1).replace(/-/g, " ")
+    );
   };
 
   const formattedTitle = formatPath(path);
@@ -26,7 +58,7 @@ export default function InformationBar() {
       <div className="flex gap-4 items-center justify-center">
         <button
           onClick={toggle}
-          className="p-2 -ml-2 lg:hidden text-icon-default hover:bg-surface-default rounded-lg transition-colors"
+          className="p-2 -ml-2 xl:hidden text-icon-default hover:bg-surface-default rounded-lg transition-colors"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

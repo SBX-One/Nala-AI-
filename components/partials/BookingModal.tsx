@@ -52,28 +52,68 @@ export default function BookingModal({
 }: BookingModalProps) {
   if (!isOpen) return null;
 
+  const getInitials = (name: string) => {
+    const cleanName = name.replace(/^Dr\.?\s+/i, "");
+    const parts = cleanName.split(" ");
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return cleanName.substring(0, 2).toUpperCase();
+  };
+
   return (
     <div 
       className="fixed inset-0 bg-black/50 z-100 flex justify-end items-center "
       onClick={onClose}
     >
       <div 
-        className="bg-white w-full max-w-lg h-full rounded-l-3xl shadow-2xl overflow-hidden flex flex-col"
+        className="bg-white w-full md:max-w-lg h-full md:rounded-l-3xl shadow-2xl overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="px-8 pt-8 pb-4 flex justify-between items-center">
+        <div className="px-6 sm:px-8 pt-6 sm:pt-8 pb-4 flex justify-between items-center">
           <h2 className="text-heading-6-bold text-text-heading">
             {step === 1 ? "Book Specialist" : "Payment"}
           </h2>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-surface-default rounded-full text-icon-default transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="size-6"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M18 6L6 18M6 6l12 12"
+              />
+            </svg>
+          </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-8 pb-8">
+        <div className="flex-1 overflow-y-auto px-6 sm:px-8 pb-8">
           {step === 1 ? (
             <div className="flex flex-col gap-8">
               {/* Specialist Mini Card */}
               <div className="flex items-center gap-4 rounded-2xl">
-                <div className="bg-surface-disabled size-20 rounded-lg shrink-0"></div>
+                <div className="bg-surface-disabled size-20 rounded-lg overflow-hidden shrink-0">
+                  {selectedPsychiatrist?.image ? (
+                    <img 
+                      src={selectedPsychiatrist.image} 
+                      alt={selectedPsychiatrist.name} 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-primary-100 text-primary-700 text-heading-5-bold">
+                      {getInitials(selectedPsychiatrist?.name || "??")}
+                    </div>
+                  )}
+                </div>
                 <div className="grid">
                   <p className="text-body-xl-semibold">
                     {selectedPsychiatrist?.name}
@@ -89,7 +129,7 @@ export default function BookingModal({
                 <p className="text-label-base-bold text-text-label">
                   Select Date
                 </p>
-                <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
                   {availableDates.map((d, idx) => (
                     <button
                       key={idx}
@@ -204,6 +244,22 @@ export default function BookingModal({
                 </div>
                 <hr className="border-border-default" />
               </div>
+
+              {/* QRIS Display */}
+              {paymentMethod === "QRIS" && (
+                <div className="flex flex-col items-center gap-4 p-6 bg-surface-default rounded-2xl border border-border-default">
+                  <div className="bg-white p-4 rounded-xl shadow-sm border border-border-default">
+                    <img 
+                      src="/images/qris.jpeg" 
+                      alt="QRIS" 
+                      className="w-full max-w-[240px] h-auto object-contain"
+                    />
+                  </div>
+                  <p className="text-body-sm-medium text-text-subheading text-center">
+                    Scan QR code di atas untuk melakukan pembayaran
+                  </p>
+                </div>
+              )}
 
               {/* Card Form - Only for Credit Card */}
               {paymentMethod === "Credit Card" && (

@@ -88,31 +88,34 @@ function PostConsultationContent() {
 		<div className="min-h-screen bg-surface-default flex flex-col w-full">
 			<InformationBar />
 
-			<main className="py-12 overflow-y-auto">
-				<div className="w-fit mx-auto flex flex-col gap-4">
+			<main className="py-6 sm:py-12 px-4 sm:px-6 flex-1 overflow-y-auto">
+				<div className="max-w-5xl mx-auto flex flex-col gap-6">
 					{/* Status Card */}
-					<div className=" bg-surface-background rounded-2xl py-8 px-16 border border-border-default flex items-center gap-16 justify-between ">
-						<Image
-							src={doctorsImg}
-							alt="Consultation Ended"
-							className=""
-						/>
+					<div className="bg-surface-background rounded-3xl py-8 px-6 sm:px-12 md:px-16 border border-border-default flex flex-col sm:flex-row items-center gap-8 sm:gap-16 justify-between text-center sm:text-left">
+						<div className="relative w-48 sm:w-auto">
+							<Image
+								src={doctorsImg}
+								alt="Consultation Ended"
+								className="w-full h-auto"
+							/>
+						</div>
 
-						<div className="flex-1 flex flex-col gap-2">
-							<h1 className="text-heading-5-semibold text-text-heading">
+						<div className="flex-1 flex flex-col gap-3">
+							<h1 className="text-heading-6-bold sm:text-heading-5-semibold text-text-heading">
 								Your Consultation Has Been Ended
 							</h1>
 							<p className="text-body-base-medium text-text-subheading max-w-lg">
 								Please wait for psychiatry to write your
-								feedback and medicine for you!, we will notified
-								when its ready.
+								feedback and medicine for you! We will notify
+								you when it's ready.
 							</p>
 						</div>
 					</div>
 
-					<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start ">
+
+					<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
 						{/* Left: Psychiatrist Info */}
-						<div className=" bg-surface-background border border-border-default rounded-3xl p-6 flex flex-col gap-6 h-fit">
+						<div className="bg-surface-background border border-border-default rounded-3xl p-6 sm:p-8 flex flex-col gap-6 h-fit shadow-sm">
 							{psychiatrist && (
 								<>
 									<div className="flex items-center gap-4">
@@ -184,7 +187,7 @@ function PostConsultationContent() {
 								</h3>
 
 								{/* Stars */}
-								<div className="flex items-center justify-center ">
+								<div className="flex items-center justify-center gap-1">
 									{[1, 2, 3, 4, 5].map((star) => (
 										<button
 											key={star}
@@ -201,10 +204,7 @@ function PostConsultationContent() {
 											star ? (
 												<svg
 													xmlns="http://www.w3.org/2000/svg"
-													width="1em"
-													height="1em"
-													className="size-16 text-text-rating
-                          "
+													className="size-10 sm:size-16 text-text-rating"
 													viewBox="0 0 24 24"
 												>
 													<path
@@ -219,10 +219,8 @@ function PostConsultationContent() {
 											) : (
 												<svg
 													xmlns="http://www.w3.org/2000/svg"
-													width="1em"
-													height="1em"
 													viewBox="0 0 24 24"
-													className={`size-16`}
+													className="size-10 sm:size-16 text-neutral-300"
 												>
 													<path
 														d="M0 0h24v24H0z"
@@ -271,17 +269,17 @@ function PostConsultationContent() {
 								</div>
 							</div>
 						</div>
-						<div className=" flex items-center gap-4 w-full justify-end col-start-2">
+						<div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:justify-end lg:col-start-2">
 							<button
 								onClick={() => router.push("/user")}
-								className="button-outline-medium"
+								className="button-outline-large w-full sm:w-auto justify-center"
 							>
 								Skip
 							</button>
 							<button
 								onClick={handleSubmit}
 								disabled={isSubmitting}
-								className="button-primary-medium"
+								className="button-primary-large w-full sm:w-auto justify-center"
 							>
 								{isSubmitting
 									? "Submitting..."

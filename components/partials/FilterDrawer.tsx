@@ -44,11 +44,32 @@ export default function FilterDrawer({
 			/>
 
 			{/* Drawer Content */}
-			<div className="relative w-full max-w-lg bg-surface-background h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300 rounded-l-3xl">
-				<div className="p-8 flex-1 overflow-y-auto">
-					<h2 className="text-heading-4-bold text-text-heading mb-8">
-						Filter Specialist
-					</h2>
+			<div className="relative w-full md:max-w-lg bg-surface-background h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300 md:rounded-l-3xl">
+				<div className="p-6 sm:p-8 flex-1 overflow-y-auto">
+					<div className="flex items-center justify-between mb-8">
+						<h2 className="text-heading-6-bold sm:text-heading-4-bold text-text-heading">
+							Filter Specialist
+						</h2>
+						<button
+							onClick={onClose}
+							className="p-2 hover:bg-surface-default rounded-full text-icon-default transition-colors"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								className="size-6"
+								viewBox="0 0 24 24"
+							>
+								<path
+									fill="none"
+									stroke="currentColor"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth="2"
+									d="M18 6L6 18M6 6l12 12"
+								/>
+							</svg>
+						</button>
+					</div>
 
 					{/* Expertise Section */}
 					<div className="flex flex-col gap-4 mb-8">
@@ -268,11 +289,11 @@ export default function FilterDrawer({
 				</div>
 
 				{/* Footer Actions */}
-				<div className="p-8 flex gap-4 mt-auto">
-					<button onClick={onSave} className="button-primary-large">
+				<div className="p-6 sm:p-8 flex gap-4 mt-auto border-t border-border-default bg-white">
+					<button onClick={onSave} className="button-primary-large flex-1 justify-center">
 						Save Filter
 					</button>
-					<button onClick={onClear} className="button-outline-large">
+					<button onClick={onClear} className="button-outline-large flex-1 justify-center">
 						Clear Filter
 					</button>
 				</div>

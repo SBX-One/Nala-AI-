@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 interface PsychiatristCardProps {
   psychiatrist: any;
   onBookClick: (psychiatrist: any) => void;
@@ -40,7 +42,9 @@ export default function PsychiatristCard({
           </div>
           <div className="w-fit grid gap-3">
             <div>
-              <p className="text-body-xl-semibold">{i.name}</p>
+              <Link href={`/user/session/booking/${i.id}`} className="hover:text-text-action transition-colors group/name">
+                <p className="text-body-xl-semibold group-hover/name:underline">{i.name}</p>
+              </Link>
               <p className="text-body-sm-semibold text-text-action">
                 {i.spesialist}
               </p>

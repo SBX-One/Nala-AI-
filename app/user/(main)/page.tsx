@@ -116,32 +116,36 @@ export default async function page() {
 				<p className="text-label-small-medium text-text-subheading">
 					Welcome to your daily board
 				</p>
-				<p className="text-heading-2-bold ">
+				<p className="text-heading-4-bold sm:text-heading-2-bold">
 					Good Morning,{" "}
-					<span className="text-text-action">{profile?.name || "User"}</span>{" "}
+					<span className="text-text-action block sm:inline">
+						{profile?.name || "User"}
+					</span>{" "}
 				</p>
-				<div className="flex justify-between items-center">
-					<div className="rounded-full border border-border-default p-4 bg-surface-primary-light w-fit flex gap-3 items-center">
+				<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
+					<div className="rounded-full border border-border-default p-3 sm:p-4 bg-surface-primary-light w-full sm:w-fit flex gap-3 items-center">
 						<Image
 							src={PlantIcon}
 							alt="Plant-Icon"
 							priority
-							className="size-4.5"
+							className="size-4.5 shrink-0"
 						/>
-						<p className="text-body-base-medium text-text-body">
+						<p className="text-body-sm-medium sm:text-body-base-medium text-text-body italic">
 							&quot;Every day is a new opportunity to grow.&quot;
 						</p>
 					</div>
-					<div className="flex gap-3  items-end">
-						<Link href="/user/session/booking"
+					<div className="flex gap-3 items-center w-full sm:w-auto">
+						<Link
+							href="/user/session/booking"
 							suppressHydrationWarning
-							className="button-primary-medium"
+							className="button-primary-medium flex-1 sm:flex-none justify-center"
 						>
 							Book Session
 						</Link>
-						<Link href="/user/chat"
+						<Link
+							href="/user/chat"
 							suppressHydrationWarning
-							className="button-secondary-medium"
+							className="button-secondary-medium flex-1 sm:flex-none justify-center"
 						>
 							Chat With AI
 						</Link>

@@ -74,6 +74,9 @@ importers:
       ai:
         specifier: ^6.0.175
         version: 6.0.180(zod@4.4.3)
+      dotenv:
+        specifier: ^17.4.2
+        version: 17.4.2
       livekit:
         specifier: ^0.0.1
         version: 0.0.1
