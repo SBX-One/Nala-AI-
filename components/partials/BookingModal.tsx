@@ -245,6 +245,22 @@ export default function BookingModal({
                 <hr className="border-border-default" />
               </div>
 
+              {/* QRIS Display */}
+              {paymentMethod === "QRIS" && (
+                <div className="flex flex-col items-center gap-4 p-6 bg-surface-default rounded-2xl border border-border-default">
+                  <div className="bg-white p-4 rounded-xl shadow-sm border border-border-default">
+                    <img 
+                      src="/images/qris.jpeg" 
+                      alt="QRIS" 
+                      className="w-full max-w-[240px] h-auto object-contain"
+                    />
+                  </div>
+                  <p className="text-body-sm-medium text-text-subheading text-center">
+                    Scan QR code di atas untuk melakukan pembayaran
+                  </p>
+                </div>
+              )}
+
               {/* Card Form - Only for Credit Card */}
               {paymentMethod === "Credit Card" && (
                 <div className="flex flex-col gap-5">

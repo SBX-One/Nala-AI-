@@ -7,187 +7,222 @@ import starIcon from "@/public/icon/starWhite.svg";
 import starIconDefault from "@/public/icon/starDefault.svg";
 
 interface Message {
-  id?: string;
-  role: "user" | "assistant";
-  content: string;
-  created_at?: string;
-  isAnalysis?: boolean; // For special AI Analysis card
+	id?: string;
+	role: "user" | "assistant";
+	content: string;
+	created_at?: string;
+	isAnalysis?: boolean; // For special AI Analysis card
 }
 
 interface ChatSession {
-  id: string;
-  title: string;
-  updated_at: string;
-  messages?: { content: string }[];
+	id: string;
+	title: string;
+	updated_at: string;
+	messages?: { content: string }[];
 }
 
 export default function NalaChatPage() {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSessionsLoading, setIsSessionsLoading] = useState(true);
-  const [sessions, setSessions] = useState<ChatSession[]>([]);
-  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+	const [messages, setMessages] = useState<Message[]>([]);
+	const [input, setInput] = useState("");
+	const [isLoading, setIsLoading] = useState(false);
+	const [isSessionsLoading, setIsSessionsLoading] = useState(true);
+	const [sessions, setSessions] = useState<ChatSession[]>([]);
+	const [currentSessionId, setCurrentSessionId] = useState<string | null>(
+		null,
+	);
+	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const scrollRef = useRef<HTMLDivElement>(null);
+	const scrollRef = useRef<HTMLDivElement>(null);
 
-  // 1. Fetch all chat sessions (History Sidebar)
-  const fetchSessions = useCallback(async () => {
-    try {
-      const res = await fetch("/api/ai/sessions");
-      const data = await res.json();
-      if (!data.error) {
-        setSessions(data);
-      }
-    } catch (error) {
-      console.error("Failed to fetch sessions:", error);
-    } finally {
-      setIsSessionsLoading(false);
-    }
-  }, []);
+	// 1. Fetch all chat sessions (History Sidebar)
+	const fetchSessions = useCallback(async () => {
+		try {
+			const res = await fetch("/api/ai/sessions");
+			const data = await res.json();
+			if (!data.error) {
+				setSessions(data);
+			}
+		} catch (error) {
+			console.error("Failed to fetch sessions:", error);
+		} finally {
+			setIsSessionsLoading(false);
+		}
+	}, []);
 
-  // 2. Fetch messages for a specific session
-  const fetchMessages = async (sessionId: string) => {
-    setIsLoading(true);
-    setCurrentSessionId(sessionId);
-    try {
-      const res = await fetch(`/api/ai/sessions/${sessionId}`);
-      const data = await res.json();
-      if (!data.error) {
-        setMessages(data);
-      }
-    } catch (error) {
-      console.error("Failed to fetch messages:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+	// 2. Fetch messages for a specific session
+	const fetchMessages = async (sessionId: string) => {
+		setIsLoading(true);
+		setCurrentSessionId(sessionId);
+		try {
+			const res = await fetch(`/api/ai/sessions/${sessionId}`);
+			const data = await res.json();
+			if (!data.error) {
+				setMessages(data);
+			}
+		} catch (error) {
+			console.error("Failed to fetch messages:", error);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
-  useEffect(() => {
-    fetchSessions();
-  }, [fetchSessions]);
+	useEffect(() => {
+		fetchSessions();
+	}, [fetchSessions]);
 
-  useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+	useEffect(() => {
+		scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+	}, [messages]);
 
-  // 3. Start New Chat
-  const startNewChat = () => {
-    setCurrentSessionId(null);
-    setMessages([]);
-  };
+	// 3. Start New Chat
+	const startNewChat = () => {
+		setCurrentSessionId(null);
+		setMessages([]);
+	};
 
-  // 4. Send Message
-  const handleSend = async (overrideInput?: string) => {
-    const textToSend = overrideInput || input;
-    if (!textToSend.trim() || isLoading) return;
+	// 4. Send Message
+	const handleSend = async (overrideInput?: string) => {
+		const textToSend = overrideInput || input;
+		if (!textToSend.trim() || isLoading) return;
 
-    const userMsg: Message = {
-      role: "user",
-      content: textToSend,
-    };
+		const userMsg: Message = {
+			role: "user",
+			content: textToSend,
+		};
 
-    setMessages((prev) => [...prev, userMsg]);
-    if (!overrideInput) setInput("");
-    setIsLoading(true);
+		setMessages((prev) => [...prev, userMsg]);
+		if (!overrideInput) setInput("");
+		setIsLoading(true);
 
-    try {
-      const res = await fetch("/api/ai/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: textToSend,
-          sessionId: currentSessionId,
-        }),
-      });
+		try {
+			const res = await fetch("/api/ai/chat", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					message: textToSend,
+					sessionId: currentSessionId,
+				}),
+			});
 
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
+			const data = await res.json();
+			if (data.error) throw new Error(data.error);
 
-      if (!currentSessionId && data.sessionId) {
-        setCurrentSessionId(data.sessionId);
-        fetchSessions();
-      }
+			if (!currentSessionId && data.sessionId) {
+				setCurrentSessionId(data.sessionId);
+				fetchSessions();
+			}
 
-      const assistantMsg: Message = {
-        role: "assistant",
-        content: data.content,
-      };
+			const assistantMsg: Message = {
+				role: "assistant",
+				content: data.content,
+			};
 
-      // Mock AI Analysis detection for "harm" or "help"
-      if (textToSend.toLowerCase().includes("harm") || textToSend.toLowerCase().includes("bantu")) {
-        setMessages((prev) => [
-          ...prev,
-          assistantMsg,
-          {
-            role: "assistant",
-            content: "Self Harm Detected",
-            isAnalysis: true,
-          }
-        ]);
-      } else {
-        setMessages((prev) => [...prev, assistantMsg]);
-      }
-    } catch (error) {
-      console.error("Chat Error:", error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: "Maaf, terjadi kesalahan. Silakan coba lagi nanti.",
-        },
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+			// Mock AI Analysis detection for "harm" or "help"
+			if (
+				textToSend.toLowerCase().includes("harm") ||
+				textToSend.toLowerCase().includes("bantu")
+			) {
+				setMessages((prev) => [
+					...prev,
+					assistantMsg,
+					{
+						role: "assistant",
+						content: "Self Harm Detected",
+						isAnalysis: true,
+					},
+				]);
+			} else {
+				setMessages((prev) => [...prev, assistantMsg]);
+			}
+		} catch (error) {
+			console.error("Chat Error:", error);
+			setMessages((prev) => [
+				...prev,
+				{
+					role: "assistant",
+					content:
+						"Maaf, terjadi kesalahan. Silakan coba lagi nanti.",
+				},
+			]);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
-  // Helper: Group sessions
-  const getGroupedSessions = () => {
-    const today = new Date().toDateString();
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
+	// Helper: Group sessions
+	const getGroupedSessions = () => {
+		const today = new Date().toDateString();
+		const yesterday = new Date();
+		yesterday.setDate(yesterday.getDate() - 1);
 
-    const groups: Record<string, ChatSession[]> = {
-      Today: [],
-      Past: [],
-    };
+		const groups: Record<string, ChatSession[]> = {
+			Today: [],
+			Past: [],
+		};
 
-    sessions.forEach((s) => {
-      const dateStr = new Date(s.updated_at).toDateString();
-      if (dateStr === today) {
-        groups.Today.push(s);
-      } else {
-        groups.Past.push(s);
-      }
-    });
+		sessions.forEach((s) => {
+			const dateStr = new Date(s.updated_at).toDateString();
+			if (dateStr === today) {
+				groups.Today.push(s);
+			} else {
+				groups.Past.push(s);
+			}
+		});
 
-    return groups;
-  };
+		return groups;
+	};
 
-  const grouped = getGroupedSessions();
+	const grouped = getGroupedSessions();
 
-  const getRelativeTime = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInMs = now.getTime() - date.getTime();
-    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-    if (diffInHours < 1) return "Just now";
-    if (diffInHours < 24) return `${diffInHours} hours ago`;
-    const yesterday = new Date();
-    yesterday.setDate(now.getDate() - 1);
-    if (date.toDateString() === yesterday.toDateString()) return "Yesterday";
-    return date.toLocaleDateString();
-  };
+	const getRelativeTime = (dateString: string) => {
+		const date = new Date(dateString);
+		const now = new Date();
+		const diffInMs = now.getTime() - date.getTime();
+		const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+		if (diffInHours < 1) return "Just now";
+		if (diffInHours < 24) return `${diffInHours} hours ago`;
+		const yesterday = new Date();
+		yesterday.setDate(now.getDate() - 1);
+		if (date.toDateString() === yesterday.toDateString())
+			return "Yesterday";
+		return date.toLocaleDateString();
+	};
 
-  return (
+	return (
 		<div className="flex h-full bg-white overflow-hidden relative">
+			{/* Floating Sidebar Toggle — mobile only, only when sidebar is closed */}
+			{!isSidebarOpen && (
+				<button
+					onClick={() => setIsSidebarOpen(true)}
+					className="lg:hidden absolute top-6 left-0 z-50 p-2.5 bg-white border border-l-0 border-border-default rounded-r-2xl shadow-md text-icon-default hover:text-text-heading hover:border-border-action transition-all"
+				>
+					<svg
+						width="24"
+						height="24"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="2"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+					>
+						<rect width="18" height="18" x="3" y="3" rx="2" />
+						<path d="M9 3v18" />
+						<path d="m14 15 2-3-2-3" />
+					</svg>
+				</button>
+			)}
+
 			{/* SIDEBAR: Chat History */}
 			<div
-				className={`${isSidebarOpen ? "w-100" : "w-20"} transition-all duration-300 border-r border-border-default flex flex-col bg-white overflow-hidden shrink-0`}
+				className={`${
+				isSidebarOpen
+					? "w-full lg:w-100 border-r border-border-default"
+					: "w-0 lg:w-20 lg:border-r lg:border-border-default"
+			} transition-all duration-300 flex flex-col bg-white overflow-hidden shrink-0`}
 			>
-				{isSidebarOpen ? (
+				<div className="w-full lg:w-100 flex flex-col h-full shrink-0">
+					{isSidebarOpen ? (
 					<>
 						<div className="p-6 flex items-center justify-between">
 							<h2 className="text-body-xl-semibold text-text-heading">
@@ -267,7 +302,7 @@ export default function NalaChatPage() {
 																currentSessionId ===
 																session.id
 																	? " border-border-action bg-surface-primary-light"
-																	: "bg-surface-background border-border-default hover:border-border-action-hover"
+																	: "bg-surface-background border-border-default"
 															}`}
 														>
 															<h4 className="text-body-base-semibold text-text-boody ">
@@ -300,7 +335,8 @@ export default function NalaChatPage() {
 						</div>
 					</>
 				) : (
-					<div className="flex flex-col items-center py-6 gap-6">
+					// Collapsed state — only visible on desktop (lg+) as a narrow icon strip
+					<div className="hidden lg:flex flex-col items-center py-6 gap-6 w-20">
 						<button
 							onClick={() => setIsSidebarOpen(true)}
 							className="p-2.5 bg-white border border-border-default rounded-full text-icon-default hover:text-text-heading hover:border-border-action transition-all"
@@ -315,13 +351,7 @@ export default function NalaChatPage() {
 								strokeLinecap="round"
 								strokeLinejoin="round"
 							>
-								<rect
-									width="18"
-									height="18"
-									x="3"
-									y="3"
-									rx="2"
-								/>
+								<rect width="18" height="18" x="3" y="3" rx="2" />
 								<path d="M9 3v18" />
 								<path d="m14 15 2-3-2-3" />
 							</svg>
@@ -330,10 +360,11 @@ export default function NalaChatPage() {
 							onClick={startNewChat}
 							className="p-2.5 bg-white border border-border-default rounded-full text-icon-default hover:text-text-heading hover:border-border-action transition-all"
 						>
-							<Image src={starIconDefault} alt="star" />
+							<Image src={starIconDefault} alt="New Chat" width={20} height={20} />
 						</button>
 					</div>
 				)}
+				</div>
 			</div>
 
 			{/* MAIN: Chat Interface */}
@@ -574,5 +605,5 @@ export default function NalaChatPage() {
 				)}
 			</div>
 		</div>
-  );
+	);
 }
