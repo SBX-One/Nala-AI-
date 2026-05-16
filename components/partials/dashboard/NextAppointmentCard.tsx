@@ -9,20 +9,18 @@ export default function NextAppointmentCard({
 		return (
 			<div className="bg-surface-background border border-border-default rounded-2xl p-6 h-full shadow-sm flex flex-col gap-6">
 				<h3 className="text-body-xl-semibold text-text-body">
-					Next Appoinment
+					Next Appointment
 				</h3>
-				<div className="flex-1 flex flex-col items-center justify-center text-center p-6 border border-border-default rounded-3xl bg-surface-default gap-4">
-					<div className="flex flex-col gap-2">
-						<h4 className="text-body-lg-bold text-text-heading">
-							Your schedule is a quiet space for now.
-						</h4>
-						<p className="text-body-sm-medium text-text-subheading">
-							There are no upcoming sessions. Remember, a
-							professional is always here to listen whenever you
-							feel like talking.
-						</p>
-					</div>
-					<button className="button-primary-medium w-full">
+				<div className="flex-1 flex flex-col items-center justify-center text-center p-8 border border-border-default rounded-2xl bg-surface-default gap-4">
+					<h4 className="text-body-lg-semibold text-text-heading">
+						Your schedule is a quiet space for now.
+					</h4>
+					<p className="text-body-sm-medium text-text-subheading">
+						There are no upcoming sessions. Remember, a professional
+						is always here to listen whenever you feel like
+						talking.
+					</p>
+					<button className="button-primary-medium">
 						Book Specialist
 					</button>
 				</div>
@@ -33,7 +31,7 @@ export default function NextAppointmentCard({
 	return (
 		<div className="bg-surface-background border border-border-default rounded-2xl p-6 h-full  flex flex-col gap-6">
 			<h3 className="text-body-xl-semibold text-text-body">
-				Next Appoinment
+				Next Appointment
 			</h3>
 
 			<div className="flex flex-col gap-4">

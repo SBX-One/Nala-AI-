@@ -54,6 +54,56 @@ export async function getPsychiatrists() {
   });
 }
 
+export async function getPsychiatristById(id: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("PsychiatristProfile")
+    .select(
+      `
+      *,
+      user:User (
+        email,
+        user_profile:UserProfile (
+          name
+        )
+      ),
+      expertises:PsychiatristExpertise (
+        expertise:Expertise (
+          name
+        )
+      ),
+      availability_times:PsychiatristAvailabilityTime (*)
+    `,
+    )
+    .eq("id", id)
+    .single();
+
+  if (error || !data) {
+    console.error("Error fetching psychiatrist:", error?.message);
+    return null;
+  }
+
+  const start = new Date(data.experience_start);
+  const end = data.experience_end ? new Date(data.experience_end) : new Date();
+  const years = end.getFullYear() - start.getFullYear();
+
+  return {
+    id: data.id,
+    name: data.name || "Dr. Anonymous",
+    spesialist: data.specialization || "General Psychiatrist",
+    license_number: data.license_number,
+    description: data.description || "No description available",
+    advertise: data.expertises?.map((e: any) => e.expertise.name) || [],
+    experience: years > 0 ? years : 1,
+    PatientCount: Math.floor(Math.random() * 1000) + 100, // Dummy
+    Price: data.price,
+    rating: 4.8, // Dummy
+    sex: data.sex,
+    availability: data.availability_times,
+    image: data.avatar_url || data.photo_url, // fallback just in case
+  };
+}
+
 export async function getCurrentPsychiatristProfile() {
   const supabase = await createClient();
   const {

@@ -112,14 +112,14 @@ export default function SideBar({ user, profile }: { user?: any; profile?: any }
       {/* Mobile Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden animate-in fade-in duration-300"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 xl:hidden animate-in fade-in duration-300"
           onClick={close}
         />
       )}
 
       {/* Sidebar Container */}
       <div
-        className={`flex flex-col w-72 h-screen bg-surface-background border-r border-border-default px-4 py-8 justify-between fixed lg:sticky top-0 left-0 z-50 transition-transform duration-300 lg:translate-x-0 ${
+        className={`flex flex-col w-72 h-screen bg-surface-background border-r border-border-default px-4 py-8 justify-between fixed xl:sticky top-0 left-0 z-50 transition-transform duration-300 xl:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -216,16 +216,50 @@ export default function SideBar({ user, profile }: { user?: any; profile?: any }
 							</svg>
 						</button>
 
-						{/* Logout Popup */}
+						{/* Profile Menu Popup */}
 						{isMenuOpen && (
-							<div className="absolute bottom-[120%] right-0 w-max bg-surface-background border border-border-default rounded-xl shadow-sm p-2 z-50">
-								<button 
-									className="button-error-outline-medium w-full justify-center"
+							<div className="absolute bottom-[140%] right-0 w-48 bg-white border border-border-default rounded-2xl shadow-xl p-2 z-50 animate-in fade-in slide-in-from-bottom-2 duration-300">
+								<Link
+									href="/user/profile"
+									className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-surface-disabled transition-colors text-label-base-medium text-text-heading"
+									onClick={() => setIsMenuOpen(false)}
+								>
+									<svg
+										width="20"
+										height="20"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="2"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+									>
+										<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+										<circle cx="12" cy="7" r="4" />
+									</svg>
+									Profile
+								</Link>
+								<button
+									className="flex items-center gap-3 w-full px-4 py-3 rounded-xl hover:bg-error-50 transition-colors text-label-base-medium text-error-600"
 									onClick={() => {
 										setIsMenuOpen(false);
 										setIsLogoutModalOpen(true);
 									}}
 								>
+									<svg
+										width="20"
+										height="20"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="2"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+									>
+										<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+										<polyline points="16 17 21 12 16 7" />
+										<line x1="21" y1="12" x2="9" y2="12" />
+									</svg>
 									Logout
 								</button>
 							</div>
@@ -233,39 +267,39 @@ export default function SideBar({ user, profile }: { user?: any; profile?: any }
 					</div>
 				</div>
 			</div>
+	</div>
 
-			{/* Custom Logout Confirmation Modal */}
-			{isLogoutModalOpen && (
-				<div className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-					<div className="bg-surface-background p-6 rounded-2xl shadow-xl w-full max-w-sm flex flex-col gap-4 border border-border-default">
-						<div className="flex flex-col gap-2">
-							<h3 className="text-heading-6-semibold text-text-heading">
-								Logout Account
-							</h3>
-							<p className="text-body-base-regular text-text-subheading">
-								Are you sure you want to log out from your account? You will need to sign in again to access the dashboard.
-							</p>
-						</div>
-						<div className="flex gap-3 justify-end mt-2">
-							<button
-								className="button-outline-medium flex-1 justify-center"
-								onClick={() => setIsLogoutModalOpen(false)}
-							>
-								Cancel
-							</button>
-							<button
-								className="button-error-medium flex-1 justify-center"
-								onClick={async () => {
-									await signOut();
-								}}
-							>
-								Yes, Logout
-							</button>
-						</div>
+		{/* Custom Logout Confirmation Modal */}
+		{isLogoutModalOpen && (
+			<div className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+				<div className="bg-surface-background p-6 rounded-2xl shadow-xl w-full max-w-sm flex flex-col gap-4 border border-border-default">
+					<div className="flex flex-col gap-2">
+						<h3 className="text-heading-6-semibold text-text-heading">
+							Logout Account
+						</h3>
+						<p className="text-body-base-regular text-text-subheading">
+							Are you sure you want to log out from your account? You will need to sign in again to access the dashboard.
+						</p>
+					</div>
+					<div className="flex gap-3 justify-end mt-2">
+						<button
+							className="button-outline-medium flex-1 justify-center"
+							onClick={() => setIsLogoutModalOpen(false)}
+						>
+							Cancel
+						</button>
+						<button
+							className="button-error-medium flex-1 justify-center"
+							onClick={async () => {
+								await signOut();
+							}}
+						>
+							Yes, Logout
+						</button>
 					</div>
 				</div>
-			)}
-		</div>
+			</div>
+		)}
     </>
   );
 }

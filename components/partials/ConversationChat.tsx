@@ -54,157 +54,187 @@ function TypingIndicator({ name }: { name: string }) {
 
 // ─── Message Bubble ───────────────────────────────────────────────────────────
 function MessageBubble({
-  msg,
-  isMine,
-  onEdit,
-  onDelete,
+	msg,
+	isMine,
+	onEdit,
+	onDelete,
 }: {
-  msg: ChatMessage;
-  isMine: boolean;
-  onEdit: (msg: ChatMessage) => void;
-  onDelete: (id: number) => void;
+	msg: ChatMessage;
+	isMine: boolean;
+	onEdit: (msg: ChatMessage) => void;
+	onDelete: (id: number) => void;
 }) {
-  const [showMenu, setShowMenu] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
+	const [showMenu, setShowMenu] = useState(false);
+	const menuRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node))
-        setShowMenu(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
+	useEffect(() => {
+		const handler = (e: MouseEvent) => {
+			if (menuRef.current && !menuRef.current.contains(e.target as Node))
+				setShowMenu(false);
+		};
+		document.addEventListener("mousedown", handler);
+		return () => document.removeEventListener("mousedown", handler);
+	}, []);
 
-  return (
-    <div
-      className={`flex flex-col gap-1 group ${isMine ? "items-end" : "items-start"}`}
-    >
-      <div className="relative">
-        {/* Action button (only for own messages) */}
-        {isMine && (
-          <div
-            ref={menuRef}
-            className="absolute -left-8 top-1/2 -translate-y-1/2 z-10"
-          >
-            <button
-              onClick={() => setShowMenu(!showMenu)}
-              className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-neutral-200 transition-all text-text-placeholder"
-            >
-              <svg className="size-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
-              </svg>
-            </button>
-            {showMenu && (
-              <div className="absolute right-0 top-8 bg-white border border-border-default rounded-xl shadow-lg py-1 min-w-[120px] z-20">
-                <button
-                  onClick={() => {
-                    onEdit(msg);
-                    setShowMenu(false);
-                  }}
-                  className="w-full px-4 py-2 text-left text-sm hover:bg-neutral-50 flex items-center gap-2"
-                >
-                  <svg
-                    className="size-4"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-                  </svg>
-                  Edit
-                </button>
-                <button
-                  onClick={() => {
-                    onDelete(msg.id);
-                    setShowMenu(false);
-                  }}
-                  className="w-full px-4 py-2 text-left text-sm hover:bg-error-50 text-error-default flex items-center gap-2"
-                >
-                  <svg
-                    className="size-4"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-                  </svg>
-                  Delete
-                </button>
-              </div>
-            )}
-          </div>
-        )}
+	return (
+		<div
+			className={`flex flex-col gap-1.5 group ${isMine ? "items-end" : "items-start"} animate-in fade-in slide-in-from-bottom-2 duration-300`}
+		>
+			<div className="flex items-center gap-2 max-w-[85%] relative">
+				{/* Action button (only for own messages) */}
+				{isMine && (
+					<div ref={menuRef} className="shrink-0 order-first">
+						<button
+							onClick={() => setShowMenu(!showMenu)}
+							className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-neutral-100 transition-all text-text-placeholder"
+						>
+							<svg
+								className="size-4"
+								viewBox="0 0 24 24"
+								fill="currentColor"
+							>
+								<path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+							</svg>
+						</button>
+						{showMenu && (
+							<div className="absolute left-0 bottom-full mb-2 bg-white border border-border-default rounded-xl shadow-xl py-1 min-w-[120px] z-20 animate-in fade-in zoom-in-95 duration-200">
+								<button
+									onClick={() => {
+										onEdit(msg);
+										setShowMenu(false);
+									}}
+									className="w-full px-4 py-2 text-left text-sm hover:bg-surface-default flex items-center gap-2 text-text-body"
+								>
+									<svg
+										className="size-4"
+										viewBox="0 0 24 24"
+										fill="currentColor"
+									>
+										<path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+									</svg>
+									Edit
+								</button>
+								<button
+									onClick={() => {
+										onDelete(msg.id);
+										setShowMenu(false);
+									}}
+									className="w-full px-4 py-2 text-left text-sm hover:bg-error-50 text-error-default flex items-center gap-2"
+								>
+									<svg
+										className="size-4"
+										viewBox="0 0 24 24"
+										fill="currentColor"
+									>
+										<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+									</svg>
+									Delete
+								</button>
+							</div>
+						)}
+					</div>
+				)}
 
-        <div
-          className={`max-w-[85%] rounded-2xl shadow-sm overflow-hidden ${isMine ? "bg-[#0066FF] text-white rounded-tr-sm" : "bg-white border border-border-default text-text-heading rounded-tl-sm"}`}
-        >
-          {msg.file_url && isImageType(msg.file_type) && (
-            <div className="relative w-full aspect-video min-w-[220px]">
-              <Image
-                src={msg.file_url}
-                alt="attachment"
-                fill
-                className="object-cover"
-              />
-            </div>
-          )}
-          {msg.file_url && !isImageType(msg.file_type) && (
-            <a
-              href={msg.file_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`flex items-center gap-2 px-4 py-3 border-b ${isMine ? "border-white/20" : "border-border-default"}`}
-            >
-              <svg
-                className="size-5 shrink-0"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z" />
-              </svg>
-              <p className="text-xs font-semibold truncate">
-                {msg.file_url.split("/").pop()}
-              </p>
-            </a>
-          )}
-          {msg.message && (
-            <p className="px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap">
-              {msg.message}
-            </p>
-          )}
-        </div>
-      </div>
+				<div
+					className={`rounded-2xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] overflow-hidden transition-all ${
+						isMine
+							? "bg-primary-600 text-white rounded-tr-none border border-primary-700"
+							: "bg-white border border-border-default text-text-heading rounded-tl-none"
+					}`}
+				>
+					{msg.file_url && isImageType(msg.file_type) && (
+						<div className="relative w-full aspect-video min-w-[220px] max-w-[400px]">
+							<Image
+								src={msg.file_url}
+								alt="attachment"
+								fill
+								className="object-cover"
+							/>
+						</div>
+					)}
+					{msg.file_url && !isImageType(msg.file_type) && (
+						<a
+							href={msg.file_url}
+							target="_blank"
+							rel="noopener noreferrer"
+							className={`flex items-center gap-3 px-4 py-3 border-b transition-colors ${
+								isMine
+									? "border-white/10 hover:bg-white/5"
+									: "border-border-default hover:bg-neutral-50"
+							}`}
+						>
+							<svg
+								className="size-5 shrink-0"
+								viewBox="0 0 24 24"
+								fill="currentColor"
+							>
+								<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z" />
+							</svg>
+							<div className="min-w-0">
+								<p className="text-xs font-bold truncate">
+									{msg.file_url.split("/").pop()}
+								</p>
+								<p className="text-[10px] opacity-70">
+									Attachment
+								</p>
+							</div>
+						</a>
+					)}
+					{msg.message && (
+						<div className="px-5 py-3.5 break-words">
+							<p className="text-body-base-regular leading-relaxed whitespace-pre-wrap">
+								{msg.message}
+							</p>
+						</div>
+					)}
+				</div>
+			</div>
 
-      {/* Timestamp + read + edited */}
-      <div className={`flex items-center gap-1.5 ${isMine ? "pr-1" : "pl-1"}`}>
-        <span className="text-[11px] text-text-placeholder">
-          {formatTime(msg.created_at)}
-        </span>
-        {isMine && msg.is_read && (
-          <svg
-            className="size-3.5 text-[#0066FF]"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-          >
-            <path d="M18 7l-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.48 12l-1.41 1.41L11.66 19l12-12-1.42-1.41zM.41 13.41L6 19l1.41-1.41L1.83 12 .41 13.41z" />
-          </svg>
-        )}
-        {isMine && !msg.is_read && (
-          <svg
-            className="size-3.5 text-text-placeholder"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-          >
-            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-          </svg>
-        )}
-        {msg.is_edit && (
-          <span className="text-[10px] text-text-placeholder italic">
-            edited
-          </span>
-        )}
-      </div>
-    </div>
-  );
+			{/* Timestamp + read + edited */}
+			<div
+				className={`flex items-center gap-2 ${isMine ? "pr-1" : "pl-1"}`}
+			>
+				<span className="text-[10px] font-medium text-text-placeholder uppercase tracking-tight">
+					{formatTime(msg.created_at)}
+				</span>
+				{isMine && (
+					<div className="flex items-center">
+						{msg.is_read ? (
+							<svg
+								className="size-3.5 text-primary-500"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								strokeWidth="2.5"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+							>
+								<path d="M18 6L7 17l-5-5" />
+								<path d="M22 10l-7.5 7.5L13 16" />
+							</svg>
+						) : (
+							<svg
+								className="size-3.5 text-text-placeholder opacity-60"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								strokeWidth="2.5"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+							>
+								<path d="M20 6L9 17l-5-5" />
+							</svg>
+						)}
+					</div>
+				)}
+				{msg.is_edit && (
+					<span className="text-[10px] text-text-placeholder font-medium italic bg-surface-default px-1.5 rounded-sm">
+						edited
+					</span>
+				)}
+			</div>
+		</div>
+	);
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
@@ -540,8 +570,8 @@ export default function ConversationChat({
       </div>
     );
 
-  return (
-    <div className="flex flex-col flex-1 max-h-[80dvh]">
+	return (
+		<div className="flex flex-col flex-1 min-h-0">
       {/* Header */}
       <div className="px-5 py-4 border-b border-border-default shrink-0 flex items-center justify-between">
         <p className="text-heading-6-bold text-text-heading">Conversation</p>
@@ -605,8 +635,8 @@ export default function ConversationChat({
         </div>
       )}
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto max-h-[73dvh] custom-scrollbar px-5 py-4 space-y-4 bg-[#FAFAFA]">
+			{/* Messages */}
+			<div className="flex-1 overflow-y-auto custom-scrollbar px-5 py-4 space-y-4 bg-[#FAFAFA]">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full gap-3 text-text-placeholder">
             <svg

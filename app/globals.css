@@ -730,3 +730,11 @@
     scrollbar-color: var(--color-neutral-100) transparent;
   }
 }
+
+@utility button-tab {
+  @apply px-4 py-3 rounded-xl text-label-caption-medium text-text-placeholder transition-all duration-300 whitespace-nowrap hover:bg-surface-default;
+}
+
+@utility button-tab-active {
+  @apply bg-surface-primary text-white hover:bg-surface-primary;
+}

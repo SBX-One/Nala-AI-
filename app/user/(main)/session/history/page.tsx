@@ -11,6 +11,7 @@ import {
 	MessageSquare,
 	Pill,
 	ChevronRight,
+	ChevronLeft,
 } from "lucide-react";
 
 function HistoryContent() {
@@ -18,21 +19,28 @@ function HistoryContent() {
 	const [consultations, setConsultations] = useState<any[]>([]);
 	const [selectedConsultation, setSelectedConsultation] = useState<any>(null);
 	const [loading, setLoading] = useState(true);
+	const [isDetailView, setIsDetailView] = useState(false);
 
 	useEffect(() => {
 		async function loadData() {
 			const data = await getUserConsultations();
 			const now = new Date();
-			const todayStr = now.getFullYear() + "-" + 
-				String(now.getMonth() + 1).padStart(2, '0') + "-" + 
-				String(now.getDate()).padStart(2, '0');
-			
+			const todayStr =
+				now.getFullYear() +
+				"-" +
+				String(now.getMonth() + 1).padStart(2, "0") +
+				"-" +
+				String(now.getDate()).padStart(2, "0");
+
 			// Filter consultations that have reached today or are in the past
 			const reachedConsultations = data.filter((c: any) => {
 				const consultationDate = new Date(c.date);
-				const dateStr = consultationDate.getFullYear() + "-" + 
-					String(consultationDate.getMonth() + 1).padStart(2, '0') + "-" + 
-					String(consultationDate.getDate()).padStart(2, '0');
+				const dateStr =
+					consultationDate.getFullYear() +
+					"-" +
+					String(consultationDate.getMonth() + 1).padStart(2, "0") +
+					"-" +
+					String(consultationDate.getDate()).padStart(2, "0");
 				return dateStr <= todayStr;
 			});
 
@@ -70,51 +78,33 @@ function HistoryContent() {
 		);
 	}
 
-	if (consultations.length === 0) {
-		return (
-			<div className="flex flex-col items-center justify-center h-full gap-4 text-center p-8">
-				<div className="size-20 bg-surface-disabled rounded-full flex items-center justify-center">
-					<Calendar className="size-10 text-text-placeholder" />
-				</div>
-				<h2 className="text-heading-5-bold text-text-heading">
-					No Consultation History Yet
-				</h2>
-				<p className="text-body-base-medium text-text-subheading max-w-md">
-					When you complete a consultation session, your medical
-					history, diagnosis, and feedback will appear here.
-				</p>
-				<button
-					onClick={() => router.push("/user/session/booking")}
-					className="button-primary-medium mt-4"
-				>
-					Book Your First Session
-				</button>
-			</div>
-		);
-	}
-
 	return (
-		<div className="flex h-full bg-surface-default overflow-hidden">
+		<div className="flex h-full bg-surface-default overflow-hidden relative">
 			{/* Left Column: List */}
-			<div className="w-[400px] border-r border-border-default bg-white flex flex-col shrink-0">
-				<div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-none[-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+			<div
+				className={`${
+					isDetailView ? "hidden xl:flex" : "flex"
+				} w-full xl:w-[400px] border-r border-border-default bg-white flex-col shrink-0`}
+			>
+				<div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden min">
 					<h2 className="text-heading-6-semibold text-text-heading leading-tight mb-2">
 						Review Your Consultation History
 					</h2>
 
 					{consultations.length === 0 ? (
-						<div className="bg-white rounded-2xl p-6 border border-border-default shadow-sm text-center flex flex-col items-center gap-4">
-							<div className="space-y-2">
-								<h3 className="text-body-base-bold text-text-heading">
-									Your milestones start here.
-								</h3>
-								<p className="text-body-caption-medium text-text-subheading px-2">
-									Take your time. We'll gather your professional feedback right here whenever you're ready.
-								</p>
-							</div>
+						<div className="bg-surface-default border border-border-default rounded-2xl p-8 flex flex-col items-center text-center gap-4">
+							<h4 className="text-body-lg-semibold text-text-heading">
+								Your milestones start here.
+							</h4>
+							<p className="text-body-sm-medium text-text-subheading">
+								Take your time. We'll gather your professional
+								feedback right here whenever you're ready.
+							</p>
 							<button
-								onClick={() => router.push("/user/session/booking")}
-								className="button-primary-medium w-full justify-center"
+								onClick={() =>
+									router.push("/user/session/booking")
+								}
+								className="button-primary-medium"
 							>
 								Explore Specialists
 							</button>
@@ -123,7 +113,10 @@ function HistoryContent() {
 						consultations.map((con) => (
 							<button
 								key={con.id}
-								onClick={() => setSelectedConsultation(con)}
+								onClick={() => {
+									setSelectedConsultation(con);
+									setIsDetailView(true);
+								}}
 								className={`w-full text-left px-6 py-4 rounded-2xl border transition-all group ${
 									selectedConsultation?.id === con.id
 										? "border-primary-default border-2 border-border-action bg-surface-primary-light"
@@ -143,13 +136,17 @@ function HistoryContent() {
 									<div className="size-18.5 rounded-lg bg-surface-disabled overflow-hidden shrink-0">
 										{con.psychiatrist?.avatar_url ? (
 											<img
-												src={con.psychiatrist.avatar_url}
+												src={
+													con.psychiatrist.avatar_url
+												}
 												alt={con.psychiatrist.name}
 												className="size-full object-cover"
 											/>
 										) : (
 											<div className="size-full flex items-center justify-center bg-primary-100 text-primary-700 font-bold text-lg">
-												{con.psychiatrist?.name?.charAt(0)}
+												{con.psychiatrist?.name?.charAt(
+													0,
+												)}
 											</div>
 										)}
 									</div>
@@ -158,7 +155,8 @@ function HistoryContent() {
 											{con.psychiatrist?.name}
 										</h4>
 										<p className="text-body-caption-medium text-text-subheading truncate">
-											{con.topic || "Follow-up consultation"}
+											{con.topic ||
+												"Follow-up consultation"}
 										</p>
 									</div>
 								</div>
@@ -169,10 +167,14 @@ function HistoryContent() {
 			</div>
 
 			{/* Right Column: Details */}
-			<div className="flex-1 overflow-y-auto p-6 scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+			<div
+				className={`${
+					isDetailView ? "flex" : "hidden xl:flex"
+				} flex-1 overflow-y-auto p-4 sm:p-6 scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden bg-surface-default max-xl:animate-in max-xl:slide-in-from-right-10 max-xl:duration-300`}
+			>
 				{consultations.length === 0 ? (
-					<div className="h-full flex items-center justify-center">
-						<div className="relative size-80 lg:size-100 opacity-80">
+					<div className="h-full w-full flex items-center justify-center">
+						<div className="relative size-40 lg:size-50">
 							<Image
 								src="/images/notfoundChar.png"
 								alt="Doctor Illustration"
@@ -182,10 +184,19 @@ function HistoryContent() {
 						</div>
 					</div>
 				) : selectedConsultation ? (
-					<div className="max-w-4xl mx-auto space-y-6">
+					<div className="max-w-4xl mx-auto space-y-6 w-full">
+						{/* Back Button for Mobile */}
+						<button
+							onClick={() => setIsDetailView(false)}
+							className="xl:hidden flex items-center gap-2 text-text-action font-medium mb-4"
+						>
+							<ChevronLeft className="size-5" />
+							Back to History
+						</button>
+
 						{/* Doctor Header Card */}
-						<div className="bg-white rounded-2xl p-8 border border-border-default shadow-sm flex gap-8 items-start">
-							<div className="size-28 rounded-2xl bg-surface-disabled overflow-hidden shrink-0 border border-border-default">
+						<div className="bg-white rounded-2xl p-6 sm:p-8 border border-border-default shadow-sm flex flex-col sm:flex-row gap-6  items-center sm:items-start text-center sm:text-left">
+							<div className="size-24 sm:size-28 rounded-2xl bg-surface-disabled overflow-hidden shrink-0 border border-border-default">
 								{selectedConsultation.psychiatrist
 									?.avatar_url ? (
 									<img
@@ -207,10 +218,10 @@ function HistoryContent() {
 									</div>
 								)}
 							</div>
-							<div className="flex-1 flex flex-col gap-4">
-								<div className="flex items-start justify-between pt-4 pb-8 border-b border-border-default">
+							<div className="flex-1 flex flex-col gap-4 w-full">
+								<div className="flex flex-col sm:flex-row items-center sm:items-start justify-between pb-4 sm:py-4 border-b border-border-default gap-4">
 									<div className="space-y-1">
-										<h2 className="text-heading-6-semibold text-text-body">
+										<h2 className="text-body-xl-semibold sm:text-heading-6-semibold text-text-body">
 											{
 												selectedConsultation
 													.psychiatrist?.name
@@ -224,12 +235,12 @@ function HistoryContent() {
 											}
 										</p>
 									</div>
-									<div className="flex gap-2 flex-wrap justify-end max-w-[200px]">
+									<div className="flex gap-2 flex-wrap justify-center sm:justify-end max-w-full sm:max-w-[300px]">
 										{selectedConsultation.psychiatrist?.expertises?.map(
 											(e: any, idx: number) => (
 												<span
 													key={idx}
-													className="px-2 py-1 rounded-sm bg-surface-primary-light text-text-action text-label-small-medium"
+													className="px-2.5 py-1 rounded-sm bg-surface-primary-light text-text-action text-label-small-medium"
 												>
 													{e.expertise.name}
 												</span>
@@ -238,27 +249,9 @@ function HistoryContent() {
 									</div>
 								</div>
 
-								<div className="flex items-center justify-between gap-6 ">
+								<div className="flex flex-wrap items-center justify-center sm:justify-between gap-4 sm:gap-6 py-2">
 									<div className="flex items-center gap-2">
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											viewBox="0 0 24 24"
-											className="size-4 text-icon-default"
-										>
-											<g fill="none">
-												<path
-													fill="currentColor"
-													d="M4 7v2h16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2"
-												/>
-												<path
-													stroke="currentColor"
-													strokeLinecap="round"
-													strokeLinejoin="round"
-													strokeWidth="2"
-													d="M16 5h2a2 2 0 0 1 2 2v2H4V7a2 2 0 0 1 2-2h2m8 0V3m0 2H8m0-2v2M4 9.5V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9.5"
-												/>
-											</g>
-										</svg>
+										<Calendar className="size-4 text-icon-default" />
 										<span className="text-body-caption-medium text-text-subheading">
 											{formatDate(
 												selectedConsultation.date,
@@ -279,8 +272,8 @@ function HistoryContent() {
 									</div>
 								</div>
 
-								<div className="space-y-1">
-									<p className="text-body-sm-bold text-text-subheading   ">
+								<div className="space-y-1 text-center sm:text-left">
+									<p className="text-body-sm-bold text-text-subheading">
 										Consultation Topic
 									</p>
 									<p className="text-body-base-medium text-text-body">
@@ -306,10 +299,11 @@ function HistoryContent() {
 												Insights in progress.
 											</h4>
 											<p className="text-body-sm-medium text-text-subheading max-w-sm">
-												Your specialist is carefully preparing
-												your personal feedback. We'll notify you
-												as soon as your guidance is ready to
-												view.
+												Your specialist is carefully
+												preparing your personal
+												feedback. We'll notify you as
+												soon as your guidance is ready
+												to view.
 											</p>
 										</div>
 									</div>
@@ -338,7 +332,9 @@ function HistoryContent() {
 
 										<div className="p-6 bg-surface-default border border-border-default rounded-2xl">
 											<p className="text-body-base-medium text-text-body">
-												{selectedConsultation.psychiatrist_feedback}
+												{
+													selectedConsultation.psychiatrist_feedback
+												}
 											</p>
 										</div>
 									</div>
@@ -350,7 +346,8 @@ function HistoryContent() {
 										</h3>
 
 										{selectedConsultation.medicines &&
-										selectedConsultation.medicines.length > 0 ? (
+										selectedConsultation.medicines.length >
+											0 ? (
 											<div className="grid grid-cols-2 gap-4">
 												{selectedConsultation.medicines.map(
 													(m: any, idx: number) => (
@@ -363,7 +360,11 @@ function HistoryContent() {
 															</div>
 															<div className="flex-1">
 																<h4 className="text-body-base-bold text-text-heading">
-																	{m.medicine?.name}{" "}
+																	{
+																		m
+																			.medicine
+																			?.name
+																	}{" "}
 																	{m.dose}
 																</h4>
 																<p className="text-label-small-medium text-text-subheading">
@@ -377,8 +378,8 @@ function HistoryContent() {
 										) : (
 											<div className="p-6 bg-surface-background border border-border-default rounded-2xl text-center">
 												<p className="text-body-base-medium text-text-placeholder">
-													No medicine prescribed for this
-													session.
+													No medicine prescribed for
+													this session.
 												</p>
 											</div>
 										)}
