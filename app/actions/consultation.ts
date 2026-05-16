@@ -396,7 +396,7 @@ export async function getPatientInfo(userId: number) {
   // 1.1 Fetch latest consultation to get complaint
   const { data: latestConsultation } = await supabase
     .from("Consultation")
-    .select("complaint")
+    .select("id, complaint, ai_summary")
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(1)
@@ -404,7 +404,9 @@ export async function getPatientInfo(userId: number) {
 
   const profileWithComplaint = {
     ...profile,
+    latest_consultation_id: latestConsultation?.id || null,
     complaint: latestConsultation?.complaint || null,
+    ai_summary: latestConsultation?.ai_summary || null,
   };
 
   // 2. Fetch Medication History from ALL past consultations of this user
@@ -446,6 +448,22 @@ export async function getPatientInfo(userId: number) {
       medicationHistory,
     },
   };
+}
+
+export async function updateAiSummary(consultationId: number, aiSummary: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("Consultation")
+    .update({ ai_summary: aiSummary })
+    .eq("id", consultationId);
+
+  if (error) {
+    console.error("Error updating AI summary:", error);
+    return { error: error.message };
+  }
+
+  return { success: true };
 }
 
 export async function endMeetingRoom(

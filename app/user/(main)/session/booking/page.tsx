@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import Image from "next/image";
 import { getPsychiatrists, getExpertises } from "@/app/actions/psychiatrist";
 import { createAppointment } from "@/app/actions/appointment";
 
@@ -102,7 +103,7 @@ export default function BookingPage() {
 
 	const nextSevenDays = useMemo(() => {
 		const days = [];
-		for (let i = 1; i <= 7; i++) {
+		for (let i = 0; i < 7; i++) {
 			const d = new Date();
 			d.setDate(d.getDate() + i);
 			days.push(d);
@@ -117,18 +118,19 @@ export default function BookingPage() {
 			const isAvailable = selectedPsychiatrist.availability.some(
 				(a: any) => a.day === dayName,
 			);
-			const i = index + 1;
 			return {
 				date,
 				isAvailable,
 				label:
-					i === 1
-						? "Besok"
-						: i === 2
-							? "Lusa"
-							: date.toLocaleDateString("id-ID", {
-									weekday: "short",
-								}),
+					index === 0
+						? "Hari Ini"
+						: index === 1
+							? "Besok"
+							: index === 2
+								? "Lusa"
+								: date.toLocaleDateString("id-ID", {
+										weekday: "short",
+									}),
 				dayNum: date.getDate().toString(),
 				month: date
 					.toLocaleDateString("en-US", { month: "short" })
@@ -144,6 +146,7 @@ export default function BookingPage() {
 			(a: any) => a.day === dayName,
 		);
 		if (!availability) return [];
+		
 		const slots = [];
 		const current = new Date(
 			`2000-01-01T${availability.availability_start_time}`,
@@ -151,12 +154,26 @@ export default function BookingPage() {
 		const end = new Date(
 			`2000-01-01T${availability.availability_end_time}`,
 		);
+
+		const isToday = selectedDate.toDateString() === new Date().toDateString();
+		const now = new Date();
+		const currentHours = now.getHours();
+		const currentMinutes = now.getMinutes();
+
 		while (current < end) {
-			const slotStart = current.toTimeString().slice(0, 5);
+			const slotStartStr = current.toTimeString().slice(0, 5);
+			const [slotHours, slotMinutes] = slotStartStr.split(":").map(Number);
+
+			const isPast = isToday && (slotHours < currentHours || (slotHours === currentHours && slotMinutes <= currentMinutes));
+
+			const slotStart = slotStartStr;
 			current.setMinutes(current.getMinutes() + 45);
 			if (current > end) break;
 			const slotEnd = current.toTimeString().slice(0, 5);
-			slots.push({ start: slotStart, end: slotEnd });
+			
+			if (!isPast) {
+				slots.push({ start: slotStart, end: slotEnd });
+			}
 		}
 		return slots;
 	}, [selectedPsychiatrist, selectedDate]);
@@ -267,7 +284,7 @@ export default function BookingPage() {
 			} else {
 				alert("Booking failed: " + result.error);
 			}
-		} catch (error) {
+		} catch {
 			alert("An unexpected error occurred");
 		} finally {
 			setIsSubmitting(false);
@@ -302,7 +319,7 @@ export default function BookingPage() {
 			if (availStartDate) {
 				// Find if psychiatrist is available on ANY day in the range
 				const daysInRange: string[] = [];
-				let curr = new Date(availStartDate);
+				const curr = new Date(availStartDate);
 				const limit = availEndDate || availStartDate;
 
 				// Ensure we compare only the date part to avoid issues with time components
@@ -379,7 +396,7 @@ export default function BookingPage() {
 				onOpenAvailability={() => setIsAvailabilityDrawerOpen(true)}
 			/>
 
-			<div className="px-6 py-8 grid grid-cols-1 md:grid-cols-2 gap-4 bg-surface-default min-h-[600px] items-start">
+			<div className="px-6 py-8 grid grid-cols-1 md:grid-cols-2 gap-4 bg-surface-default min-h-150 items-start">
 				{filteredPsychiatrists.length > 0 ? (
 					filteredPsychiatrists.map((p) => (
 						<PsychiatristCard
@@ -392,10 +409,11 @@ export default function BookingPage() {
 				) : (
 					<div className="col-span-full h-full flex flex-col items-center justify-center">
 						<div className="relative size-60 mb-8">
-							<img
+							<Image
 								src="/images/notfoundChar.png"
 								alt="No Specialist Found"
-								className="w-full h-full object-contain"
+								fill
+								className="object-contain"
 							/>
 						</div>
 						<div className="text-center max-w-2xl px-6 grid gap-6">

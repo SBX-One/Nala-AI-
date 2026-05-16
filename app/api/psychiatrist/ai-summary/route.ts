@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ChatOpenAI } from "@langchain/openai";
+import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { SystemMessage, HumanMessage } from "@langchain/core/messages";
 
 export async function POST(req: Request) {
@@ -13,16 +13,9 @@ export async function POST(req: Request) {
       );
     }
 
-    const model = new ChatOpenAI({
-      modelName: "openai/gpt-oss-120b:free",
-      apiKey: process.env.OPENROUTER_API_KEY,
-      configuration: {
-        baseURL: "https://openrouter.ai/api/v1",
-        defaultHeaders: {
-          "HTTP-Referer": "http://localhost:3000",
-          "X-Title": "Nala Psychiatrist Assistant",
-        },
-      },
+    const model = new ChatGoogleGenerativeAI({
+      model: "gemini-2.5-flash-lite",
+      apiKey: process.env.GOOGLE_API_KEY,
     });
 
     const medsList =
@@ -34,25 +27,26 @@ export async function POST(req: Request) {
         .join("\n") || "None";
 
     const systemPrompt = new SystemMessage(
-      `You are a clinical AI assistant for a psychiatrist. Your task is to analyze the patient's current complaint and their medication history to provide a concise, insightful clinical summary. 
+      `Anda adalah asisten AI klinis untuk psikiater. Tugas Anda adalah menganalisis keluhan pasien saat ini dan riwayat pengobatan mereka untuk memberikan ringkasan klinis yang singkat dan berwawasan. 
       
-      Always use Markdown formatting for your response:
-      1. Use **Bold Headers** for main sections like **Clinical Summary** and **Observations for the Psychiatrist**.
-      2. Use bullet points for specific observations or recommendations.
-      3. Use bold text for key clinical terms or important findings.
+      Selalu gunakan format Markdown untuk tanggapan Anda:
+      1. Gunakan **Bold Headers** untuk bagian utama seperti **Ringkasan Klinis** dan **Observasi untuk Psikiater**.
+      2. Gunakan poin-poin untuk observasi atau rekomendasi spesifik.
+      3. Gunakan teks tebal untuk istilah klinis utama atau temuan penting.
       
-      Focus on:
-      - Potential correlations between current symptoms and past treatments.
-      - Patterns of medication effectiveness or side effects.
-      - Brief clinical observations to help the psychiatrist during the session.
+      Fokus pada:
+      - Potensi korelasi antara gejala saat ini dan pengobatan masa lalu.
+      - Pola efektivitas pengobatan atau efek samping.
+      - Observasi klinis singkat untuk membantu psikiater selama sesi.
       
-      Keep the tone professional, objective, and concise (max 150 words). Respond in English.`,
+      Jaga nada tetap profesional, objektif, dan ringkas (maks 150 kata). Tanggapi dalam bahasa Indonesia.`,
     );
 
     const userPrompt = new HumanMessage(
-      `Patient's Current Complaint: "${complaint}"
-      
-      Medication History:
+      `PATIENT COMPLAINT:
+      ${complaint}
+
+      MEDICATION HISTORY:
       ${medsList}`,
     );
 
@@ -61,7 +55,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ summary });
   } catch (error: any) {
-    console.error("AI Summary Error:", error);
+    console.error("Clinical AI Summary Error:", error);
     return NextResponse.json(
       { error: error.message || "Internal Server Error" },
       { status: 500 },

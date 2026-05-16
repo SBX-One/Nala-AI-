@@ -1,37 +1,30 @@
 import { NextResponse } from "next/server";
-import { ChatOpenAI } from "@langchain/openai";
+import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { SystemMessage, HumanMessage } from "@langchain/core/messages";
 
 export async function POST(req: Request) {
   try {
     const { consultationNotes, diagnose } = await req.json();
 
-    const model = new ChatOpenAI({
-      modelName: "openai/gpt-oss-120b:free",
-      apiKey: process.env.OPENROUTER_API_KEY,
-      configuration: {
-        baseURL: "https://openrouter.ai/api/v1",
-        defaultHeaders: {
-          "HTTP-Referer": "http://localhost:3000",
-          "X-Title": "Nala Psychiatrist Session Assistant",
-        },
-      },
+    const model = new ChatGoogleGenerativeAI({
+      model: "gemini-2.5-flash-lite",
+      apiKey: process.env.GOOGLE_API_KEY,
     });
 
     const systemPrompt = new SystemMessage(
-      `You are a senior clinical AI assistant for a psychiatrist. Your task is to generate a comprehensive "Session AI Summary" and provide clinical insights by synthesizing the psychiatrist's session notes and the final diagnosis.
+      `Anda adalah asisten AI klinis senior untuk psikiater. Tugas Anda adalah menghasilkan "Ringkasan Sesi AI" yang komprehensif dan memberikan wawasan klinis dengan mensintesis catatan sesi psikiater dan diagnosis akhir.
 
-      Always use Markdown formatting for your response:
-      1. Use **Bold Headers** for main sections like **Clinical Synthesis** and **Session Insights**.
-      2. Use bullet points for specific observations or findings.
-      3. Use bold text for key clinical terms or important findings.
+      Selalu gunakan format Markdown untuk tanggapan Anda:
+      1. Gunakan **Bold Headers** untuk bagian utama seperti **Sintesis Klinis** dan **Wawasan Sesi**.
+      2. Gunakan poin-poin untuk observasi atau temuan spesifik.
+      3. Gunakan teks tebal untuk istilah klinis utama atau temuan penting.
       
-      Focus on:
-      - Providing a cohesive clinical narrative of the session based on the notes.
-      - Offering clinical insights and patterns identified from the psychiatrist's documentation.
-      - Highlighting key takeaways for the next session.
+      Fokus pada:
+      - Memberikan narasi klinis yang kohesif tentang sesi berdasarkan catatan tersebut.
+      - Menawarkan wawasan klinis dan pola yang diidentifikasi dari dokumentasi psikiater.
+      - Menyoroti poin-poin penting untuk sesi berikutnya.
       
-      Keep the tone professional, highly clinical, and concise (max 200-250 words). Respond in English.`,
+      Jaga nada tetap profesional, sangat klinis, dan ringkas (maks 200-250 kata). Tanggapi dalam bahasa Indonesia.`,
     );
 
     const userPrompt = new HumanMessage(

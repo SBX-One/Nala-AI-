@@ -6,7 +6,11 @@ import ActiveConsultationCard from "@/components/queue/ActiveConsultationCard";
 import QueueItemCard from "@/components/queue/QueueItemCard";
 import PastConsultationCard from "@/components/queue/PastConsultationCard";
 import PatientInfoModal from "@/components/queue/PatientInfoModal";
-import { getQueueData, joinMeetingRoom } from "@/app/actions/consultation";
+import {
+  getQueueData,
+  joinMeetingRoom,
+  getPatientInfo,
+} from "@/app/actions/consultation";
 import { useRouter } from "next/navigation";
 
 function formatTime(timeStr: string | null) {
@@ -149,15 +153,29 @@ export default function ConsultationQueuePage() {
     return `${minutes}m ${seconds}s`;
   };
 
-  const openPatientModal = (patient: any) => {
-    setSelectedPatient({
-      name: patient.user?.name || patient.name,
-      avatar_url: patient.user?.avatar_url || patient.avatar,
-      complaint: patient.complaint,
-      topic: patient.topic,
-      status: patient.status,
-    });
-    setIsModalOpen(true);
+  const openPatientModal = async (patient: any) => {
+    setIsJoining(true); // Reuse isJoining as a general loading state or add a new one
+    try {
+      const userId = patient.user_id || patient.originalData?.user_id;
+      if (!userId) return;
+
+      const res = await getPatientInfo(userId);
+      if (res.data) {
+        setSelectedPatient({
+          latest_consultation_id: res.data.profile.latest_consultation_id,
+          name: res.data.profile.name,
+          avatar_url: res.data.profile.avatar_url,
+          complaint: res.data.profile.complaint,
+          ai_summary: res.data.profile.ai_summary, // Or from journal?
+          medicines: res.data.medicationHistory,
+        });
+        setIsModalOpen(true);
+      }
+    } catch (err) {
+      console.error("Failed to fetch patient info:", err);
+    } finally {
+      setIsJoining(false);
+    }
   };
 
   const handleEnterRoom = async (
@@ -294,7 +312,7 @@ export default function ConsultationQueuePage() {
 
           {/* Consultation Queue List */}
           <div className="bg-white rounded-xl p-6 md:p-8 border border-border-default space-y-6 shadow-sm">
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-center gap-3 mb-4">
               <div className="size-10 rounded-xl bg-primary-50 flex items-center justify-center">
                 <svg
                   width="24"
@@ -363,7 +381,7 @@ export default function ConsultationQueuePage() {
                   <circle cx="9" cy="7" r="4"></circle>
                 </svg>
               </div>
-              <h3 className=" text-body-xl-bold md:text-heading-5-bold text-text-heading">
+              <h3 className=" text-body-xl-bold  text-text-heading">
                 Past Consultation
               </h3>
             </div>

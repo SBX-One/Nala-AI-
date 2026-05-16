@@ -2,9 +2,11 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import NalaLogo from "@/public/icon/Nala-Logo.svg";
 import starIcon from "@/public/icon/starWhite.svg";
 import starIconDefault from "@/public/icon/starDefault.svg";
+import DeleteSessionModal from "@/components/partials/DeleteSessionModal";
 
 interface Message {
 	id?: string;
@@ -31,6 +33,8 @@ export default function NalaChatPage() {
 		null,
 	);
 	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+	const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
 
 	const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -80,6 +84,35 @@ export default function NalaChatPage() {
 		setMessages([]);
 	};
 
+	// 3.5 Delete Session
+	const handleDeleteSession = async (e: React.MouseEvent, sessionId: string) => {
+		e.stopPropagation(); // Prevent clicking the session card
+		setSessionToDelete(sessionId);
+		setIsDeleteModalOpen(true);
+	};
+
+	const confirmDeleteSession = async () => {
+		if (!sessionToDelete) return;
+
+		try {
+			const res = await fetch(`/api/ai/sessions/${sessionToDelete}`, {
+				method: "DELETE",
+			});
+			const data = await res.json();
+			if (data.success) {
+				if (currentSessionId === sessionToDelete) {
+					startNewChat();
+				}
+				fetchSessions();
+			}
+		} catch (error) {
+			console.error("Failed to delete session:", error);
+		} finally {
+			setIsDeleteModalOpen(false);
+			setSessionToDelete(null);
+		}
+	};
+
 	// 4. Send Message
 	const handleSend = async (overrideInput?: string) => {
 		const textToSend = overrideInput || input;
@@ -112,28 +145,34 @@ export default function NalaChatPage() {
 				fetchSessions();
 			}
 
+			let processedContent = data.content;
+			let showBookingCard = false;
+			const articleMatches = processedContent.match(/\[ARTICLE: (\d+)\]/g);
+
+			if (processedContent.includes("[ACTION: BOOK_PSYCHIATRIST]")) {
+				showBookingCard = true;
+				processedContent = processedContent.replace("[ACTION: BOOK_PSYCHIATRIST]", "").trim();
+			}
+
+			// Clean up article markers from text (we'll handle rendering separately or keep them for simple text)
+			// Actually, let's keep them and handle rendering in the UI
+
 			const assistantMsg: Message = {
 				role: "assistant",
-				content: data.content,
+				content: processedContent,
 			};
 
-			// Mock AI Analysis detection for "harm" or "help"
-			if (
-				textToSend.toLowerCase().includes("harm") ||
-				textToSend.toLowerCase().includes("bantu")
-			) {
-				setMessages((prev) => [
-					...prev,
-					assistantMsg,
-					{
+			setMessages((prev) => {
+				const next = [...prev, assistantMsg];
+				if (showBookingCard) {
+					next.push({
 						role: "assistant",
-						content: "Self Harm Detected",
+						content: "Rekomendasi Ahli Profesional",
 						isAnalysis: true,
-					},
-				]);
-			} else {
-				setMessages((prev) => [...prev, assistantMsg]);
-			}
+					});
+				}
+				return next;
+			});
 		} catch (error) {
 			console.error("Chat Error:", error);
 			setMessages((prev) => [
@@ -265,7 +304,7 @@ export default function NalaChatPage() {
 							</button>
 						</div>
 
-						<div className="flex-1 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden px-6 space-y-6 pb-6">
+						<div className="flex-1 overflow-y-auto scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden px-6 space-y-6 pb-6">
 							{sessions.length === 0 && !isSessionsLoading ? (
 								<div className="bg-surface-background border border-border-default rounded-2xl p-6 text-center space-y-3 mt-4">
 									<h4 className="text-body-base-semibold text-text-heading">
@@ -291,30 +330,51 @@ export default function NalaChatPage() {
 												</p>
 												{groupSessions.map(
 													(session) => (
-														<button
-															key={session.id}
-															onClick={() =>
-																fetchMessages(
-																	session.id,
-																)
-															}
-															className={`w-full py-4 px-6 rounded-2xl text-left transition-all border ${
-																currentSessionId ===
-																session.id
-																	? " border-border-action bg-surface-primary-light"
-																	: "bg-surface-background border-border-default"
-															}`}
-														>
-															<h4 className="text-body-base-semibold text-text-boody ">
-																{session.title ||
-																	"New Chat"}
-															</h4>
-															<p className="text-body-caption-medium text-text-placeholder mt-1">
-																{getRelativeTime(
-																	session.updated_at,
-																)}
-															</p>
-														</button>
+														<div key={session.id} className="relative group">
+															<button
+																onClick={() =>
+																	fetchMessages(
+																		session.id,
+																	)
+																}
+																className={`w-full py-4 px-6 pr-12 rounded-2xl text-left transition-all border ${
+																	currentSessionId ===
+																	session.id
+																		? " border-border-action bg-surface-primary-light"
+																		: "bg-surface-background border-border-default"
+																}`}
+															>
+																<h4 className="text-body-base-semibold text-text-boody truncate pr-2">
+																	{session.title ||
+																		"New Chat"}
+																</h4>
+																<p className="text-body-caption-medium text-text-placeholder mt-1">
+																	{getRelativeTime(
+																		session.updated_at,
+																	)}
+																</p>
+															</button>
+															<button
+																onClick={(e) => handleDeleteSession(e, session.id)}
+																className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-icon-default hover:text-error-600 hover:bg-error-50 rounded-lg transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+																title="Delete chat history"
+															>
+																<svg
+																	width="18"
+																	height="18"
+																	viewBox="0 0 24 24"
+																	fill="none"
+																	stroke="currentColor"
+																	strokeWidth="2"
+																	strokeLinecap="round"
+																	strokeLinejoin="round"
+																>
+																	<path d="M3 6h18" />
+																	<path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+																	<path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+																</svg>
+															</button>
+														</div>
 													),
 												)}
 											</div>
@@ -504,13 +564,15 @@ export default function NalaChatPage() {
 											{m.content}
 										</h3>
 										<p className="text-body-caption-regular text-text-subheading">
-											Lets see what kind of psychiatry to
-											help you through your problem
+											Mari cari psikiater yang tepat untuk membantumu melewati masalah ini.
 										</p>
 									</div>
-									<button className="w-full py-3 bg-[#C80000] text-white rounded-xl text-label-base-semibold hover:bg-red-800 transition-all">
+									<Link 
+										href="/user/session/booking"
+										className="w-full py-3 bg-[#C80000] text-white rounded-xl text-label-base-semibold hover:bg-red-800 transition-all text-center block"
+									>
 										Book Specialist
-									</button>
+									</Link>
 								</div>
 							) : (
 								<div
@@ -521,7 +583,22 @@ export default function NalaChatPage() {
 									}`}
 								>
 									<p className="text-body-base-regular leading-relaxed whitespace-pre-wrap">
-										{m.content}
+										{m.content.split(/(\[ARTICLE: \d+\])/).map((part, idx) => {
+											const match = part.match(/\[ARTICLE: (\d+)\]/);
+											if (match) {
+												const id = match[1];
+												return (
+													<Link
+														key={idx}
+														href={`/user/article/${id}`}
+														className="text-primary-600 font-bold hover:underline"
+													>
+														Lihat Artikel
+													</Link>
+												);
+											}
+											return part;
+										})}
 									</p>
 								</div>
 							)}
@@ -604,6 +681,12 @@ export default function NalaChatPage() {
 					</div>
 				)}
 			</div>
+			
+			<DeleteSessionModal 
+				isOpen={isDeleteModalOpen} 
+				onClose={() => setIsDeleteModalOpen(false)} 
+				onConfirm={confirmDeleteSession} 
+			/>
 		</div>
 	);
 }
