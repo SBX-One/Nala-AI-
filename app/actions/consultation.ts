@@ -74,6 +74,7 @@ export async function updateConsultation(
   id: number,
   data: {
     diagnose: string;
+    consultation_notes?: string;
     psychiatrist_feedback: string;
     status?: string;
     medicines?: { name: string; dose: string; use: string; notes: string }[];
@@ -348,7 +349,7 @@ export async function joinMeetingRoom(
         psychiatrist_join: true,
         start_at: now,
       })
-      .select("id")
+      .select("id, user_join, psychiatrist_join")
       .single();
 
     if (createError) {
@@ -373,6 +374,7 @@ export async function joinMeetingRoom(
     }
   }
 
+  if (!room) return { error: "Failed to initialize meeting room" };
   return { success: true, roomId: room.id };
 }
 
