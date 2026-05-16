@@ -1,6 +1,10 @@
 import { PrismaClient } from "@prisma/client";
+import { Pool } from "pg";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-const prisma = new PrismaClient();
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   // Seed Categories
@@ -37,7 +41,7 @@ async function main() {
       update: {},
       create: { 
         name: top,
-        category_id: 1
+        category: { connect: { id: 1 } }
       }
     });
   }
