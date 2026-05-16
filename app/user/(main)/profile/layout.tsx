@@ -32,13 +32,14 @@ export default function UserProfileLayout({
         <div className="p-4 flex items-center justify-between overflow-x-auto scrollbar-hide border-t border-border-default/50">
           <div className="flex items-center gap-2 ">
             {TABS.map((tab) => {
-              const isActive = pathname === tab.href;
+              const isActive = tab.href === "/user/profile" 
+                ? (pathname === "/user/profile" || pathname === "/user/profile/")
+                : pathname === tab.href;
               return (
                 <Link
                   key={tab.href}
                   href={tab.href}
-
-                  className={`button-tab px-10 py-3 ${isActive ? "button-tab-active" : ""}`}
+                  className={`button-tab px-10 py-3 ${isActive ? "button-tab-active" : "hover:text-text-heading hover:bg-surface-default"}`}
                 >
                   {tab.label}
                 </Link>
