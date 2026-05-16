@@ -1,6 +1,9 @@
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import remarkBreaks from "remark-breaks";
+import React, { useEffect } from "react";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Link from "@tiptap/extension-link";
+import Underline from "@tiptap/extension-underline";
+import TextAlign from "@tiptap/extension-text-align";
 
 interface ArticlePreviewProps {
   title: string;
@@ -8,6 +11,7 @@ interface ArticlePreviewProps {
   content: string;
   imageUrl?: string;
   categoryName?: string;
+  topics?: string[];
   duration?: number;
 }
 
@@ -17,19 +21,91 @@ export default function ArticlePreview({
   content,
   imageUrl,
   categoryName,
+  topics,
   duration,
 }: ArticlePreviewProps) {
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        heading: {
+          levels: [1, 2, 3],
+        },
+      }),
+      Underline,
+      Link.configure({
+        openOnClick: true,
+        HTMLAttributes: {
+          class: "text-primary-600 underline cursor-pointer",
+        },
+      }),
+      TextAlign.configure({
+        types: ["heading", "paragraph"],
+      }),
+    ],
+    content: "",
+    editable: false,
+    immediatelyRender: false,
+  });
+
+  useEffect(() => {
+    if (editor && content !== undefined) {
+      // Improved Markdown to HTML conversion
+      const blocks = content.trim().split(/\n\n+/);
+      const html = blocks
+        .map((block) => {
+          if (block.startsWith("# ")) {
+            return `<h1>${block.replace("# ", "")}</h1>`;
+          }
+          if (block.startsWith("## ")) {
+            return `<h2>${block.replace("## ", "")}</h2>`;
+          }
+          if (block.startsWith("### ")) {
+            return `<h3>${block.replace("### ", "")}</h3>`;
+          }
+          if (block.startsWith("- ")) {
+            const items = block
+              .split("\n")
+              .filter((line) => line.trim())
+              .map((li) => `<li>${li.replace("- ", "").trim()}</li>`)
+              .join("");
+            return `<ul>${items}</ul>`;
+          }
+          if (block.startsWith("> ")) {
+            return `<blockquote>${block.replace("> ", "").trim()}</blockquote>`;
+          }
+
+          // Paragraphs with inline formatting
+          const formatted = block
+            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+            .replace(/\*(.*?)\*/g, "<em>$1</em>")
+            .replace(/\n/g, "<br />");
+          return `<p>${formatted}</p>`;
+        })
+        .filter(Boolean)
+        .join("");
+
+      editor.commands.setContent(html);
+    }
+  }, [editor, content]);
   return (
-    <div className="flex flex-col gap-8 max-w-4xl mx-auto py-10 animate-in fade-in duration-500">
+    <div className="flex flex-col gap-8 w-full lg:max-w-5xl mx-auto p-4 md:px-6 md:py-10 animate-in fade-in duration-500">
       {/* Header Info */}
       <div className="flex flex-col gap-4">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {categoryName && (
-            <span className="px-3 py-1 bg-primary-50 text-primary-600 rounded-full text-label-small-bold uppercase tracking-wider">
+            <span className="px-3 py-1 bg-primary-50 text-primary-600 rounded-full text-label-small-bold uppercase tracking-wider border border-primary-100">
               {categoryName}
             </span>
           )}
-          <span className="text-label-small-medium text-text-subheading uppercase tracking-widest italic">
+          {topics?.map((topic, idx) => (
+            <span
+              key={idx}
+              className="px-3 py-1 bg-surface-background text-text-subheading rounded-full text-label-small-bold uppercase tracking-wider border border-border-default"
+            >
+              {topic}
+            </span>
+          ))}
+          <span className="text-label-small-medium text-text-subheading uppercase tracking-widest italic ml-auto">
             {duration || 0} Min Read
           </span>
         </div>
@@ -43,7 +119,7 @@ export default function ArticlePreview({
 
       {/* Image */}
       {imageUrl && (
-        <div className="w-full aspect-21/9 rounded-[2rem] overflow-hidden shadow-xl ring-1 ring-border-default/50">
+        <div className="w-full aspect-21/9 rounded-[2rem] overflow-hidden  ring-1 ring-border-default/50">
           <img
             src={imageUrl}
             alt={title}
@@ -53,71 +129,71 @@ export default function ArticlePreview({
       )}
 
       <div className="max-w-none">
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm, remarkBreaks]}
-          components={{
-            h1: ({ ...props }) => (
-              <h1
-                className="text-heading-1-bold text-text-heading mt-12 mb-6"
-                {...props}
-              />
-            ),
-            h2: ({ ...props }) => (
-              <h2
-                className="text-heading-3-bold text-text-heading mt-10 mb-4"
-                {...props}
-              />
-            ),
-            h3: ({ ...props }) => (
-              <h3
-                className="text-heading-4-bold text-text-heading mt-8 mb-3"
-                {...props}
-              />
-            ),
-            p: ({ ...props }) => (
-              <p
-                className="text-body-xl-regular text-text-body leading-relaxed mb-6"
-                {...props}
-              />
-            ),
-            ul: ({ ...props }) => (
-              <ul
-                className="list-disc pl-6 mb-6 flex flex-col gap-2 text-text-body"
-                {...props}
-              />
-            ),
-            ol: ({ ...props }) => (
-              <ol
-                className="list-decimal pl-6 mb-6 flex flex-col gap-2 text-text-body"
-                {...props}
-              />
-            ),
-            li: ({ ...props }) => (
-              <li className="text-body-lg-regular" {...props} />
-            ),
-            strong: ({ ...props }) => (
-              <strong className="font-bold " {...props} />
-            ),
-            em: ({ ...props }) => (
-              <em className="italic text-text-subheading" {...props} />
-            ),
-            blockquote: ({ ...props }) => (
-              <blockquote
-                className="border-l-4 border-primary-300 pl-6 py-2 italic text-text-subheading my-10 bg-surface-default rounded-r-xl"
-                {...props}
-              />
-            ),
-            hr: () => <hr className="my-12 border-border-default" />,
-            a: ({ ...props }) => (
-              <a
-                className="text-primary-default underline hover:text-primary-600 transition-colors"
-                {...props}
-              />
-            ),
-          }}
-        >
-          {content || "_No content yet. Start writing to see the preview!_"}
-        </ReactMarkdown>
+        <style jsx global>{`
+          .tiptap h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--color-text-heading);
+          }
+          .tiptap h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--color-text-heading);
+          }
+          .tiptap h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--color-text-heading);
+          }
+          .tiptap p {
+            margin-bottom: 1.25rem;
+          }
+          .tiptap ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+            margin-bottom: 1.25rem;
+          }
+          .tiptap ol {
+            list-style-type: decimal;
+            padding-left: 1.5rem;
+            margin-bottom: 1.25rem;
+          }
+
+          .tiptap ul li p,
+          .tiptap ol li p {
+            margin-bottom: 0rem !important;
+          }
+
+          .tiptap blockquote {
+            border-left: 4px solid var(--color-primary-300);
+            padding-left: 1.5rem;
+            font-style: italic;
+            color: var(--color-text-subheading);
+            margin: 2rem 0;
+          }
+          .tiptap p.is-editor-empty:first-child::before {
+            color: var(--color-text-placeholder);
+            content: attr(data-placeholder);
+            float: left;
+            height: 0;
+            pointer-events: none;
+          }
+        `}</style>
+        <div className="tiptap-preview">
+          {content ? (
+            <EditorContent editor={editor} className="tiptap" />
+          ) : (
+            <p className="italic text-text-placeholder">
+              No content yet. Start writing to see the preview!
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

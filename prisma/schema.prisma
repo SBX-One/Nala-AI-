@@ -190,16 +190,19 @@ model Message {
 }
 
 model ArticleCategory {
-  id         Int       @id @default(autoincrement())
+  id         Int                    @id @default(autoincrement())
   name       String
-  created_at DateTime  @default(now())
+  created_at DateTime               @default(now())
   articles   Article[]
+  topics     ArticleCategoryTopic[]
 }
 
 model ArticleCategoryTopic {
-  id             Int            @id @default(autoincrement())
+  id             Int             @id @default(autoincrement())
+  category_id    Int
   name           String
-  created_at     DateTime       @default(now())
+  created_at     DateTime        @default(now())
+  category       ArticleCategory @relation(fields: [category_id], references: [id])
   article_topics ArticleTopic[]
 }
 
@@ -211,6 +214,7 @@ model Article {
   duration        Int?
   content         String?
   image_url       String?
+  other_topic     String?
   created_at      DateTime            @default(now())
   title           String
   status          ArticleStatus       @default(draft)

@@ -83,7 +83,7 @@ export default function TiptapEditor({
   return (
     <div className="w-full block relative">
       {/* Floating/Sticky Toolbar Container */}
-      <div className=" z-50 sticky top-20 rounded-xl left-0 right-0 bg-white py-4 shadow-sm border-b border-border-default  px-4 mb-6">
+      <div className=" z-30 sticky top-23 rounded-xl left-0 right-0 bg-white py-4  border-b border-border-default  px-4 mb-6">
         <div className="flex items-center gap-1 p-1 bg-surface-background border border-border-default rounded-xl">
           <button
             type="button"
@@ -202,7 +202,7 @@ export default function TiptapEditor({
 
         .tiptap ul li p,
         .tiptap ol li p {
-          margin-bottom: 0.4rem !important;
+          margin-bottom: 0rem !important;
         }
 
         .tiptap blockquote {

@@ -36,8 +36,10 @@ export async function getPsychiatristArticles() {
       *,
       category:ArticleCategory (name),
       topics:ArticleTopic (
+        category_topic,
         categoryTopic:ArticleCategoryTopic (name)
-      )
+      ),
+      other_topic
     `,
     )
     .eq("psychiatrist_id", psyProfile.id)
@@ -58,6 +60,7 @@ export async function createArticle(formData: {
   categoryId: number;
   imageUrl?: string;
   topicIds: number[];
+  otherTopic?: string;
   status?: string;
 }) {
   const supabase = await createClient();
@@ -95,6 +98,7 @@ export async function createArticle(formData: {
       overview: formData.overview,
       content: formData.content,
       image_url: formData.imageUrl,
+      other_topic: formData.otherTopic,
       status: formData.status || "draft",
       duration: Math.ceil(formData.content.split(/\s+/).length / 200), // Approx 200 wpm
     })
@@ -135,6 +139,7 @@ export async function updateArticle(
     categoryId: number;
     imageUrl?: string;
     topicIds: number[];
+    otherTopic?: string;
     status?: string;
   },
 ) {
@@ -149,6 +154,7 @@ export async function updateArticle(
       overview: formData.overview,
       content: formData.content,
       image_url: formData.imageUrl,
+      other_topic: formData.otherTopic,
       status: formData.status,
       duration: Math.ceil(formData.content.split(/\s+/).length / 200),
     })
@@ -202,6 +208,7 @@ export async function getPublishedArticles() {
         avatar_url
       ),
       topics:ArticleTopic (
+        category_topic,
         categoryTopic:ArticleCategoryTopic (name)
       )
     `)
@@ -229,6 +236,7 @@ export async function getArticleById(id: number) {
         avatar_url
       ),
       topics:ArticleTopic (
+        category_topic,
         categoryTopic:ArticleCategoryTopic (name)
       )
     `)
@@ -249,8 +257,12 @@ export async function getArticleCategories() {
   return data || [];
 }
 
-export async function getArticleTopics() {
+export async function getArticleTopics(categoryId?: number) {
   const supabase = await createClient();
-  const { data } = await supabase.from("ArticleCategoryTopic").select("*");
+  let query = supabase.from("ArticleCategoryTopic").select("*");
+  if (categoryId) {
+    query = query.eq("category_id", categoryId);
+  }
+  const { data } = await query;
   return data || [];
 }

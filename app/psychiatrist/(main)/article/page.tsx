@@ -1,35 +1,52 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { getPsychiatristArticles, deleteArticle } from "@/app/actions/article";
+import {
+  getPsychiatristArticles,
+  getPublishedArticles,
+  deleteArticle,
+} from "@/app/actions/article";
+import PsychiatristArticleCard from "@/components/partials/PsychiatristArticleCard";
 import Link from "next/link";
-import Image from "next/image";
+import { useCallback, useEffect, useState } from "react";
 
 export default function ArticleListPage() {
-  const [articles, setArticles] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<"my" | "all">("my");
+  const [myArticles, setMyArticles] = useState<any[]>([]);
+  const [allArticles, setAllArticles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchArticles = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
-    const data = await getPsychiatristArticles();
-    setArticles(data);
-    setLoading(false);
+    try {
+      const [my, all] = await Promise.all([
+        getPsychiatristArticles(),
+        getPublishedArticles(),
+      ]);
+      setMyArticles(my);
+      setAllArticles(all);
+    } catch (error) {
+      console.error("Failed to fetch articles:", error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    fetchArticles();
-  }, [fetchArticles]);
+    fetchData();
+  }, [fetchData]);
 
   const handleDelete = async (id: number) => {
     if (confirm("Are you sure you want to delete this article?")) {
       await deleteArticle(id);
-      fetchArticles();
+      fetchData();
     }
   };
 
+  const articlesToDisplay = activeTab === "my" ? myArticles : allArticles;
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex items-center justify-center h-[60dvh]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
       </div>
     );
@@ -37,13 +54,15 @@ export default function ArticleListPage() {
 
   return (
     <div className="bg-surface-default min-h-[80dvh]">
-      <div className="flex flex-col md:flex-row justify-between md:items-center gap-y-4 md:gap-0  p-6 py-8 bg-white border-b border-border-default sticky top-0 z-10">
+      <div className="flex flex-col md:flex-row justify-between md:items-center gap-y-4 md:gap-0 p-6 py-8 bg-white border-b border-border-default sticky top-0 z-10">
         <div>
           <h1 className="text-heading-6-bold md:text-heading-4-bold text-text-heading md:mb-2">
-            My Articles
+            Articles
           </h1>
           <p className="text-body-sm-medium md:text-body-base-medium text-text-subheading">
-            Manage and publish your mental health insights
+            {activeTab === "my"
+              ? "Manage and publish your mental health insights"
+              : "Explore insights from the Nala psychiatrist community"}
           </p>
         </div>
         <Link
@@ -55,7 +74,31 @@ export default function ArticleListPage() {
       </div>
 
       <div className="p-4 md:p-6">
-        {articles.length === 0 ? (
+        {/* Tabs */}
+        <div className="flex bg-white p-1 rounded-xl border border-border-default w-fit mb-8">
+          <button
+            onClick={() => setActiveTab("my")}
+            className={`px-6 py-2 rounded-lg text-label-base-bold transition-all ${
+              activeTab === "my"
+                ? "bg-primary-50 text-primary-600"
+                : "text-text-subheading hover:text-text-heading"
+            }`}
+          >
+            My Articles
+          </button>
+          <button
+            onClick={() => setActiveTab("all")}
+            className={`px-6 py-2 rounded-lg text-label-base-bold transition-all ${
+              activeTab === "all"
+                ? "bg-primary-50 text-primary-600"
+                : "text-text-subheading hover:text-text-heading"
+            }`}
+          >
+            All Articles
+          </button>
+        </div>
+
+        {articlesToDisplay.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl border border-dashed border-border-default">
             <p className="text-body-lg-semibold text-text-heading">
               No articles yet
@@ -66,94 +109,13 @@ export default function ArticleListPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {articles.map((article) => (
-              <div
+            {articlesToDisplay.map((article) => (
+              <PsychiatristArticleCard
                 key={article.id}
-                className="bg-white rounded-2xl border border-border-default overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow"
-              >
-                <div className="relative h-48 bg-surface-disabled">
-                  {article.image_url ? (
-                    <Image
-                      src={article.image_url}
-                      alt={article.title}
-                      fill
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-text-placeholder">
-                      No Image
-                    </div>
-                  )}
-                  <div className="absolute top-4 left-4 flex gap-2">
-                    <span className="bg-white/90 backdrop-blur-sm text-label-small-bold px-3 py-1 rounded-full text-text-action shadow-sm">
-                      {article.category?.name}
-                    </span>
-                    <span
-                      className={`backdrop-blur-sm text-label-small-bold px-3 py-1 rounded-full shadow-sm ${
-                        article.status === "published"
-                          ? "bg-success-50/90 text-success-600"
-                          : "bg-neutral-100/90 text-text-subheading"
-                      }`}
-                    >
-                      {article.status === "published" ? "Published" : "Draft"}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="p-6 flex-1 flex flex-col gap-3">
-                  <h3 className="text-body-lg-bold text-text-heading line-clamp-2 min-h-[3.5rem]">
-                    {article.title}
-                  </h3>
-                  <p className="text-body-sm-medium text-text-subheading line-clamp-3">
-                    {article.overview}
-                  </p>
-
-                  <div className="mt-auto pt-4 flex justify-between items-center border-t border-border-default">
-                    <span className="text-label-caption-medium text-text-subheading">
-                      {new Date(article.created_at).toLocaleDateString()} •{" "}
-                      {article.duration} min read
-                    </span>
-                    <div className="flex gap-2">
-                      <Link
-                        href={`/psychiatrist/article/edit/${article.id}`}
-                        className="p-2 hover:bg-surface-background rounded-lg text-text-action transition-colors"
-                      >
-                        <svg
-                          width="20"
-                          height="20"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                        </svg>
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(article.id)}
-                        className="p-2 hover:bg-error-50 rounded-lg text-error-600 transition-colors"
-                      >
-                        <svg
-                          width="20"
-                          height="20"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <polyline points="3 6 5 6 21 6"></polyline>
-                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                article={article}
+                onDelete={handleDelete}
+                showActions={activeTab === "my"}
+              />
             ))}
           </div>
         )}
