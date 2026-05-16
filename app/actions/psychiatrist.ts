@@ -330,6 +330,7 @@ export async function getPsychiatristDashboardData() {
     .select(
       `
       id,
+      user_id,
       start_time,
       end_time,
       complaint,
@@ -357,7 +358,7 @@ export async function getPsychiatristDashboardData() {
     );
 
   // 3. Unfinished Feedback (status: draft, Limit 2)
-  const { data: unfinishedFeedback, error: feedbackError } = await supabase
+  const { data: unfinishedFeedback } = await supabase
     .from("Consultation")
     .select(
       `
@@ -379,6 +380,7 @@ export async function getPsychiatristDashboardData() {
   const formattedSessions =
     todaySessions?.map((s: any) => ({
       id: s.id,
+      user_id: s.user_id,
       name: s.user?.name || "Patient",
       time: `Today, ${formatTime(s.start_time)} - ${formatTime(s.end_time)}`,
       image: s.user?.avatar_url,

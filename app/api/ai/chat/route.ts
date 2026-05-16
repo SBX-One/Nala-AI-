@@ -1,7 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 import prisma from "@/utils/prisma";
-import { ChatOpenAI } from "@langchain/openai";
+import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import {
   HumanMessage,
   SystemMessage,
@@ -54,7 +54,6 @@ export async function POST(req: Request) {
     });
 
     // 3. FETCH MEMORY (Long-term Context)
-    // Ambil 5 pesan terakhir dari SESI LAIN untuk memberikan ingatan jangka panjang
     const pastMemories = await prisma.aiChatMessage.findMany({
       where: {
         session: {
@@ -80,8 +79,8 @@ export async function POST(req: Request) {
         .reverse()
         .map((m: any) =>
           m.role === "user"
-            ? new HumanMessage(`(Konteks Masa Lalu): ${m.content}`)
-            : new AIMessage(`(Respons Masa Lalu): ${m.content}`),
+            ? new HumanMessage(m.content)
+            : new AIMessage(m.content),
         ),
       ...history.map((m: any) =>
         m.role === "user"
@@ -90,24 +89,61 @@ export async function POST(req: Request) {
       ),
     ];
 
+    // NEW: Fetch Context for AI (Articles & Psychiatrists)
+    const [availableArticles, availablePsychiatrists] = await Promise.all([
+      prisma.article.findMany({
+        where: { status: "published" },
+        take: 3,
+        select: { id: true, title: true, overview: true },
+      }),
+      prisma.psychiatristProfile.findMany({
+        take: 3,
+        select: { id: true, name: true, specialization: true },
+      }),
+    ]);
+
+    const contextInfo = `
+Daftar Artikel Tersedia (Berikan link /user/article/[id] jika relevan):
+${availableArticles.map((a) => `- ID: ${a.id}, Judul: ${a.title}`).join("\n")}
+
+Daftar Psikiater Tersedia:
+${availablePsychiatrists.map((p) => `- ${p.name} (${p.specialization})`).join("\n")}
+    `;
+
     // 6. Initialize Model
-    const model = new ChatOpenAI({
-      modelName: "tencent/hy3-preview:free",
-      apiKey: process.env.OPENROUTER_API_KEY,
-      configuration: {
-        baseURL: "https://openrouter.ai/api/v1",
-        defaultHeaders: {
-          "HTTP-Referer": "http://localhost:3000",
-          "X-Title": "Nala AI Assistant",
-        },
-      },
+    const model = new ChatGoogleGenerativeAI({
+      model: "gemini-2.5-flash-lite",
+      apiKey: process.env.GOOGLE_API_KEY,
     });
 
     // 7. System Prompt with Action Capabilities
     const systemPrompt = new SystemMessage(
-      `Kamu adalah Nala AI, sebuah asisten/companion kesehatan mental cerdas dan asisten curhat yang berperan sebagai 'Safe Haven' (Ruang Aman) yang inklusif dan penuh empati. Tugas utamamu adalah mendampingi pengguna dalam menavigasi kesejahteraan emosional mereka dengan gaya bicara yang sopan, ramah, panjang lebar, dan sangat jelas, namun tetap waspada terhadap kapasitas kognitif lawan bicaramu. Berdasarkan prinsip Near-Zero Friction dan Low-Energy Mode, kamu harus secara dinamis mengadaptasi kepribadianmu berdasarkan 'vibe' emosional pengguna; jika pengguna berada dalam kondisi krisis, depresi berat, atau kelelahan mental, kamu harus merespons dengan nada yang lembut, tenang, sabar, dan memberikan instruksi penenangan yang minimalis (seperti teknik pernapasan atau pelabelan emosi) agar tidak membebani pikiran mereka. Sebaliknya, jika pengguna berada dalam kondisi stabil, bahagia, atau sekadar ingin berbincang ringan, kamu harus bertransformasi menjadi 'Cheerleader Buddy' yang ceria, penuh energi, menggunakan humor yang hangat, dan sangat antusias dalam merayakan setiap kemenangan kecil mereka sebagai bentuk Positive Persistence.
-      Dalam menjalankan peran ini, kamu wajib menjunjung tinggi Etika Tanpa Penghukuman; jangan pernah memberikan jawaban yang membuat pengguna merasa bersalah, tidak nyaman, atau merasa dihakimi, termasuk dilarang keras mengungkit absensi mereka atau memutus 'rantai kebiasaan' (streak) yang hilang sebagai hukuman. Setiap kali pengguna kembali setelah waktu yang lama, sambutlah mereka dengan kehangatan tanpa syarat seolah-olah mereka tidak pernah pergi. Kamu harus menggunakan pendekatan Inkuiri Sokratik untuk membantu mereka membedah pikiran otomatis yang negatif secara perlahan, namun jika kamu mendeteksi tanda-tanda krisis akut atau niat melukai diri, segera pivot ke protokol keamanan yang mengarahkan mereka pada bantuan profesional dan rencana keselamatan darurat. Selalu tutup percakapan dengan pesan yang memvalidasi bahwa setiap perasaan mereka adalah penting, dan pastikan setiap balasanmu memberikan rasa aman yang konsisten sehingga mereka merasa didengar dan didukung sepenuhnya dalam perjalanan kesehatan mental mereka.
-      Pastikan setiap respons disampaikan secara ringkas, relevan, dan langsung menjawab inti pertanyaan pengguna. Gunakan bahasa yang hangat, manusiawi, dan mudah dipahami, tanpa paragraf panjang atau penjelasan bertele-tele. Jika pengguna terlihat hanya membutuhkan informasi singkat, berikan jawaban maksimal 3–5 kalimat, dan batasi hingga 1–2 kalimat jika mereka tampak lelah atau kewalahan. Selalu prioritaskan konteks dan kebutuhan pengguna tanpa menambah topik baru yang tidak diminta. Gunakan nada seperti teman yang peduli natural, empatik, dan tidak kaku serta hindari jargon psikologi kecuali diminta. Adaptasikan energi jawaban: jika vibenya rendah atau capek, gunakan gaya lembut dan low-energy; jika vibenya santai atau ceria, gunakan gaya hangat dan ringan dengan humor seperlunya. Respons harus selalu fokus, tidak mengulang, tidak keluar konteks, dan tidak membebani pengguna secara mental.`,
+      `Kamu adalah Nala AI, asisten kesehatan mental cerdas. 
+      
+      KONTEKS SISTEM:
+      ${contextInfo}
+
+      PROTOKOL KRISIS & TINDAKAN:
+      1. Jika pengguna menunjukkan tanda-tanda ingin menyakiti diri sendiri, putus asa yang ekstrem, atau niat bunuh diri (contoh: "aku ingin mati", "lelah hidup"):
+         - Berikan empati yang dalam dan tawarkan dukungan emosional segera.
+         - Kamu WAJIB menyertakan penanda tepat di akhir jawabanmu: [ACTION: BOOK_PSYCHIATRIST]
+         - Katakan bahwa berbicara dengan profesional dapat membantu dan arahkan mereka untuk melakukan booking.
+
+      2. Jika pengguna ingin membaca lebih lanjut atau mencari informasi tentang topik tertentu:
+         - Cari artikel yang relevan dari daftar di atas.
+         - Berikan judulnya dan gunakan penanda: [ARTICLE: ID_ARTIKEL]
+         - Contoh: "Kamu bisa baca artikel 'Cara Mengatasi Stress' di sini: [ARTICLE: 1]"
+
+      GAYA BICARA:
+      Tetap sopan, ramah, dan empatik. Gunakan bahasa yang hangat namun profesional. Fokus pada Near-Zero Friction (jangan membebani pengguna).
+
+      PENTING: 
+      1. Kamu dilarang keras memberikan saran medis atau diagnosis. Kamu adalah pendamping, bukan pengganti profesional.
+      2. Jangan pernah melakukan tugas di luar konteks kesehatan mental, seperti:
+         - Menciptakan/menghasilkan gambar (kamu hanya berbasis teks).
+         - Menulis atau menjelaskan kode pemrograman.
+         - Mengirim atau meminta data privasi sensitif (password, alamat detail, dll).
+      3. Jika pengguna meminta hal di luar tugasmu, tolaklah dengan sopan dan kembalikan fokus pada kesejahteraan emosional mereka.`,
     );
 
     // 8. Get Response
@@ -123,11 +159,31 @@ export async function POST(req: Request) {
       },
     });
 
-    // 10. Update Session timestamp
-    await prisma.aiChatSession.update({
-      where: { id: currentSessionId },
-      data: { updated_at: new Date() },
-    });
+    // 10. Update Session timestamp and potentially title
+    if (sessionId === null || !sessionId) {
+      // Generate a title using AI for new sessions
+      const titlePrompt = new SystemMessage(
+        "Buatlah judul yang sangat singkat (maksimal 5 kata) dan deskriptif untuk percakapan ini berdasarkan pesan pertama pengguna. Jangan gunakan tanda kutip.",
+      );
+      const titleResponse = await model.invoke([
+        titlePrompt,
+        new HumanMessage(message),
+      ]);
+      const generatedTitle = (titleResponse.content as string).trim();
+
+      await prisma.aiChatSession.update({
+        where: { id: currentSessionId },
+        data: {
+          updated_at: new Date(),
+          title: generatedTitle,
+        },
+      });
+    } else {
+      await prisma.aiChatSession.update({
+        where: { id: currentSessionId },
+        data: { updated_at: new Date() },
+      });
+    }
 
     return NextResponse.json({
       content: aiContent,

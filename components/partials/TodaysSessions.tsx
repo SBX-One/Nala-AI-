@@ -3,6 +3,7 @@
 import starIcon from "@/public/icon/star.svg";
 import Image from "next/image";
 import React, { useState } from "react";
+import { getPatientInfo } from "@/app/actions/consultation";
 import PatientInfoModal from "../queue/PatientInfoModal";
 
 interface Medicine {
@@ -14,11 +15,13 @@ interface Medicine {
 
 interface SessionItem {
   id: number;
+  user_id?: number;
+  latest_consultation_id?: number;
   name: string;
   time: string;
   image?: string;
-  aiSummary?: string;
-  complaints?: string;
+  ai_summary?: string;
+  complaint?: string;
   medicines?: Medicine[];
 }
 
@@ -31,14 +34,31 @@ export default function TodaysSessions({
   items = [],
   icon,
 }: TodaysSessionsProps) {
-  const [selectedPatient, setSelectedPatient] = useState<SessionItem | null>(
-    null,
-  );
+  const [selectedPatient, setSelectedPatient] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleMoreInfo = (item: SessionItem) => {
-    setSelectedPatient(item);
-    setIsModalOpen(true);
+  const handleMoreInfo = async (item: SessionItem) => {
+    if (!item.user_id) return;
+    setIsLoading(true);
+    try {
+      const res = await getPatientInfo(item.user_id);
+      if (res.data) {
+        setSelectedPatient({
+          latest_consultation_id: res.data.profile.latest_consultation_id,
+          name: res.data.profile.name,
+          avatar_url: res.data.profile.avatar_url,
+          complaint: res.data.profile.complaint,
+          ai_summary: res.data.profile.ai_summary,
+          medicines: res.data.medicationHistory,
+        });
+        setIsModalOpen(true);
+      }
+    } catch (err) {
+      console.error("Failed to fetch patient info:", err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const hasItems = items && items.length > 0;
@@ -115,24 +135,30 @@ export default function TodaysSessions({
                   />
                 </div>
                 <button
-                  className="button-secondary-medium w-full md:w-fit flex justify-center"
+                  className="button-secondary-medium w-full md:w-fit flex justify-center items-center gap-2"
                   onClick={() => handleMoreInfo(item)}
+                  disabled={isLoading}
                 >
+                  {isLoading && selectedPatient?.id === item.id ? (
+                    <div className="size-4 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
+                  ) : null}
                   More Info
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="size-4"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      fill="none"
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M5 12h14m-4 4l4-4m-4-4l4 4"
-                    />
-                  </svg>
+                  {!isLoading || selectedPatient?.id !== item.id ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="size-4"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        fill="none"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M5 12h14m-4 4l4-4m-4-4l4 4"
+                      />
+                    </svg>
+                  ) : null}
                 </button>
               </div>
             </div>

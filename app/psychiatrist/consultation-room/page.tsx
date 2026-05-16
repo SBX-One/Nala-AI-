@@ -15,7 +15,6 @@ import {
   VideoTrack,
   useTracks,
   useLocalParticipant,
-  TrackToggle,
   useParticipants,
   RoomAudioRenderer,
   useAudioPlayback,
@@ -46,8 +45,16 @@ const tabs: { key: Tab; label: string }[] = [
   { key: "patientInfo", label: "Patient Info" },
 ];
 
-// Unified Video Call Section for Psychiatrist
-function VideoCallSection({ onEndCall }: { onEndCall: () => void }) {
+// Video + Controls combined in one component with proper layout
+function VideoCallSection({
+  onEndCall,
+  isSidebarOpen,
+  setIsSidebarOpen,
+}: {
+  onEndCall: () => void;
+  isSidebarOpen: boolean;
+  setIsSidebarOpen: (v: boolean) => void;
+}) {
   const tracks = useTracks(
     [
       { source: Track.Source.Camera, withPlaceholder: true },
@@ -57,29 +64,30 @@ function VideoCallSection({ onEndCall }: { onEndCall: () => void }) {
   );
 
   const participants = useParticipants();
-  const localParticipant = useLocalParticipant();
+  const { isMicrophoneEnabled, isCameraEnabled, localParticipant } =
+    useLocalParticipant();
 
   const remoteTracks = tracks.filter(
     (t) =>
-      t.participant.identity !== localParticipant.localParticipant.identity &&
+      t.participant.identity !== localParticipant.identity &&
       t.source === Track.Source.Camera,
   );
 
   const remoteAudioTracks = tracks.filter(
     (t) =>
-      t.participant.identity !== localParticipant.localParticipant.identity &&
+      t.participant.identity !== localParticipant.identity &&
       t.source === Track.Source.Microphone &&
       isTrackReference(t),
   ) as TrackReference[];
 
   const localTracks = tracks.filter(
     (t) =>
-      t.participant.identity === localParticipant.localParticipant.identity &&
+      t.participant.identity === localParticipant.identity &&
       t.source === Track.Source.Camera,
   );
 
   const remoteParticipant = participants.find(
-    (p) => p.identity !== localParticipant.localParticipant.identity,
+    (p) => p.identity !== localParticipant.identity,
   );
 
   return (
@@ -109,7 +117,7 @@ function VideoCallSection({ onEndCall }: { onEndCall: () => void }) {
               />
             </svg>
           </div>
-          <p className="text-body-lg-medium">
+          <p className="text-body-lg-medium text-center px-4">
             {remoteParticipant
               ? `Waiting for ${remoteParticipant.name || "patient"} to enable camera...`
               : "Waiting for patient to join..."}
@@ -129,7 +137,7 @@ function VideoCallSection({ onEndCall }: { onEndCall: () => void }) {
       )}
 
       {/* Local (You) Video - Picture in Picture */}
-      <div className="absolute bottom-6 right-6 w-40 md:w-48 aspect-4/3 rounded-2xl overflow-hidden border-2 border-white/30 shadow-2xl bg-black z-20">
+      <div className="absolute top-6 left-6 w-40 md:w-48 aspect-4/3 rounded-2xl overflow-hidden border-2 border-white/30 shadow-2xl bg-black z-20">
         {localTracks.length > 0 && localTracks[0].publication?.track ? (
           <VideoTrack
             trackRef={localTracks[0]}
@@ -152,31 +160,125 @@ function VideoCallSection({ onEndCall }: { onEndCall: () => void }) {
       </div>
 
       {/* Controls */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-black/60 backdrop-blur-md p-3 rounded-full border border-white/20 z-30">
-        <TrackToggle
-          source={Track.Source.Microphone}
-          className="size-12 rounded-full flex items-center justify-center transition-all bg-white/20 text-white hover:bg-white/30"
-        />
-        <TrackToggle
-          source={Track.Source.Camera}
-          className="size-12 rounded-full flex items-center justify-center transition-all bg-white/20 text-white hover:bg-white/30"
-        />
-        <button
-          onClick={onEndCall}
-          className="size-12 rounded-full bg-error-default text-white flex items-center justify-center hover:bg-red-700 transition-all"
-          title="End Call"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="size-6"
-            viewBox="0 0 24 24"
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-30">
+        <div className="flex items-center gap-4 bg-white/10 backdrop-blur-xl rounded-[2rem] px-6 py-3 border border-white/20 shadow-2xl">
+          <button
+            onClick={() =>
+              localParticipant.setMicrophoneEnabled(!isMicrophoneEnabled)
+            }
+            className={`size-12 rounded-full flex items-center justify-center transition-all border ${
+              !isMicrophoneEnabled
+                ? "bg-error-default text-white border-transparent"
+                : "border-white/20 bg-white/10 text-white hover:bg-white/20"
+            }`}
           >
-            <path
-              fill="currentColor"
-              d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9c-.98.49-1.87 1.12-2.66 1.85c-.18.18-.43.28-.7.28c-.28 0-.53-.11-.71-.29L.29 13.08a.956.956 0 0 1-.29-.7c0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71c0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29c-.27 0-.52-.1-.7-.28a11.27 11.27 0 0 0-2.67-1.85a.996.996 0 0 1-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"
-            />
-          </svg>
-        </button>
+            {!isMicrophoneEnabled ? (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="size-6"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="currentColor"
+                  d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17c0-.06.02-.11.02-.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.17l6.02 6zM4.41 2.86L3 4.27l6 6V11c0 1.66 1.34 3 3 3c.23 0 .44-.03.65-.08l2.39 2.39c-.97.43-2.06.69-3.21.69c-2.8 0-5.41-1.66-6.66-4h-2.1c1.3 3.33 4.41 5.7 8.01 5.94V22h4v-3.03c.87-.13 1.71-.41 2.48-.82l3.29 3.29l1.41-1.41L4.41 2.86z"
+                />
+              </svg>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="size-6"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="currentColor"
+                  d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"
+                />
+                <path
+                  fill="currentColor"
+                  d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"
+                />
+              </svg>
+            )}
+          </button>
+
+          <button
+            onClick={() => localParticipant.setCameraEnabled(!isCameraEnabled)}
+            className={`size-12 rounded-full flex items-center justify-center transition-all border ${
+              !isCameraEnabled
+                ? "bg-error-default text-white border-transparent"
+                : "border-white/20 bg-white/10 text-white hover:bg-white/20"
+            }`}
+          >
+            {!isCameraEnabled ? (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="size-6"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="currentColor"
+                  d="M21 6.5l-4 4V7c0-.55-.45-1-1-1H9.82L21 17.18V6.5zM3.27 2L2 3.27L4.73 6H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.21 0 .39-.08.54-.18L19.73 21L21 19.73L3.27 2z"
+                />
+              </svg>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="size-6"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="currentColor"
+                  d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"
+                />
+              </svg>
+            )}
+          </button>
+
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className={`size-12 rounded-full flex lg:hidden items-center justify-center transition-all border ${
+              isSidebarOpen
+                ? "bg-primary-default text-white border-transparent"
+                : "border-white/20 bg-white/10 text-white hover:bg-white/20"
+            }`}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="size-6"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+          </button>
+
+          <div className="w-px h-8 bg-white/20 mx-1" />
+
+          <button
+            onClick={onEndCall}
+            className="size-12 rounded-full bg-error-default text-white flex items-center justify-center hover:bg-red-700 transition-all shadow-lg"
+            title="End Call"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="size-6"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M10 22H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h5m4 13l3-3m0 0l-3-3m3 3H9"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -257,6 +359,7 @@ function ActiveConsultationContent() {
   const [isMedicationOpen, setIsMedicationOpen] = useState(true);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [consultationData, setConsultationData] = useState<any>(null);
 
   // Initialize roomId from URL
@@ -324,6 +427,9 @@ function ActiveConsultationContent() {
           if (info.data) {
             setPatientProfile(info.data.profile);
             setMedicationHistory(info.data.medicationHistory);
+            if (info.data.profile.ai_summary) {
+              setAiSummary(info.data.profile.ai_summary);
+            }
           }
 
           // Fetch current consultation complaint
@@ -483,9 +589,9 @@ function ActiveConsultationContent() {
   }
 
   return (
-    <div className="w-full flex h-full">
+    <div className="w-full flex" style={{ height: "calc(100vh - 57px)" }}>
       {/* Left – LiveKit Video Area */}
-      <div className="flex-1 bg-black relative">
+      <div className="flex-1 bg-black relative overflow-hidden">
         {livekitToken ? (
           <LiveKitRoom
             key={`room-${roomId}`}
@@ -497,7 +603,11 @@ function ActiveConsultationContent() {
             connect={true}
             style={{ height: "100%" }}
           >
-            <VideoCallSection onEndCall={() => setShowEndModal(true)} />
+            <VideoCallSection
+              onEndCall={() => setShowEndModal(true)}
+              isSidebarOpen={isSidebarOpen}
+              setIsSidebarOpen={setIsSidebarOpen}
+            />
             <AudioPlaybackHandler />
             <RoomAudioRenderer />
           </LiveKitRoom>
@@ -510,7 +620,35 @@ function ActiveConsultationContent() {
       </div>
 
       {/* Right – sidebar panel */}
-      <div className="bg-surface-background border-l border-border-default flex flex-col w-[380px] shrink-0">
+      <div
+        className={`bg-surface-background border-l border-border-default flex flex-col shrink-0 overflow-hidden transition-all duration-300 z-50
+          ${isSidebarOpen ? "fixed inset-0 w-full lg:relative lg:w-[380px]" : "w-0 lg:w-[380px] lg:flex"} 
+          ${!isSidebarOpen && "hidden lg:flex"}`}
+      >
+        {/* Mobile Close Button */}
+        {isSidebarOpen && (
+          <div className="lg:hidden p-4 flex justify-end bg-surface-background border-b border-border-default">
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="p-2 hover:bg-surface-default rounded-full text-icon-default"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="size-6"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+        )}
+
         {/* Tabs */}
         <div className="flex w-full border-b border-border-default shrink-0">
           {tabs.map((tab) => (

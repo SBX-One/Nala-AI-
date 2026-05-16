@@ -1,7 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import { updateAiSummary } from "@/app/actions/consultation";
 import Image from "next/image";
+import ReactMarkdown from "react-markdown";
 
 interface Medicine {
   name: string;
@@ -14,10 +16,11 @@ interface PatientInfoModalProps {
   isOpen: boolean;
   onClose: () => void;
   patient: {
+    latest_consultation_id?: number;
     name: string;
     avatar_url?: string;
-    complaints?: string;
-    aiSummary?: string;
+    complaint?: string;
+    ai_summary?: string;
     medicines?: Medicine[];
   } | null;
 }
@@ -27,7 +30,48 @@ export default function PatientInfoModal({
   onClose,
   patient,
 }: PatientInfoModalProps) {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [currentAiSummary, setCurrentAiSummary] = useState<string | undefined>(
+    patient?.ai_summary,
+  );
+  const [prevPatientId, setPrevPatientId] = useState<number | undefined>(
+    patient?.latest_consultation_id,
+  );
+
+  // Sync state with prop when patient changes
+  if (patient?.latest_consultation_id !== prevPatientId) {
+    setPrevPatientId(patient?.latest_consultation_id);
+    setCurrentAiSummary(patient?.ai_summary);
+  }
+
   if (!isOpen || !patient) return null;
+
+  const handleGenerateAiSummary = async () => {
+    if (!patient.complaint) return;
+    setIsGenerating(true);
+    try {
+      const res = await fetch("/api/psychiatrist/ai-summary", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          complaint: patient.complaint,
+          medicationHistory: patient.medicines,
+        }),
+      });
+      const data = await res.json();
+      if (data.summary) {
+        setCurrentAiSummary(data.summary);
+        // Save to database
+        if (patient.latest_consultation_id) {
+          await updateAiSummary(patient.latest_consultation_id, data.summary);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to generate AI summary:", err);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-120 flex justify-end" onClick={onClose}>
@@ -67,25 +111,57 @@ export default function PatientInfoModal({
         <div className="flex-1 overflow-y-auto custom-scrollbar p-8 flex flex-col gap-8">
           {/* Complaints */}
           <div className="space-y-4">
-            <h4 className="text-body-xl-bold text-text-heading">Complaints</h4>
+            <div className="flex items-center justify-between">
+              <h4 className="text-body-xl-bold text-text-heading">
+                Complaints
+              </h4>
+              {patient.complaint && !currentAiSummary && (
+                <button
+                  onClick={handleGenerateAiSummary}
+                  disabled={isGenerating}
+                  className="button-secondary-medium group"
+                >
+                  {isGenerating ? (
+                    <>
+                      <div className="size-3 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Image
+                        src="/icon/star.svg"
+                        alt="starIcon"
+                        width={24}
+                        height={24}
+                        priority
+                        className="size-5 group-hover:text-white"
+                      />
+                      Generate Insight
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
             <div className="p-6 rounded-xl bg-surface-default border border-border-default">
-              <p className="text-body-lg-medium text-text-body leading-relaxed">
-                {patient.complaints ||
+              <p className="text-body-base-medium text-text-body leading-relaxed">
+                {patient.complaint ||
                   "No specific complaint provided for this session."}
               </p>
             </div>
           </div>
 
           {/* AI Summary */}
-          {patient.aiSummary && (
+          {currentAiSummary && (
             <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
-              <h4 className="text-body-xl-bold text-text-heading">
-                AI Summary
-              </h4>
+              <div className="flex items-center justify-between">
+                <h4 className="text-body-xl-bold text-text-heading">
+                  AI Summary
+                </h4>
+              </div>
               <div className="p-6 rounded-2xl bg-surface-default border border-border-default">
-                <p className="text-body-lg-medium text-text-body leading-relaxed">
-                  {patient.aiSummary}
-                </p>
+                <div className="prose prose-blue max-w-none prose-p:text-body-lg-medium prose-p:text-text-body prose-p:leading-relaxed prose-headings:text-text-heading prose-headings:mb-2 prose-li:text-text-body prose-li:text-body-base-medium">
+                  <ReactMarkdown>{currentAiSummary}</ReactMarkdown>
+                </div>
               </div>
             </div>
           )}
@@ -100,25 +176,22 @@ export default function PatientInfoModal({
                 {patient.medicines.map((med, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center gap-4 p-4 rounded-2xl bg-surface-default border border-border-default"
+                    className="p-4 bg-white border border-border-default rounded-2xl flex items-center gap-4"
                   >
-                    <div className="size-14 rounded-xl bg-surface-primary-light flex items-center justify-center text-text-action">
+                    <div className="size-12 rounded-xl bg-blue-50 flex items-center justify-center text-[#0066FF]">
                       <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="size-7"
+                        className="size-6"
                         viewBox="0 0 24 24"
+                        fill="currentColor"
                       >
-                        <path
-                          fill="currentColor"
-                          d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m-1 11h-3v3h-2v-3H9v-2h4V8h2v4h3v2Z"
-                        />
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z" />
                       </svg>
                     </div>
                     <div>
-                      <h5 className="text-body-xl-bold text-text-heading">
+                      <p className="text-body-base-bold text-text-heading">
                         {med.name} {med.dose}
-                      </h5>
-                      <p className="text-body-base-medium text-text-placeholder">
+                      </p>
+                      <p className="text-body-sm-regular text-text-placeholder">
                         {med.use}
                       </p>
                     </div>
@@ -128,20 +201,20 @@ export default function PatientInfoModal({
             </div>
           )}
         </div>
-      </div>
 
-      <style jsx global>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #e5e5e5;
-          border-radius: 10px;
-        }
-      `}</style>
+        <style jsx global>{`
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #e5e5e5;
+            border-radius: 10px;
+          }
+        `}</style>
+      </div>
     </div>
   );
 }

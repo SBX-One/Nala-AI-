@@ -29,18 +29,18 @@ export default function QueueItemCard({
         isActive ? "border-[#FF8A00] bg-orange-50/10" : "border-border-default"
       } transition-all`}
     >
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
           <div className="relative size-14 rounded-full overflow-hidden border-2 border-white shadow-sm">
             <Image src={avatar} alt={name} fill className="object-cover" />
           </div>
           <div>
-            <div className="flex items-center gap-6">
-              <h4 className="text-body-lg-semibold text-text-heading">
+            <div className="flex flex-col-reverse lg:flex-row lg:items-center gap-4 lg:gap-6">
+              <h4 className="text-body-lg-semibold text-text-heading truncate max-w-[30ch]">
                 {name}
               </h4>
               {timeLeft && (
-                <span className="px-3 py-1 rounded-full bg-orange-100 text-text-warning text-body-sm-medium border border-text-warning">
+                <span className="px-3 py-1 rounded-full bg-orange-100 text-text-warning text-xs border border-text-warning">
                   {timeLeft}
                 </span>
               )}
@@ -70,22 +70,6 @@ export default function QueueItemCard({
               </svg>
             </button>
           )}
-        </div>
-      </div>
-
-      <div className="pt-4 border-t border-border-default">
-        <p className="text-label-caption-semibold text-text-subheading mb-3">
-          AI Insight Based by Complaint & Journal
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {tags.map((tag, idx) => (
-            <span
-              key={idx}
-              className="px-3 py-2 bg-surface-primary-light rounded-full border border-border-default text-text-action text-label-small-medium"
-            >
-              {tag}
-            </span>
-          ))}
         </div>
       </div>
     </div>
