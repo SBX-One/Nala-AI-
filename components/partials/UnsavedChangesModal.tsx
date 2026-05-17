@@ -27,7 +27,7 @@ export default function UnsavedChangesModal({
         isOpen ? "opacity-100 scale-100" : "opacity-0 scale-95"
       }`}>
         <div className="flex flex-col gap-2">
-          <h3 className="text-heading-6-semibold text-text-heading">
+          <h3 className="text-heading-6-semibold text-text-heading ">
             {title}
           </h3>
           <p className="text-body-base-regular text-text-subheading">
