@@ -17,11 +17,13 @@ export default function DeleteSessionModal({
   title = "Delete Chat History",
   message = "Are you sure you want to delete this chat session? This action cannot be undone.",
 }: DeleteSessionModalProps) {
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-      <div className="bg-surface-background p-6 rounded-2xl shadow-xl w-full max-w-sm flex flex-col gap-4 border border-border-default animate-in fade-in zoom-in duration-200">
+    <div className={`fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 transition-all duration-300 ${
+      isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+    }`}>
+      <div className={`bg-surface-background p-6 rounded-2xl shadow-xl w-full max-w-sm flex flex-col gap-4 border border-border-default transition-all duration-300 ease-out ${
+        isOpen ? "opacity-100 scale-100" : "opacity-0 scale-95"
+      }`}>
         <div className="flex flex-col gap-2">
           <div className="size-12 rounded-full bg-error-50 flex items-center justify-center text-error-600 mb-2">
             <svg

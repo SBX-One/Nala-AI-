@@ -122,16 +122,19 @@ export default function ArticleListPage() {
 	return (
 		<div className="relative min-h-screen">
 			{/* Drawer / Modal */}
-			{isDrawerOpen && (
-				<div className="fixed inset-0 z-100 flex justify-end">
-					{/* Backdrop */}
-					<div
-						className="absolute inset-0 bg-black/30 backdrop-blur-xs transition-opacity"
-						onClick={() => setIsDrawerOpen(false)}
-					/>
+			<div className={`fixed inset-0 z-100 flex justify-end transition-all duration-300 ${
+				isDrawerOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+			}`}>
+				{/* Backdrop */}
+				<div
+					className="absolute inset-0 bg-black/30 backdrop-blur-xs transition-opacity duration-300"
+					onClick={() => setIsDrawerOpen(false)}
+				/>
 
-					{/* Drawer Content */}
-					<div className="relative w-full md:max-w-lg bg-surface-background h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300 md:rounded-l-3xl">
+				{/* Drawer Content */}
+				<div className={`relative w-full md:max-w-lg bg-surface-background h-full shadow-2xl flex flex-col md:rounded-l-3xl transition-transform duration-300 ease-out ${
+					isDrawerOpen ? "translate-x-0" : "translate-x-full"
+				}`}>
 						<div className="p-6 sm:p-8 flex-1 overflow-y-auto">
 							<div className="flex items-center justify-between mb-8">
 								<h2 className="text-heading-6-bold sm:text-heading-4-bold text-text-heading">
@@ -291,7 +294,6 @@ export default function ArticleListPage() {
 						</div>
 					</div>
 				</div>
-			)}
 
 			<div className="border-b border-b-border-default py-8 px-6 grid gap-4">
 				{/* Header Section */}
@@ -355,7 +357,7 @@ export default function ArticleListPage() {
 							>
 								All Categories
 							</button>
-							{categories.map((category) => (
+							{categories.slice(0, 3).map((category) => (
 								<button
 									key={category.id}
 									onClick={() => setSelectedCategory(category.id)}

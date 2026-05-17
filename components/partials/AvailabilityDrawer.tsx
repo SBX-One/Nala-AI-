@@ -69,15 +69,17 @@ export default function AvailabilityDrawer({
     return date >= startDate && date <= endDate;
   };
 
-  if (!isOpen) return null;
-
   return (
     <div 
-      className="fixed inset-0 bg-black/50 z-100 flex justify-end items-center "
+      className={`fixed inset-0 bg-black/50 z-100 flex justify-end items-center transition-all duration-300 ${
+        isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+      }`}
       onClick={onClose}
     >
       <div 
-        className="bg-white w-full md:max-w-lg h-full md:rounded-l-3xl shadow-2xl overflow-hidden flex flex-col animate-in slide-in-from-right duration-300"
+        className={`bg-white w-full md:max-w-lg h-full md:rounded-l-3xl shadow-2xl overflow-hidden flex flex-col transition-transform duration-300 ease-out ${
+          isOpen ? "translate-x-0" : "translate-x-full"
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6 sm:p-8 flex-1 overflow-y-auto">

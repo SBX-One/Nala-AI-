@@ -33,18 +33,20 @@ export default function FilterDrawer({
   onSave,
   onClear,
 }: FilterDrawerProps) {
-  if (!isOpen) return null;
-
   return (
-		<div className="fixed inset-0 z-200 flex justify-end">
+		<div className={`fixed inset-0 z-200 flex justify-end transition-all duration-300 ${
+			isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+		}`}>
 			{/* Backdrop */}
 			<div
-				className="absolute inset-0 bg-black/30 backdrop-blur-xs transition-opacity"
+				className="absolute inset-0 bg-black/30 backdrop-blur-xs transition-opacity duration-300"
 				onClick={onClose}
 			/>
 
 			{/* Drawer Content */}
-			<div className="relative w-full md:max-w-lg bg-surface-background h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300 md:rounded-l-3xl">
+			<div className={`relative w-full md:max-w-lg bg-surface-background h-full shadow-2xl flex flex-col md:rounded-l-3xl transition-transform duration-300 ease-out ${
+				isOpen ? "translate-x-0" : "translate-x-full"
+			}`}>
 				<div className="p-6 sm:p-8 flex-1 overflow-y-auto">
 					<div className="flex items-center justify-between mb-8">
 						<h2 className="text-heading-6-bold sm:text-heading-4-bold text-text-heading">
